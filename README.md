@@ -5,6 +5,7 @@
 - Cloud update
 - GUI project: https://github.com/Coslly/EasyGUI-Lightweight.git
 - C++ Build in Release | x64
+- Authentication: https://github.com/Coslly/Misc/blob/main/About%20Rensen/UserID.uid
 ## 🤩Showcase
 ![image](https://github.com/Coslly/Rensen/blob/main/ShowImage.png?raw=true)
 ## 😮Missing
