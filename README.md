@@ -2,7 +2,7 @@
 - External Menu
 - Saveable System
 - Absolutely safe!!!
-- Cloud update
+- Cloud update: https://github.com/Coslly/Misc/blob/main/About%20Rensen/Offsets.ofs
 - GUI project: https://github.com/Coslly/EasyGUI-Lightweight.git
 - C++ Build in Release | x64
 - Authentication: https://github.com/Coslly/Misc/blob/main/About%20Rensen/UserID.uid
