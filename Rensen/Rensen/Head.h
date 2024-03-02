@@ -1,4 +1,4 @@
-﻿//2024-03-01 12:30
+﻿//2024-03-02 20:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -37,6 +37,8 @@
 #include <d2d1.h>
 #include <d2d1helper.h>
 #include <dwrite.h>
+#include <wininet.h>
+#pragma comment(lib, "wininet.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "winmm.lib")
@@ -1283,8 +1285,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     BOOL Judge_File(string FileName) noexcept//判断 文件or夹 是否存在
     {//System::Judge_File("Test File.txt");
-        if (_access(FileName.c_str(), 0) == -1)return false;
-        else return true;
+        return _access(FileName.c_str(), 0) != -1;
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1455,11 +1456,38 @@ namespace System//Windows系统
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    BOOL DownloadToPath(string Str_URL, string Str_DownloadPath) noexcept//下载文件到目录 当返回true则下载成功  下载到盘(无路径)需要管理员身份执行程序
-    {//System::DownloadToPath("https://codeload.github.com/cazzwastaken/internal-bhop/zip/refs/heads/main", "C:\\mypic.zip")
-        const DWORD dwAttribute = GetFileAttributes(wstring(Str_DownloadPath.begin(), Str_DownloadPath.end()).c_str());
-        if (dwAttribute == 0XFFFFFFFF && URLDownloadToFile(0, wstring(Str_URL.begin(), Str_URL.end()).c_str(), wstring(Str_DownloadPath.begin(), Str_DownloadPath.end()).c_str(), 0, 0) == S_OK)return true;
-        else return false;
+    void DownloadToPath(string Str_URL, string Str_DownloadPath) noexcept//下载文件到目录 当返回true则下载成功  下载到盘(无路径)需要管理员身份执行程序
+    {//System::DownloadToPath("https://codeload.github.com/cazzwastaken/internal-bhop/zip/refs/heads/main", "C:\\TestFile.zip")
+        byte Temp[1024]; ULONG Number = 1; FILE* stream; HINTERNET hSession = InternetOpen(L"RookIE/1.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+        if (hSession)
+        {
+            HINTERNET handle2 = InternetOpenUrl(hSession, wstring(Str_URL.begin(), Str_URL.end()).c_str(), NULL, 0, INTERNET_FLAG_DONT_CACHE, 0);
+            if (handle2)
+            {
+                if ((stream = fopen(Str_DownloadPath.c_str(), "wb")) != NULL)
+                {
+                    while (Number > 0)
+                    {
+                        InternetReadFile(handle2, Temp, 1024, &Number);
+                        fwrite(Temp, sizeof(char), Number, stream);
+                    }
+                    fclose(stream);
+                }
+                InternetCloseHandle(handle2); handle2 = 0;
+            }
+            InternetCloseHandle(hSession); hSession = 0;
+        }
+        Sleep(1000);//缓冲时间 (给与一定的下载时间)
+        if (_access(Str_DownloadPath.c_str(), 0) == -1)return;//如果在第一个下载方式上成功那么直接返回
+        //两种下载方式相结合 (为了降低下载失败的几率)
+        for (short i = 0; i <= 5; ++i)//下载循环 (防止下载失败)
+        {
+            const auto Download_State = URLDownloadToFile(0, wstring(Str_URL.begin(), Str_URL.end()).c_str(), wstring(Str_DownloadPath.begin(), Str_DownloadPath.end()).c_str(), 0, 0);//下载函数
+            if (Download_State != S_OK)continue;//未下载成功则重来
+            Sleep(1500);//缓冲时间 (给与一定的下载时间)
+            if (_access(Str_DownloadPath.c_str(), 0) == -1)continue;//未找到下载的文件则重来
+            return;//以上条件全部通过则返回函数 (终止循环)
+        }
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1779,7 +1807,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
 }
-namespace EasyGUI//EasyGUI Release[2024-02-27 21:30]
+namespace EasyGUI//EasyGUI Release[2024-03-02 20:30]
 {
     /* Simple example
     int main()

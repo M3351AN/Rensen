@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-01 12:30]";//程序发布日期
-const float Rensen_Version = 2.91;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-02 21:00]";//程序发布日期
+const float Rensen_Version = 2.93;//程序版本
 namespace Config_Var//套用到菜单的调试变量(例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_3840;
 	BOOL UI_Visual_Res_2560;
@@ -107,6 +107,7 @@ namespace Config_Var//套用到菜单的调试变量(例如功能开关)
 	Variable::Vector4 UI_Misc_HitMark_Color = { Variable::string_int_(System::Get_File(UI_LocalConfigPath, 88)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 89)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 90)) };
 	int UI_Misc_HitMark_Width = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 91));
 	BOOL UI_Legit_Triggerbot_ShootWhenAccurate = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 92));
+	BOOL UI_Misc_AntiAFKKick = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 93));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -202,12 +203,13 @@ namespace Config_Var//套用到菜单的调试变量(例如功能开关)
 			to_string(UI_Misc_HitMark_Color.g) + "\n" +
 			to_string(UI_Misc_HitMark_Color.b) + "\n" +
 			to_string(UI_Misc_HitMark_Width) + "\n" +
-			to_string(UI_Legit_Triggerbot_ShootWhenAccurate) + "\n"
+			to_string(UI_Legit_Triggerbot_ShootWhenAccurate) + "\n" +
+			to_string(UI_Misc_AntiAFKKick) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName) noexcept//加载Github云参数
 	{
-		System::URL_READ URL_CONFIG = { "CloudConfig" };
+		System::URL_READ URL_CONFIG = { "Cache_CloudConfig" };
 		if (URL_CONFIG.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/" + FileName + (string)".cfg?raw=true"))
 		{
 			UI_Legit_Aimbot = Variable::string_int_(URL_CONFIG.Read(1));
@@ -293,6 +295,7 @@ namespace Config_Var//套用到菜单的调试变量(例如功能开关)
 			UI_Misc_HitMark_Color = { Variable::string_int_(URL_CONFIG.Read(88)) ,Variable::string_int_(URL_CONFIG.Read(89)) ,Variable::string_int_(URL_CONFIG.Read(90)) };
 			UI_Misc_HitMark_Width = Variable::string_int_(URL_CONFIG.Read(91));
 			UI_Legit_Triggerbot_ShootWhenAccurate = Variable::string_int_(URL_CONFIG.Read(92));
+			UI_Misc_AntiAFKKick = Variable::string_int_(URL_CONFIG.Read(93));
 			URL_CONFIG.Release();
 		}
 	}
@@ -408,7 +411,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 2)//Misc
 			{
-				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 520, "Misc");
+				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 550, "Misc");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_23>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
@@ -425,9 +428,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_29>(Block_Misc, 11, UI_Misc_AutoTaser_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 12, "Water mark", UI_Misc_Watermark);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Sniper crosshair", UI_Misc_SniperCrosshair);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
-				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Lock game window", UI_Misc_LockGameWindow);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Show console window", UI_Misc_ShowDebugWindow);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Anti AFK kick", UI_Misc_AntiAFKKick);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
+				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Lock game window", UI_Misc_LockGameWindow);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Show console window", UI_Misc_ShowDebugWindow);
 				GUI_VAR.GUI_Button_Small(Block_Misc, 16, UI_Misc_ClearDebugWindow);
 				const auto Block_Sonar = GUI_VAR.GUI_Block(580, 30, 130, "Sonar");
 				GUI_VAR.GUI_Checkbox(Block_Sonar, 1, "Enabled", UI_Misc_Sonar);
@@ -442,7 +446,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 16, "Clear console.");
 				GUI_VAR.GUI_Tips(Block_Sonar, 1, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips({ Block_CloudConfig.x + 10,Block_CloudConfig.y }, 1, "Load parameter files stored in Github.");
-				UI_WindowSize = { 1010,580 };
+				UI_WindowSize = { 1010,610 };
 			}
 			else if (UI_Panel == 3)//Setting
 			{
@@ -661,6 +665,8 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					}
 				}
 			}
+			//--------------------------------------
+			if (UI_Misc_AntiAFKKick && System::Sleep_Tick<class CLASS_ANTIAFKKICK>(5000)) { System::Mouse_Move(1, 0); Sleep(1); System::Mouse_Move(-1, 0); }//防止挂机踢出游戏脚本
 			//--------------------------------------
 		}
 		Sleep(5);//降低CPU占用
@@ -1093,7 +1099,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 {
 	BOOL Attest = false;//认证变量
-	System::URL_READ UserID_READ = { "UserID" };
+	System::URL_READ UserID_READ = { "Cache_UserID" };
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
