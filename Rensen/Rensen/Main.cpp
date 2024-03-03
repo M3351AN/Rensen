@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-02 21:00]";//程序发布日期
-const float Rensen_Version = 2.93;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-03 13:00]";//程序发布日期
+const float Rensen_Version = 2.95;//程序版本
 namespace Config_Var//套用到菜单的调试变量(例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -419,9 +419,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Misc, 5, "Hit mark", UI_Misc_HitMark);
 				GUI_VAR.GUI_ColorSelector(Block_Misc, 5, UI_Misc_HitMark_Color);
 				GUI_VAR.GUI_Checkbox({ Block_Misc.x + 20,Block_Misc.y }, 6, "Show damage", UI_Misc_HitMark_Damage);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_25>(Block_Misc, 7, "Range", 3, 100, UI_Misc_HitMark_Range);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_26>(Block_Misc, 8, "Length", 3, 100, UI_Misc_HitMark_Length);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_27>(Block_Misc, 9, "Width", 1, 10, UI_Misc_HitMark_Width);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_25>(Block_Misc, 7, "Range", 3, 100, UI_Misc_HitMark_Range, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_26>(Block_Misc, 8, "Length", 3, 100, UI_Misc_HitMark_Length, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_27>(Block_Misc, 9, "Width", 1, 10, UI_Misc_HitMark_Width, "px");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 10, "Knife bot", UI_Misc_AutoKnife);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_28>(Block_Misc, 10, UI_Misc_AutoKnife_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 11, "Taser bot", UI_Misc_AutoTaser);
@@ -453,7 +453,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_About = GUI_VAR.GUI_Block(150, 30, 160, "About");
 				GUI_VAR.GUI_Text(Block_About, 1, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color());
 				GUI_VAR.GUI_Text({ Block_About.x + 47,Block_About.y }, 1, "for Counter-Strike 2 (External)", { 100,100,100 });
-				GUI_VAR.GUI_Text(Block_About, 2, "Version: " + to_string(Rensen_Version), { 100,100,100 });
+				GUI_VAR.GUI_Text(Block_About, 2, "Version: " + Variable::Float_Precision(Rensen_Version), { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 3, "Release date: " + Rensen_ReleaseDate, { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020.", { 150,255,150 });
@@ -462,7 +462,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key"); GUI_VAR.GUI_KeySelector<class Rensen_Menu_1>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
-				if (UI_Setting_Menu_MainColor.a < 150)UI_Setting_Menu_MainColor.a = 150;//限制透明度
+				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
 				GUI_VAR.GUI_Button(Block_Menu, 3, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
 				GUI_VAR.GUI_Button(Block_Menu, 4, "Start CS", UI_Setting_Menu_StartCS, 85);
 				GUI_VAR.GUI_Button(Block_Menu, 5, "Quit CS", UI_Setting_Menu_QuitCS, 90);
@@ -732,12 +732,12 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 					else System::Mouse_Move(-Angle.y * Aim_Smooth, Angle.x * Aim_Smooth);
 					if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || Advanced::Stop_Move()) && FovG <= 0.8)//AutoShoot & AutoStop
 					{
-						if (LocalPlayer_ActiveWeapon_Type == 3)System::Key_Con(UI_Legit_Aimbot_Key, false);//狙击枪释放
+						if (LocalPlayer_ActiveWeapon_Type == 3 && LocalPlayer_ActiveWeapon_ID != 11 && LocalPlayer_ActiveWeapon_ID != 38)System::Key_Con(UI_Legit_Aimbot_Key, false);//单发狙击枪射击后释放按键
 						Send_CMD("+attack");
 						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8无法开枪修复
 						else Sleep(1);
 						Send_CMD("-attack");
-						Sleep(UI_Legit_Aimbot_AutoShootDelay);//Auto Shoot Interval
+						Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
 					}
 				}
 			}
@@ -956,7 +956,7 @@ void Thread_Funtion_ESP() noexcept//功能线程: 透视和一些视觉杂项
 					if (UI_Misc_HitMark_Damage)ESP_Paint.Render_String(CS_Scr_Res.r / 2 - 5, CS_Scr_Res.g / 2 + Range + 10, to_string(Mark_DMG), "Small Fonts", 11, Mark_Color, false);
 				}
 			}
-			if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped()) { ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, 10, GUI_IO.GUIColor.D_Alpha(100), { 0,0,0,0 }); }//狙击枪准星
+			if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped()) { ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, 10, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }); }//狙击枪准星
 			if (Menu_Open)Sleep(5);//菜单打开时降低绘制速度以降低CPU使用率
 		}
 		else Sleep(20);
@@ -1033,22 +1033,22 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 	while (true)
 	{
 		Sleep(10);//降低CPU占用
-		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 3);
+		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2.5);
 		if ((Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
 		{
 			Radar_Size_ = UI_Visual_Radar_Size; UI_Visual_Radar_Pos = Radar_Window.Get_WindowPos();
-			if (!Radar_Window.Window_Move(15))
+			if (!Radar_Window.Window_Move(15))//移动雷达窗口
 			{
-				const float RadarRangeAnimation = Variable::Animation<class Class_Radar_Window_Range>(UI_Visual_Radar_Range, 3);
+				const float RadarRangeAnimation = Variable::Animation<class Class_Radar_Window_Range>(UI_Visual_Radar_Range, 2.5);//窗口动画
 				const auto LocalPlayerPos = Global_LocalPlayer.Origin(); const auto ViewAngle = Base::ViewAngles();
 				Radar_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//背景
 				Radar_Paint.Render_GradientRect(0, 0, Radar_Window.Get_WindowSize().x, 14, GUI_IO.GUIColor / 2, GUI_IO.GUIColor / 4, false);
 				Radar_Paint.Render_GradientRect(0, 14, Radar_Window.Get_WindowSize().x, 1, GUI_IO.GUIColor / 4, GUI_IO.GUIColor / 2, false);//标题背景
-				Radar_Paint.Render_String(3 + 1, 1 + 1, "Radar", "Small Fonts", 12, { 0,0,0 }, false);
-				Radar_Paint.Render_String(3, 1, "Radar", "Small Fonts", 12, GUI_IO.GUIColor, false);//标题
-				if (UI_Visual_Radar_FollowAngle)Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[1] }, GUI_IO.GUIColor / 5, { 0,0,0 }, { 0,0,0 });
-				else Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[1] }, GUI_IO.GUIColor / 5, { 0,0,0 }, { 0,0,0 });//Self Aimpos
-				Radar_Paint.Render_HollowCircle(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 100 * 3.5, { 255,255,255 }, 1);//自身圆圈
+				Radar_Paint.Render_String(3 + 1, 1 + 1, "Rensen Radar", "Small Fonts", 12, { 0,0,0 }, false);//标题阴影
+				Radar_Paint.Render_String(3, 1, "Rensen Radar", "Small Fonts", 12, GUI_IO.GUIColor, false);//标题
+				if (UI_Visual_Radar_FollowAngle)Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });
+				else Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });//Self Aimpos
+				Radar_Paint.Render_HollowCircle(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 100 * 3.5, { 255,255,255 }, 2);//自身圆圈
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);
@@ -1057,19 +1057,19 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 					static vector<float> 敌人屏幕坐标;
 					if (UI_Visual_Radar_FollowAngle)敌人屏幕坐标 = { RadarSizeAnimation / 2 - Variable::Ang_Pos(Variable::Coor_Dis_2D(LocalPlayerPos, EntityPos), ViewAngle.y - 90 + atan2((LocalPlayerPos.x - EntityPos.x), (LocalPlayerPos.y - EntityPos.y)) * (180 / acos(-1)))[0] / RadarRangeAnimation,RadarSizeAnimation / 2 + 15 + Variable::Ang_Pos(Variable::Coor_Dis_2D(LocalPlayerPos, EntityPos), ViewAngle.y - 90 + atan2((LocalPlayerPos.x - EntityPos.x), (LocalPlayerPos.y - EntityPos.y)) * (180 / acos(-1)))[1] / RadarRangeAnimation };
 					else 敌人屏幕坐标 = { RadarSizeAnimation / 2 - (LocalPlayerPos.x - EntityPos.x) / RadarRangeAnimation,RadarSizeAnimation / 2 + 15 + (LocalPlayerPos.y - EntityPos.y) / RadarRangeAnimation };
-					if (敌人屏幕坐标[0] > RadarSizeAnimation)敌人屏幕坐标[0] = RadarSizeAnimation;
+					if (敌人屏幕坐标[0] > RadarSizeAnimation)敌人屏幕坐标[0] = RadarSizeAnimation;//边缘限制 (无法离开绘制区域)
 					else if (敌人屏幕坐标[0] < 0) 敌人屏幕坐标[0] = 0;
 					if (敌人屏幕坐标[1] > RadarSizeAnimation + 15)敌人屏幕坐标[1] = RadarSizeAnimation + 15;
 					else if (敌人屏幕坐标[1] < 15)敌人屏幕坐标[1] = 15;
-					if (PlayerPawn.Spotted())Radar_Paint.Render_SolidCircle(敌人屏幕坐标[0], 敌人屏幕坐标[1], RadarSizeAnimation / 100 * 3.5, GUI_IO.GUIColor, GUI_IO.GUIColor, 1);//敌人圆圈
-					else Radar_Paint.Render_HollowCircle(敌人屏幕坐标[0], 敌人屏幕坐标[1], RadarSizeAnimation / 100 * 3.5, GUI_IO.GUIColor, 1);
+					if (PlayerPawn.Spotted())Radar_Paint.Render_SolidCircle(敌人屏幕坐标[0], 敌人屏幕坐标[1], RadarSizeAnimation / 100 * 3.5, GUI_IO.GUIColor, GUI_IO.GUIColor);//敌人圆圈
+					else Radar_Paint.Render_HollowCircle(敌人屏幕坐标[0], 敌人屏幕坐标[1], RadarSizeAnimation / 100 * 3.5, GUI_IO.GUIColor);
 				}
-				Radar_Paint.DrawPaint();
+				Radar_Paint.DrawPaint();//最终绘制雷达画板
 			}
 		}
 		else Radar_Size_ = 0;
 		Radar_Window.Set_WindowSize(RadarSizeAnimation, RadarSizeAnimation + 15);
-		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 3));
+		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2.5));
 	}
 }
 void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)

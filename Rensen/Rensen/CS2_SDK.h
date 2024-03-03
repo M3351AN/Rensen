@@ -92,7 +92,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			   short ActiveWeapon(BOOL Type = 0) const noexcept//人物手持武器(类型,ID)
 			   {
 				   const auto ClippingWeapon = CS2_MEM.Read<short>(CS2_MEM.Read<uintptr_t>(m_PlayerPawn + CS2_Offsets::m_pClippingWeapon) + CS2_Offsets::m_iItemDefinitionIndex);
-				   if (Type)//武器类型 0:无效 1:手枪 2:连发枪 3:狙击枪
+				   if (Type)//武器类型 0:无效 1:手枪 2:连射枪 3:单发狙击枪
 				   {
 					   switch (ClippingWeapon)
 					   {
@@ -221,7 +221,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (!PlayerController)return "None";
 			else return CS2_MEM.Read_str(PlayerController + CS2_Offsets::m_iszPlayerName);
 		}
-		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber())); }//判断人物是否是敌人
+		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber()) && PlayerPawn.Origin().x != 0); }//判断人物是否是敌人
 		BOOL Stop_Move(short TriggerValue = 50, BOOL Movement = true) noexcept//急停
 		{
 			const auto LocalVel = Global_LocalPlayer.Velocity();
