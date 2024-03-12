@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-03 13:00]";//程序发布日期
-const float Rensen_Version = 2.95;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-12 21:30]";//程序发布日期
+const float Rensen_Version = 2.96;//程序版本
 namespace Config_Var//套用到菜单的调试变量(例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -432,7 +432,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
 				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Show console window", UI_Misc_ShowDebugWindow);
-				GUI_VAR.GUI_Button_Small(Block_Misc, 16, UI_Misc_ClearDebugWindow);
+				GUI_VAR.GUI_Button_Small(Block_Misc, 17, UI_Misc_ClearDebugWindow);
 				const auto Block_Sonar = GUI_VAR.GUI_Block(580, 30, 130, "Sonar");
 				GUI_VAR.GUI_Checkbox(Block_Sonar, 1, "Enabled", UI_Misc_Sonar);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_30>(Block_Sonar, 1, UI_Misc_Sonar_Key);
@@ -442,8 +442,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button(Block_CloudConfig, 1, "Load config", UI_Misc_LoadCloudConfig, 80);
 				GUI_VAR.GUI_List(Block_CloudConfig, 2, { "Legit","Rage","Legit - no visual" }, UI_Misc_SelectedConfig, 10);
 				GUI_VAR.GUI_Tips(Block_Misc, 10, "Auto attack when conditions such as distance and blood volume are met.");
-				GUI_VAR.GUI_Tips(Block_Misc, 15, "Lock the game window to the front.");
-				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 16, "Clear console.");
+				GUI_VAR.GUI_Tips(Block_Misc, 16, "Lock the game window to the front.");
+				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 17, "Clear console.");
 				GUI_VAR.GUI_Tips(Block_Sonar, 1, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips({ Block_CloudConfig.x + 10,Block_CloudConfig.y }, 1, "Load parameter files stored in Github.");
 				UI_WindowSize = { 1010,610 };
