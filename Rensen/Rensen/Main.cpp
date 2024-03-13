@@ -1,8 +1,8 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-12 21:30]";//程序发布日期
-const float Rensen_Version = 2.96;//程序版本
-namespace Config_Var//套用到菜单的调试变量(例如功能开关)
+const string Rensen_ReleaseDate = "[2024-03-13 17:20]";//程序发布日期
+const float Rensen_Version = 2.98;//程序版本
+namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
@@ -299,8 +299,16 @@ namespace Config_Var//套用到菜单的调试变量(例如功能开关)
 			URL_CONFIG.Release();
 		}
 	}
+	//----------------------------------------------------------------------------------------------
+	namespace Debug_Control_Var//测试调试用的控件变量 (按钮 滑条 选择框) //Debug
+	{
+		BOOL Checkbox_1, Checkbox_2;
+		int Slider_1;
+		float Slider_2;
+		BOOL Button_1, Button_2;
+	}
 }
-using namespace Config_Var;
+using namespace Control_Var;
 void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义选项)
 {
 	System::Log("Load Thread: Thread_Menu()");
@@ -473,12 +481,12 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 4)//Debug
 			{
-				const auto Block_PlayerList = GUI_VAR.GUI_Block(150, 30, 490, "Player list", 330);
+				const auto Block_PlayerList = GUI_VAR.GUI_Block(150, 30, 730, "Player list", 330);
 				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static int SelectPlayer = 0;
 				GUI_VAR.GUI_Slider<int, class CLASS_Debug_PlayerID>(Block_PlayerList, 1, "Player ID", 0, 64, SelectPlayer);
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList) { PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: ReloadPlayerList"); }//刷新玩家列表页面
-				GUI_VAR.GUI_List(Block_PlayerList, 2, PlayerNameList, SelectPlayer, 16);
+				GUI_VAR.GUI_List(Block_PlayerList, 2, PlayerNameList, SelectPlayer, 26);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
 				const auto Block_Info = GUI_VAR.GUI_Block(510, 30, 490, "Info", 330);
 				const auto Player_Pawn = Advanced::Traverse_Player(SelectPlayer);
@@ -505,7 +513,16 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 15, "Angle: ");
 				auto PlayerViewAngle = Base::ViewAngles(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 15, PlayerViewAngle);
 				GUI_VAR.GUI_Tips({ Block_Info.x + 3,Block_Info.y }, 1, "Cloud offsets date: [" + CS2_Offsets::Offsets_Date + "]");
-				UI_WindowSize = { 870,550 };
+				//-----------------------------------------------------------------------------------------------------------------------------测试控件-------
+				const auto Block_DebugControl = GUI_VAR.GUI_Block(510, 540, 220, "Debug control", 330);
+				GUI_VAR.GUI_Checkbox(Block_DebugControl, 1, "Checkbox 1", Debug_Control_Var::Checkbox_1);
+				GUI_VAR.GUI_Checkbox(Block_DebugControl, 2, "Checkbox 2", Debug_Control_Var::Checkbox_2);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_DebugControl_Slider_1>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 3, "Slider int", -100, 100, Debug_Control_Var::Slider_1);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_DebugControl_Slider_2>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 4, "Slider float", -50, 50, Debug_Control_Var::Slider_2);
+				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 5, "Button 1", Debug_Control_Var::Button_1);
+				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 6, "Button 2", Debug_Control_Var::Button_2);
+				GUI_VAR.GUI_Tips(Block_DebugControl, 1, "Developer code debugging.");
+				UI_WindowSize = { 870,790 };
 			}
 			GUI_VAR.Draw_GUI();//最终绘制GUI画板
 			if (true)//按钮事件接收
