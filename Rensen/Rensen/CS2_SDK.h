@@ -249,7 +249,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	}
 	void ReLoad(BOOL Timeout = false) noexcept//刷新CS2进程地址和模块地址和有效实体
 	{
-		if (System::Sleep_Tick<class CLASS_CS2_SDK_Timeout_Reload>(1000) || Timeout)
+		if (System::Sleep_Tick<class CLASS_CS2_SDK_Timeout_Reload>(5000) || Timeout)
 		{
 			CS2_MEM = { "cs2.exe" };
 			CS2_HWND = CS2_MEM.Get_ProcessHWND();
@@ -258,7 +258,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			Module_server = CS2_MEM.Get_Module("server.dll");
 			Global_LocalPlayer = Base::LocalPlayer();
 			if (!CS2_HWND && !Timeout)System::Log("Error: CS2 process not found.", true);//未启动CS时报错
-			if (System::Sleep_Tick<class CLASS_CS2_SDK_Offsets_Timeout_Reload>(5000) || Timeout)//自动更新偏移量延迟 (减少流量使用)
+			if (System::Sleep_Tick<class CLASS_CS2_SDK_Offsets_Timeout_Reload>(10000) || Timeout)//自动更新偏移量延迟 (减少流量使用)
 			{
 				System::URL_READ URL_OFFSETS = { "Cache_CS2_Offsets" };
 				if (URL_OFFSETS.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/Offsets.ofs?raw=true"))//自动更新偏移量 Github更新有十分钟延迟

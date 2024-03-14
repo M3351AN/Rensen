@@ -1,4 +1,4 @@
-﻿//2024-03-13 17:20
+﻿//2024-03-14 22:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -448,7 +448,7 @@ namespace Window//窗口
     class Windows//更加方便的 窗口创建
     {
     private:
-        HWND GUIWindowHwnd = NULL;//GUI Window HWND
+        HWND Window_Hwnd = NULL;//GUI Window HWND
         int BKX = 0;
         int BKY = 0;
     public:
@@ -489,7 +489,7 @@ namespace Window//窗口
                 UpdateWindow(hWnd);
                 ShowWindow(hWnd, SW_SHOW);
                 SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 255, LWA_ALPHA);
-                GUIWindowHwnd = hWnd;
+                Window_Hwnd = hWnd;
                 BKX = Size_X;
                 BKY = Size_Y;
             }
@@ -522,7 +522,7 @@ namespace Window//窗口
                 UpdateWindow(hWnd);
                 ShowWindow(hWnd, SW_SHOW);
                 SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
-                GUIWindowHwnd = hWnd;
+                Window_Hwnd = hWnd;
                 BKX = Size_X;
                 BKY = Size_Y;
             }
@@ -551,7 +551,7 @@ namespace Window//窗口
                 ShowWindow(hWnd, SW_SHOW);
                 SetLayeredWindowAttributes(hWnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
             }
-            GUIWindowHwnd = hWnd;
+            Window_Hwnd = hWnd;
             BKX = Size_X;
             BKY = Size_Y;
             return hWnd;
@@ -559,17 +559,17 @@ namespace Window//窗口
         //----------------------------------------------------------------------------------------
         void UpdateRenderBlock() noexcept//DeleteColor(Put in the while() and Update < Render)
         {
-            static HDC wind = GetWindowDC(GUIWindowHwnd);
+            static HDC wind = GetWindowDC(Window_Hwnd);
             static HGDIOBJ huabi = SelectObject(wind, CreateSolidBrush(RGB(0, 0, 0)));
             BitBlt(wind, 0, 0, 99999, 99999, wind, 0, 0, PATCOPY);
         }
         //----------------------------------------------------------------------------------------
-        HWND Get_HWND() noexcept { return GUIWindowHwnd; }//获取窗口HWND
+        HWND Get_HWND() noexcept { return Window_Hwnd; }//获取窗口HWND
         //----------------------------------------------------------------------------------------
         Variable::Vector2 Get_WindowPos() noexcept//获取窗口坐标
         {
             RECT Windowrect;
-            GetWindowRect(GUIWindowHwnd, &Windowrect);
+            GetWindowRect(Window_Hwnd, &Windowrect);
             BKX = Windowrect.right - Windowrect.left;
             BKY = Windowrect.bottom - Windowrect.top;
             return { Windowrect.left ,Windowrect.top };
@@ -577,16 +577,16 @@ namespace Window//窗口
         void Set_WindowPos(int X, int Y) noexcept//移动窗口到指定坐标
         {
             RECT Windowrect;
-            GetWindowRect(GUIWindowHwnd, &Windowrect);
+            GetWindowRect(Window_Hwnd, &Windowrect);
             BKX = Windowrect.right - Windowrect.left;
             BKY = Windowrect.bottom - Windowrect.top;
-            MoveWindow(GUIWindowHwnd, X, Y, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);
+            MoveWindow(Window_Hwnd, X, Y, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);
         }
         //----------------------------------------------------------------------------------------
         Variable::Vector2 Get_WindowSize() noexcept//获取窗口大小
         {
             RECT Windowrect;
-            GetWindowRect(GUIWindowHwnd, &Windowrect);
+            GetWindowRect(Window_Hwnd, &Windowrect);
             BKX = Windowrect.right - Windowrect.left;
             BKY = Windowrect.bottom - Windowrect.top;
             return { Windowrect.right - Windowrect.left ,Windowrect.bottom - Windowrect.top };
@@ -594,36 +594,46 @@ namespace Window//窗口
         void Set_WindowSize(int XX, int YY) noexcept//修改窗口大小
         {
             RECT Windowrect;
-            GetWindowRect(GUIWindowHwnd, &Windowrect);
+            GetWindowRect(Window_Hwnd, &Windowrect);
             BKX = Windowrect.right - Windowrect.left;
             BKY = Windowrect.bottom - Windowrect.top;
-            MoveWindow(GUIWindowHwnd, Windowrect.left, Windowrect.top, XX, YY, TRUE);
+            MoveWindow(Window_Hwnd, Windowrect.left, Windowrect.top, XX, YY, TRUE);
+        }
+        //----------------------------------------------------------------------------------------
+        string Get_WindowTitle() noexcept//获取窗口标题
+        {
+            CHAR pszMem[MAX_PATH] = { 0 }; GetWindowTextA(Window_Hwnd, pszMem, GetWindowTextLength(Window_Hwnd) + 1);
+            return pszMem;
+        }
+        void Set_WindowTitle(string WindowTitle) noexcept//修改窗口标题
+        {
+            SetWindowTextA(Window_Hwnd, WindowTitle.c_str());
         }
         //----------------------------------------------------------------------------------------
         void Set_WindowDeleteColor(Variable::Vector4 Color = { 0,0,0 }) noexcept//遍历删除特定颜色像素
         {
-            SetLayeredWindowAttributes(GUIWindowHwnd, RGB(Color.r, Color.g, Color.b), 0, LWA_COLORKEY);
+            SetLayeredWindowAttributes(Window_Hwnd, RGB(Color.r, Color.g, Color.b), 0, LWA_COLORKEY);
         }
         //----------------------------------------------------------------------------------------
         void Set_WindowAlpha(int Alpha = 255) noexcept//窗口整体阿尔法通道
         {
             if (Alpha <= 0)Alpha = 0; else if (Alpha >= 255)Alpha = 255;//限制
-            SetLayeredWindowAttributes(GUIWindowHwnd, RGB(0, 0, 0), Alpha, LWA_ALPHA);
+            SetLayeredWindowAttributes(Window_Hwnd, RGB(0, 0, 0), Alpha, LWA_ALPHA);
         }
         //----------------------------------------------------------------------------------------
         void Set_WindowAttributes(Variable::Vector4 Color = { 1,0,0 }, int Alpha = 200, DWORD Flags = LWA_COLORKEY | LWA_ALPHA) noexcept//修改分层窗口属性
         {
-            SetLayeredWindowAttributes(GUIWindowHwnd, RGB(Color.r, Color.g, Color.b), Alpha, Flags);
+            SetLayeredWindowAttributes(Window_Hwnd, RGB(Color.r, Color.g, Color.b), Alpha, Flags);
         }
         //----------------------------------------------------------------------------------------
         void Show_Window() noexcept//强制显示窗口
         {
-            SetForegroundWindow(GUIWindowHwnd);
-            ShowWindow(GUIWindowHwnd, true);
+            SetForegroundWindow(Window_Hwnd);
+            ShowWindow(Window_Hwnd, true);
         }
         void Hide_Window() noexcept//强制隐藏窗口
         {
-            ShowWindow(GUIWindowHwnd, false);
+            ShowWindow(Window_Hwnd, false);
         }
         //----------------------------------------------------------------------------------------
         BOOL Window_Move(int KD = 30) noexcept//移动窗口 KD = 宽度（放在循环）
@@ -638,10 +648,10 @@ namespace Window//窗口
             static BOOL 防止脱离 = false;
             static int OldX, OldY;
             POINT MousePos; RECT Windowrect;
-            GetCursorPos(&MousePos); GetWindowRect(GUIWindowHwnd, &Windowrect);
+            GetCursorPos(&MousePos); GetWindowRect(Window_Hwnd, &Windowrect);
             BKX = Windowrect.right - Windowrect.left;
             static BOOL 保存鼠标坐标 = false;
-            if (GetForegroundWindow() == GUIWindowHwnd)//检测窗口是否在最前端
+            if (GetForegroundWindow() == Window_Hwnd)//检测窗口是否在最前端
             {
                 if ((MousePos.x - Windowrect.left >= 0 && MousePos.x - Windowrect.left <= BKX && MousePos.y - Windowrect.top >= 0 && MousePos.y - Windowrect.top <= KD) && GetAsyncKeyState(VK_LBUTTON) && !防止脱离)
                 {
@@ -651,12 +661,12 @@ namespace Window//窗口
                         OldY = (MousePos.y - Windowrect.top);
                         保存鼠标坐标 = false;
                     }
-                    MoveWindow(GUIWindowHwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);//移动窗口到鼠标坐标
+                    MoveWindow(Window_Hwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);//移动窗口到鼠标坐标
                     防止脱离 = true;
                 }
                 else if (防止脱离 && GetAsyncKeyState(VK_LBUTTON))
                 {
-                    MoveWindow(GUIWindowHwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);//移动窗口到鼠标坐标
+                    MoveWindow(Window_Hwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);//移动窗口到鼠标坐标
                     return true;
                 }
                 else {
@@ -1807,7 +1817,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
 }
-namespace EasyGUI//EasyGUI Release[2024-03-13 17:20]
+namespace EasyGUI//EasyGUI Release[2024-03-14 22:30]
 {
     /* Simple example
     int main()
@@ -2429,7 +2439,7 @@ namespace EasyGUI//EasyGUI Release[2024-03-13 17:20]
         {
             SetWindowTextA(EasyGUI_WindowHWND, WindowTitle.c_str());//修改窗口标题
         }
-        const char* Window_GetTitle() noexcept//获取GUI窗口标题
+        string Window_GetTitle() noexcept//获取GUI窗口标题
         {
             CHAR pszMem[MAX_PATH] = { 0 }; GetWindowTextA(EasyGUI_WindowHWND, pszMem, GetWindowTextLength(EasyGUI_WindowHWND) + 1);
             return pszMem;

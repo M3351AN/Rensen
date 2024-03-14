@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-13 17:20]";//程序发布日期
-const float Rensen_Version = 2.98;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-14 22:30]";//程序发布日期
+const float Rensen_Version = 3.01;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -312,9 +312,10 @@ using namespace Control_Var;
 void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义选项)
 {
 	System::Log("Load Thread: Thread_Menu()");
-	GUI_VAR.Window_Create(1010, 700, System::Rand_String(10), true);//创建置顶GUI绘制窗口
+	GUI_VAR.Window_Create(1010, 700, "Rensen", true);//创建置顶GUI绘制窗口
 	while (true)
 	{
+		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
 		static int UI_Panel = 0;//大区块选择
 		static vector<int> UI_WindowSize = { 0 ,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)UI_WindowSize = { 0,0 };//关闭窗体时
@@ -524,7 +525,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips(Block_DebugControl, 1, "Developer code debugging.");
 				UI_WindowSize = { 870,790 };
 			}
-			GUI_VAR.Draw_GUI();//最终绘制GUI画板
+			GUI_VAR.Draw_GUI(Debug_Control_Var::Checkbox_2);//最终绘制GUI画板
 			if (true)//按钮事件接收
 			{
 				if (UI_Visual_Res_3840)Window::Set_Resolution(3840, 2160);//设置显示器像素
@@ -581,7 +582,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功能)
 {
 	System::Log("Load Thread: Thread_Misc()");
-	Window::Windows Window_Watermark; const auto Window_Watermark_HWND = Window_Watermark.Create_RenderBlock_Alpha(Window::Get_Resolution().x, 50, System::Rand_String(11));//创建水印透明窗口
+	Window::Windows Window_Watermark; const auto Window_Watermark_HWND = Window_Watermark.Create_RenderBlock_Alpha(Window::Get_Resolution().x, 50, "Rensen - Watermark");//创建水印透明窗口
 	Window::Render Window_Watermark_Render; Window_Watermark_Render.CreatePaint(Window_Watermark_HWND, 0, 0, Window::Get_Resolution().x, 50);
 	ReLoad(true);//刷新CS2_SDK内存数据 (初始化)
 	while (true)
@@ -596,6 +597,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			Window_Watermark.Set_WindowPos(0, 0);
 			if (System::Sleep_Tick<class WaterMark_Window_Sleep_Class_>(200))//降低CPU占用
 			{
+				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
 				static string WaterMark_String = "";
 				short WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 4.8;
 				if (!CS2_HWND)WaterMark_String = "Rensen | CS not found | " + System::Time_String();
@@ -1044,12 +1046,13 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 {
 	System::Log("Load Thread: Thread_Funtion_Radar()");
-	Window::Windows Radar_Window; const auto RadarRenderWindow = Radar_Window.Create_Window(UI_Visual_Radar_Size, UI_Visual_Radar_Size + 15, System::Rand_String(13), true);//创建雷达绘制窗口
+	Window::Windows Radar_Window; const auto RadarRenderWindow = Radar_Window.Create_Window(UI_Visual_Radar_Size, UI_Visual_Radar_Size + 15, "Rensen - Radar", true);//创建雷达绘制窗口
 	Window::Render Radar_Paint; Radar_Paint.CreatePaint(RadarRenderWindow, 0, 0, 500, 500 + 15);//创建绘制画板
 	Radar_Window.Set_WindowPos(UI_Visual_Radar_Pos.x, UI_Visual_Radar_Pos.y);//套用参数的雷达位置
 	while (true)
 	{
 		Sleep(10);//降低CPU占用
+		Radar_Window.Set_WindowTitle(System::Rand_String(10));//随机雷达窗口标题
 		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2.5);
 		if ((Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
 		{
@@ -1120,7 +1123,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
-		for (short i = 0; i <= 100; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
+		for (short i = 0; i <= 500; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
 		UserID_READ.Release();
 	}
 	if (Attest == false) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.", MB_ICONSTOP); exit(0); }//未被认证则直接退出
