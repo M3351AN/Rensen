@@ -1,4 +1,4 @@
-﻿//2024-03-14 22:30
+﻿//2024-03-16 12:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1240,10 +1240,23 @@ namespace System//Windows系统
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    void Key_Con(int VK_CODE, BOOL WAY, int SCAN_CODE = 0) noexcept//按下或松开按键 SCAN_CODE: https://www.cnblogs.com/sherlockhomles/archive/2013/05/21/3090050.html
-    {//System::Key_Con(VK_SPACE, false);//release space key
+    void Key_Con(int VK_CODE, BOOL WAY = false, int SCAN_CODE = 0) noexcept//按下或松开按键 SCAN_CODE: https://www.cnblogs.com/sherlockhomles/archive/2013/05/21/3090050.html
+    {//System::Key_Con(VK_SPACE);//release space key
         if (WAY)keybd_event(VK_CODE, SCAN_CODE, 0, 0);
         else keybd_event(VK_CODE, SCAN_CODE, KEYEVENTF_KEYUP, 0);
+    }
+    void Mouse_Con(int VK_CODE, BOOL WAY = false) noexcept//按下或松开鼠标按键 (不需要扫描码)
+    {//System::Mouse_Con(0x1);//release mouseleft key
+        if (VK_CODE == 1)
+        {
+            if (WAY)mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            else mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+        }
+        else if (VK_CODE == 2)
+        {
+            if (WAY)mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+            else mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+        }
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------

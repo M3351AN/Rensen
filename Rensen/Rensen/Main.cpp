@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-14 22:30]";//程序发布日期
-const float Rensen_Version = 3.01;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-16 12:50]";//程序发布日期
+const float Rensen_Version = 3.03;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -756,6 +756,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8无法开枪修复
 						else Sleep(1);
 						Send_CMD("-attack");
+						if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1) { System::Mouse_Con(2, false); Sleep(1); System::Key_Con(2, true); }//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
 						Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
 					}
 				}
@@ -772,19 +773,20 @@ void Thread_Funtion_AdaptiveAimbot() noexcept//功能线程: 生物瞄准机器�
 		System::Sleep_ns(5000);//比Sleep更快的函数为了更加自然平滑
 		if (Global_IsShowWindow && UI_Legit_Aimbot_AdaptiveAimbot && System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.Health() && Global_LocalPlayer.ActiveWeapon(true) == 2)//当CS窗口在最前端 && 本地人物活着 && 按键按下 && 步枪
 		{
-			float Aim_Range = 3; const auto PunchAngle = Global_LocalPlayer.AimPunchAngle();
+			float Aim_Range = 3; int Aim_Bone = 6; const auto PunchAngle = Global_LocalPlayer.AimPunchAngle();
 			if (abs(PunchAngle.x) * 2 >= Aim_Range)Aim_Range = abs(PunchAngle.x) * 1.5;//计算开枪之后附加后坐力的范围
 			for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
 			{
 				const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
 				if (!Advanced::Check_Enemy(PlayerPawn) || !PlayerPawn.Spotted())continue;//当没有被发现则重新来过
-				const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(6), Base::ViewAngles() + PunchAngle * 2);//最终瞄准角度 (6: 头部)
+				if (PlayerPawn.Health() < 60)Aim_Bone = 4;//低血时瞄准躯干 (降低爆头率)
+				const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(Aim_Bone), Base::ViewAngles() + PunchAngle * 2);//最终瞄准角度 (6: 头部)
 				const auto FovG = hypot(Angle.x, Angle.y);//圆圈范围计算
 				if (!Angle.IsZero() && FovG <= Aim_Range)//范围判断
 				{
 					Aim_Range = FovG;//防止锁住两个或多个人
 					if (Global_LocalPlayer.ShotsFired() > 1 && (System::Get_Key(VK_CONTROL) || FovG <= 1.8) && PlayerPawn.MoveSpeed() <= 200)System::Mouse_Move(-Angle.y * 30, Angle.x * 30);
-					else System::Mouse_Move(-Angle.y * 5, Angle.x * 5);
+					else System::Mouse_Move(-Angle.y * 10, Angle.x * 10);
 				}
 			}
 		}
@@ -852,9 +854,9 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 		else Sleep(20);
 	}
 }
-void Thread_Funtion_ESP() noexcept//功能线程: 透视和一些视觉杂项
+void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂项
 {
-	System::Log("Load Thread: Thread_Funtion_ESP()");
+	System::Log("Load Thread: Thread_Funtion_PlayerESP()");
 	const auto FreeCS_ESP_RenderWindow = Window::NVIDIA_Overlay();//初始化英伟达覆盖
 	Window::Render ESP_Paint; ESP_Paint.CreatePaint(FreeCS_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
 	while (true)
@@ -865,6 +867,7 @@ void Thread_Funtion_ESP() noexcept//功能线程: 透视和一些视觉杂项
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
+			if (Menu_Open)Sleep(50);//节省CPU性能 (可有可无)
 			if (UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)))//ESP 透视
 			{
 				auto Draw_Color = GUI_IO.GUIColor;
@@ -986,16 +989,18 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 {
 	System::Log("Load Thread: Thread_Funtion_EntityESP()");
 	Window::Windows RenderWindow; Window::Render WEP_Render;
-	const auto Render_Window_HWND = RenderWindow.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, System::Rand_String(12));
+	const auto Render_Window_HWND = RenderWindow.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, "Rensen - EntityESP");
 	RenderWindow.Set_WindowAttributes({ 0,0,0 }, 180);
 	WEP_Render.CreatePaint(Render_Window_HWND, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
 	while (true)
 	{
 		Sleep(UI_Visual_ESP_RenderSleep);
+		RenderWindow.Set_WindowTitle(System::Rand_String(10));//随机实体透视窗口标题
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		WEP_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//Clear Paint
 		if (CS2_HWND && UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)) && UI_Visual_ESP_Drops && (Menu_Open || Global_IsShowWindow) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
+			if (Menu_Open)Sleep(50);//节省CPU性能 (可有可无)
 			auto Draw_Color = GUI_IO.GUIColor;
 			if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
 			MoveWindow(Render_Window_HWND, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, TRUE);//Pos & Size
@@ -1007,7 +1012,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 				Class_ID = {};//刷新有效实体ID
 				for (short i = 64; i <= 1024; ++i)//class id 64-1024
 				{
-					if (Show_Quantity > 35)continue;//限制数量
+					if (Show_Quantity > 30)continue;//限制数量
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, i);
 					if (!Entity.Pawn())continue;
 					const auto Entity_Pos = Entity.Origin();
@@ -1064,8 +1069,8 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 				Radar_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//背景
 				Radar_Paint.Render_GradientRect(0, 0, Radar_Window.Get_WindowSize().x, 14, GUI_IO.GUIColor / 2, GUI_IO.GUIColor / 4, false);
 				Radar_Paint.Render_GradientRect(0, 14, Radar_Window.Get_WindowSize().x, 1, GUI_IO.GUIColor / 4, GUI_IO.GUIColor / 2, false);//标题背景
-				Radar_Paint.Render_String(3 + 1, 1 + 1, "Rensen Radar", "Small Fonts", 12, { 0,0,0 }, false);//标题阴影
-				Radar_Paint.Render_String(3, 1, "Rensen Radar", "Small Fonts", 12, GUI_IO.GUIColor, false);//标题
+				Radar_Paint.Render_String(3 + 1, 1 + 1, "Rensen - Radar", "Small Fonts", 12, { 0,0,0 }, false);//标题阴影
+				Radar_Paint.Render_String(3, 1, "Rensen - Radar", "Small Fonts", 12, GUI_IO.GUIColor, false);//标题
 				if (UI_Visual_Radar_FollowAngle)Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });
 				else Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });//Self Aimpos
 				Radar_Paint.Render_HollowCircle(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 100 * 3.5, { 255,255,255 }, 2);//自身圆圈
@@ -1144,7 +1149,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	thread Thread_Funtion_Triggerbot_ = thread(Thread_Funtion_Triggerbot);
 	thread Thread_Funtion_PreciseAim_ = thread(Thread_Funtion_PreciseAim);
 	thread Thread_Funtion_RemoveRecoil_ = thread(Thread_Funtion_RemoveRecoil);
-	thread Thread_Funtion_ESP_ = thread(Thread_Funtion_ESP);
+	thread Thread_Funtion_PlayerESP_ = thread(Thread_Funtion_PlayerESP);
 	thread Thread_Funtion_EntityESP_ = thread(Thread_Funtion_EntityESP);
 	thread Thread_Funtion_Radar_ = thread(Thread_Funtion_Radar);
 	thread Thread_Funtion_Sonar_ = thread(Thread_Funtion_Sonar);
