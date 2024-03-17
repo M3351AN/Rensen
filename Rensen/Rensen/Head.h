@@ -1,4 +1,4 @@
-﻿//2024-03-16 12:00
+﻿//2024-03-17 14:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -248,7 +248,7 @@ namespace Variable//变量转换
     //-----------------------------------------------------------------------------------------------------------------------------
     string Hex_String(uintptr_t Value) noexcept//10进制整数转换16进制字符转
     {//Variable::Hex_String(16); //return 0x10
-        char Hex_str[256];
+        char Hex_str[1024];
         sprintf(Hex_str, "0x%X", Value);
         return Hex_str;
     }
@@ -1827,6 +1827,31 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     template<class CLASS>CLASS In_G(const uintptr_t Address) noexcept { return *reinterpret_cast<CLASS*>(Address); }//内部内存地址获取
     template<class CLASS>void In_S(const uintptr_t Address, CLASS Value) noexcept { *reinterpret_cast<CLASS*>(Address) = Value; }//内部内存地址调用
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    template<class ValueClass, class CreateClassName>
+    BOOL Get_ValueChangeState(ValueClass Value) noexcept//检测值是否变化
+    {
+        static auto Old_Value = Value;
+        if (Old_Value != Value) { Old_Value = Value; return true; }
+        else return false;
+    }
+    template<class ValueClass, class CreateClassName>
+    BOOL Get_ValueBigger(ValueClass Value) noexcept//检测值是否变化 (变大)
+    {
+        static auto Old_Value = Value;
+        if (Old_Value < Value) { Old_Value = Value; return true; }
+        else if (Old_Value != Value)Old_Value = Value;
+        return false;
+    }
+    template<class ValueClass, class CreateClassName>
+    BOOL Get_ValueSmaller(ValueClass Value) noexcept//检测值是否变化 (变小)
+    {
+        static auto Old_Value = Value;
+        if (Old_Value > Value) { Old_Value = Value; return true; }
+        else if (Old_Value != Value)Old_Value = Value;
+        return false;
+    }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
 }

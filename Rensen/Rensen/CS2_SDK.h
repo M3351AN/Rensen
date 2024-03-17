@@ -10,7 +10,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	vector<short> Global_ValidClassID = { 0 };//有效实体
 	BOOL Global_IsShowWindow = false;//窗口显示
 	BOOL Global_TeamCheck = false;//团队过滤
-	void Send_CMD(string Command_Str) noexcept//发送指令到CS控制台
+	void ExecuteCommand(string Command_Str) noexcept//发送指令到CS控制台
 	{
 		COPYDATASTRUCT m_cData; m_cData.cbData = strlen(Command_Str.c_str()) + 1; m_cData.dwData = 0; m_cData.lpData = (void*)Command_Str.c_str();
 		SendMessage(CS2_MEM.Get_ProcessHWND(), WM_COPYDATA, 0, (LPARAM)&m_cData);
@@ -231,11 +231,11 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 				const auto LocalYaw = Base::ViewAngles().y;
 				const auto X = (LocalVel.x * cos(LocalYaw / 180 * 3.1415926) + LocalVel.y * sin(LocalYaw / 180 * 3.1415926));
 				const auto Y = (LocalVel.y * cos(LocalYaw / 180 * 3.1415926) - LocalVel.x * sin(LocalYaw / 180 * 3.1415926));
-				Send_CMD("-back"); Send_CMD("-forward"); Send_CMD("-right"); Send_CMD("-left");
-				if (X > 30) { Send_CMD("+back"); Sleep(1); Send_CMD("-back"); }
-				else if (X < -30) { Send_CMD("+forward"); Sleep(1); Send_CMD("-forward"); }
-				if (Y > 30) { Send_CMD("+right"); Sleep(1); Send_CMD("-right"); }
-				else if (Y < -30) { Send_CMD("+left"); Sleep(1); Send_CMD("-left"); }
+				ExecuteCommand("-back"); ExecuteCommand("-forward"); ExecuteCommand("-right"); ExecuteCommand("-left");
+				if (X > 30) { ExecuteCommand("+back"); Sleep(1); ExecuteCommand("-back"); }
+				else if (X < -30) { ExecuteCommand("+forward"); Sleep(1); ExecuteCommand("-forward"); }
+				if (Y > 30) { ExecuteCommand("+right"); Sleep(1); ExecuteCommand("-right"); }
+				else if (Y < -30) { ExecuteCommand("+left"); Sleep(1); ExecuteCommand("-left"); }
 			}
 			return false;
 		}

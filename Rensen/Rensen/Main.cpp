@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-16 12:50]";//程序发布日期
-const float Rensen_Version = 3.03;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-17 14:00]";//程序发布日期
+const float Rensen_Version = 3.05;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -300,7 +300,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 		}
 	}
 	//----------------------------------------------------------------------------------------------
-	namespace Debug_Control_Var//测试调试用的控件变量 (按钮 滑条 选择框) //Debug
+	namespace Debug_Control_Var//测试调试用的控件变量 (按钮 滑条 选择框)
 	{
 		BOOL Checkbox_1, Checkbox_2;
 		int Slider_1;
@@ -495,9 +495,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				if (Player_Pawn.Pawn() == Global_LocalPlayer.Pawn())Debug_PawnColor = { 100,100,255 };//自身
 				else if (Player_Pawn.TeamNumber() == Global_LocalPlayer.TeamNumber())Debug_PawnColor = { 0,255,0 };//同队
 				else if (Player_Pawn.TeamNumber() != Global_LocalPlayer.TeamNumber())Debug_PawnColor = { 255,0,0 };//不同队
-				if (Player_Pawn.Health() == 0)Debug_PawnColor = { 100,100,100 };//无效或是死亡
-				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 1, "client.dll -> " + to_string(Module_client));
-				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 2, "Pawn: " + to_string(Player_Pawn.Pawn()), Debug_PawnColor);
+				if (Player_Pawn.Health() == 0)Debug_PawnColor = { 150,150,150 };//无效或是死亡
+				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 1, "client.dll -> " + Variable::Hex_String(Module_client));
+				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 2, "Pawn -> " + Variable::Hex_String(Player_Pawn.Pawn()), Debug_PawnColor);
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 3, "Name: " + Advanced::Player_Name(SelectPlayer));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 4, "Health: " + to_string(Player_Pawn.Health()));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 5, "Armor: " + to_string(Player_Pawn.Armor()));
@@ -508,7 +508,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 10, "MoveSpeed: " + to_string(Player_Pawn.MoveSpeed()));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 11, "Spotted: " + to_string(Player_Pawn.Spotted()));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 12, "Scoped: " + to_string(Player_Pawn.Scoped()));
-				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 13, "ActiveWeapon: " + Player_Pawn.ActiveWeaponName() + "(" + to_string(Player_Pawn.ActiveWeapon()) + ")");
+				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 13, "ActiveWeapon: " + Player_Pawn.ActiveWeaponName() + " (" + to_string(Player_Pawn.ActiveWeapon()) + ")");
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 14, "Origin: ");
 				auto PlayerOrigin = Player_Pawn.Origin(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 14, PlayerOrigin);
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 15, "Angle: ");
@@ -587,6 +587,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 	ReLoad(true);//刷新CS2_SDK内存数据 (初始化)
 	while (true)
 	{
+		if (Debug_Control_Var::Checkbox_1 && System::Get_ValueBigger<int, class hudwahuidiuwhaudwf>(Global_LocalPlayer.ShotsFired()))System::Mouse_Move(0, -300);//Debug 恶搞
 		ReLoad();//刷新CS2_SDK内存数据
 		Global_TeamCheck = UI_Misc_TeamCheck;//队伍判断(文件跨越修改变量)
 		if (UI_Misc_LockGameWindow && !Menu_Open)SetForegroundWindow(CS2_HWND);//锁定CS窗口到最前端
@@ -626,9 +627,9 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			//--------------------------------------
 			if (UI_Misc_BunnyHop && System::Get_Key(VK_SPACE) && Global_LocalPlayer.Flags() & (1 << 0))//连跳
 			{//开关 & 按下空格 & 当本地人物触及到地面
-				Send_CMD("+jump");//跳跃
+				ExecuteCommand("+jump");//跳跃
 				Sleep(1);
-				Send_CMD("-jump");
+				ExecuteCommand("-jump");
 			}
 			//--------------------------------------
 			if (UI_Misc_HitSound)//击打音效
@@ -656,14 +657,14 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					{
 						if (PlayerPawn.Health() <= 55 && PlayerPawn.Health() > 30)//血量判断重刀还是轻刀
 						{
-							Send_CMD("+attack2");
+							ExecuteCommand("+attack2");
 							Sleep(1);
-							Send_CMD("-attack2");
+							ExecuteCommand("-attack2");
 						}
 						else {
-							Send_CMD("+attack");
+							ExecuteCommand("+attack");
 							Sleep(1);
-							Send_CMD("-attack");
+							ExecuteCommand("-attack");
 						}
 					}
 				}
@@ -678,9 +679,9 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					const auto Player_Pos = PlayerPawn.Origin();//敌人坐标
 					if (Variable::Coor_Dis_3D(Local_Pos, Player_Pos) <= 180 && PlayerPawn.Pawn() == Global_LocalPlayer.IDEntIndex_Pawn().Pawn())//判断距离 && 瞄准
 					{
-						Send_CMD("+attack");
+						ExecuteCommand("+attack");
 						Sleep(1);
-						Send_CMD("-attack");
+						ExecuteCommand("-attack");
 					}
 				}
 			}
@@ -752,10 +753,10 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 					if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || Advanced::Stop_Move()) && FovG <= 0.8)//AutoShoot & AutoStop
 					{
 						if (LocalPlayer_ActiveWeapon_Type == 3 && LocalPlayer_ActiveWeapon_ID != 11 && LocalPlayer_ActiveWeapon_ID != 38)System::Key_Con(UI_Legit_Aimbot_Key, false);//单发狙击枪射击后释放按键
-						Send_CMD("+attack");
+						ExecuteCommand("+attack");
 						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8无法开枪修复
 						else Sleep(1);
-						Send_CMD("-attack");
+						ExecuteCommand("-attack");
 						if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1) { System::Mouse_Con(2, false); Sleep(1); System::Key_Con(2, true); }//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
 						Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
 					}
@@ -806,9 +807,9 @@ void Thread_Funtion_Triggerbot() noexcept//功能线程: 自动扳机
 			if (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500 || Local_ActiveWeaponID == 31)continue;//过滤特殊武器 (刀子, 电击枪)
 			else if (((UI_Legit_Triggerbot_AnyTarget && Global_LocalPlayer.IDEntIndex() != -1) || Advanced::Check_Enemy(Global_LocalPlayer.IDEntIndex_Pawn())) && (!UI_Legit_Triggerbot_ShootWhenAccurate || Local_ActiveWeaponType == 1 || Advanced::Stop_Move(50, false)))//当瞄准的人是敌人
 			{
-				Send_CMD("+attack");//Shoot!! 开枪!!
+				ExecuteCommand("+attack");//Shoot!! 开枪!!
 				Sleep(UI_Legit_Triggerbot_ShootDuration);
-				Send_CMD("-attack");
+				ExecuteCommand("-attack");
 				Sleep(UI_Legit_Triggerbot_ShootDelay);
 			}
 		}
@@ -824,9 +825,9 @@ void Thread_Funtion_PreciseAim() noexcept//功能线程: 精确瞄准
 		{
 			System::Sleep_ns(2000);//纳秒级延时
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
-			if (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500) { Send_CMD("m_yaw " + to_string(UI_Legit_PreciseAim_DefaultSensitivity)); Sleep(10); continue; }//过滤特殊武器 (刀类)
-			if (Advanced::Check_Enemy(Global_LocalPlayer.IDEntIndex_Pawn()))Send_CMD("m_yaw " + to_string(UI_Legit_PreciseAim_EnableSensitivity));
-			else Send_CMD("m_yaw " + to_string(UI_Legit_PreciseAim_DefaultSensitivity));
+			if (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500) { ExecuteCommand("m_yaw " + to_string(UI_Legit_PreciseAim_DefaultSensitivity)); Sleep(10); continue; }//过滤特殊武器 (刀类)
+			if (Advanced::Check_Enemy(Global_LocalPlayer.IDEntIndex_Pawn()))ExecuteCommand("m_yaw " + to_string(UI_Legit_PreciseAim_EnableSensitivity));
+			else ExecuteCommand("m_yaw " + to_string(UI_Legit_PreciseAim_DefaultSensitivity));
 		}
 		else Sleep(20);
 	}
