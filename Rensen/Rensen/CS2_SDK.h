@@ -246,6 +246,11 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (Return_Kill)return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_iNumRoundKills);
 			else return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_unTotalRoundDamageDealt);
 		}
+		void Move_to_Angle(Variable::Vector3 Angles = { 0,0,0 }, float Smooth = 40) noexcept//将视角移动到指定坐标
+		{
+			const auto LocalPlayer_Angle = Base::ViewAngles();
+			System::Mouse_Move((-Angles.y + LocalPlayer_Angle.y) * Smooth, (Angles.x - LocalPlayer_Angle.x) * Smooth);
+		}
 	}
 	void ReLoad(BOOL Timeout = false) noexcept//刷新CS2进程地址和模块地址和有效实体
 	{

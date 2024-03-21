@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-17 14:00]";//程序发布日期
-const float Rensen_Version = 3.05;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-21 20:40]";//程序发布日期
+const float Rensen_Version = 3.08;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -587,7 +587,6 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 	ReLoad(true);//刷新CS2_SDK内存数据 (初始化)
 	while (true)
 	{
-		if (Debug_Control_Var::Checkbox_1 && System::Get_ValueBigger<int, class hudwahuidiuwhaudwf>(Global_LocalPlayer.ShotsFired()))System::Mouse_Move(0, -300);//Debug 恶搞
 		ReLoad();//刷新CS2_SDK内存数据
 		Global_TeamCheck = UI_Misc_TeamCheck;//队伍判断(文件跨越修改变量)
 		if (UI_Misc_LockGameWindow && !Menu_Open)SetForegroundWindow(CS2_HWND);//锁定CS窗口到最前端
@@ -686,7 +685,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				}
 			}
 			//--------------------------------------
-			if (UI_Misc_AntiAFKKick && System::Sleep_Tick<class CLASS_ANTIAFKKICK>(5000)) { System::Mouse_Move(1, 0); Sleep(1); System::Mouse_Move(-1, 0); }//防止挂机踢出游戏脚本
+			if (UI_Misc_AntiAFKKick && System::Sleep_Tick<class CLASS_MISC_ANTIAFKKICK>(5000)) { System::Mouse_Move(1, 0); Sleep(1); System::Mouse_Move(-1, 0); }//防止挂机踢出游戏脚本
 			//--------------------------------------
 		}
 		Sleep(5);//降低CPU占用
@@ -991,14 +990,14 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 	System::Log("Load Thread: Thread_Funtion_EntityESP()");
 	Window::Windows RenderWindow; Window::Render WEP_Render;
 	const auto Render_Window_HWND = RenderWindow.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, "Rensen - EntityESP");
-	RenderWindow.Set_WindowAttributes({ 0,0,0 }, 180);
+	RenderWindow.Set_WindowAttributes({ 0,0,0 }, 150);//窗口过滤颜色和透明度
 	WEP_Render.CreatePaint(Render_Window_HWND, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
 	while (true)
 	{
 		Sleep(UI_Visual_ESP_RenderSleep);
 		RenderWindow.Set_WindowTitle(System::Rand_String(10));//随机实体透视窗口标题
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
-		WEP_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//Clear Paint
+		WEP_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//刷新绘制画板
 		if (CS2_HWND && UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)) && UI_Visual_ESP_Drops && (Menu_Open || Global_IsShowWindow) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
 			if (Menu_Open)Sleep(50);//节省CPU性能 (可有可无)
@@ -1007,7 +1006,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			MoveWindow(Render_Window_HWND, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, TRUE);//Pos & Size
 			const auto Entitylist = Base::EntityList(); const auto Local_Origin = Global_LocalPlayer.Origin(); const auto Local_ViewMatrix = Base::ViewMatrix();
 			static vector<short> Class_ID = {};//有效实体ID
-			if (System::Sleep_Tick<class Drops_ESP_Reload_ClassID_>(150))//特殊算法为了提高绘制效率
+			if (System::Sleep_Tick<class CLASS_Drops_ESP_Reload_ClassID_>(150))//特殊算法为了提高绘制效率
 			{
 				short Show_Quantity = 0;//计算绘制的实体数量
 				Class_ID = {};//刷新有效实体ID
@@ -1017,12 +1016,12 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, i);
 					if (!Entity.Pawn())continue;
 					const auto Entity_Pos = Entity.Origin();
-					if (Entity_Pos.x == 0 || Variable::Coor_Dis_3D(Local_Origin, Entity_Pos) > 2000)continue;//距离检测
+					if (Entity_Pos.x == 0 || Entity_Pos.y == 0 || Variable::Coor_Dis_3D(Local_Origin, Entity_Pos) > 2000)continue;//实体之间距离检测
 					const auto Entity_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Entity.Origin(), Local_ViewMatrix);
-					if (Entity_ScrPos.x < -200 || Entity_ScrPos.x > CS_Scr_Res.r + 200)continue;//检测是否在屏幕内
-					if (Entity.ActiveWeaponName(true, Entity.Pawn()) == "NONE" && !Variable::String_Find(Entity.EntityName(), "_projectile"))continue;//检测名称是否有效
-					Class_ID.push_back(i);
-					++Show_Quantity;
+					if (Entity_ScrPos.x < -300 || Entity_ScrPos.x > CS_Scr_Res.r + 300)continue;//检测实体是否在屏幕内
+					if (Entity.ActiveWeaponName(true, Entity.Pawn()) == "NONE" && !Variable::String_Find(Entity.EntityName(), "_projectile"))continue;//检测实体名称是否有效
+					if (Entity.EntityName() == "hegrenade_projectile" && !System::Get_ValueChangeState<float, class CLASS_Drops_ESP_Delete_StopedEntity_>(Entity_Pos.x))continue;//排除手雷缓存 (受累爆炸后不在移动时就是留下的缓存)
+					Class_ID.push_back(i); ++Show_Quantity;//计算有效实体数量
 					System::Sleep_ns(20);//降低CPU占用
 				}
 			}
@@ -1031,14 +1030,24 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 				for (short i = 0; i < Class_ID.size(); ++i)//只遍历有效实体
 				{
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, Class_ID[i]);
-					if (Entity.Origin().x == 0)continue;//过滤掉无效坐标
-					const auto Entity_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Entity.Origin(), Local_ViewMatrix);
+					const auto Entity_Pos = Entity.Origin();
+					if (Entity_Pos.x == 0 || Entity_Pos.y == 0)continue;//过滤掉无效坐标
+					const auto Entity_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Entity_Pos, Local_ViewMatrix);
 					auto Entity_Name = Entity.EntityName();
 					if (Variable::String_Find(Entity_Name, "_projectile"))//飞行的道具绘制
 					{
 						Entity_Name.erase(Entity_Name.length() - 11, 11);//删除_projectile
+						Entity_Name = Variable::String_Upper(Entity_Name);//转换大写
+						if (Entity_Name == "SMOKEGRENADE")//烟雾弹范围绘制
+						{
+							Entity_Name = "SMOKE";
+							const auto Pos_1 = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Entity_Pos.x - (float)floor(sin(System::Tick() / 1000.f) * 180),Entity_Pos.y - (float)floor(cos(System::Tick() / 1000.f) * 180), Entity_Pos.z }, Local_ViewMatrix);
+							const auto Pos_2 = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Entity_Pos.x + (float)floor(sin(System::Tick() / 1000.f) * 180),Entity_Pos.y + (float)floor(cos(System::Tick() / 1000.f) * 180), Entity_Pos.z }, Local_ViewMatrix);
+							WEP_Render.Render_Line(Pos_1.x, Pos_1.y, Pos_2.x, Pos_2.y, Draw_Color);
+						}
+						else if (Entity_Name == "FLASHBANG")Entity_Name = "FLASH";//过滤字符串
 						WEP_Render.RenderA_GradientCircle(Entity_ScrPos.x, Entity_ScrPos.y, 20, { 1,1,1 }, Draw_Color, floor(sin((float)GetTickCount64() / 150) * 40 + 40) / 100 - 0.2);
-						WEP_Render.Render_SmpStr(Entity_ScrPos.x - 15, Entity_ScrPos.y, Variable::String_Upper(Entity_Name), { 200,200,200 }, { 1,1,1 });
+						WEP_Render.Render_SmpStr(Entity_ScrPos.x - 13, Entity_ScrPos.y, Entity_Name, { 200,200,200 }, { 1,1,1 });
 					}
 					else WEP_Render.Render_SmpStr(Entity_ScrPos.x - 15, Entity_ScrPos.y, Entity.ActiveWeaponName(true, Entity.Pawn()), { 200,200,200 }, { 1,1,1 });//武器绘制
 				}

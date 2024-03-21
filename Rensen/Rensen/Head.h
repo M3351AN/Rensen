@@ -1,4 +1,4 @@
-﻿//2024-03-17 14:00
+﻿//2024-03-21 20:40
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1205,6 +1205,12 @@ namespace System//Windows系统
 {
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
+    ULONGLONG Tick() noexcept//本地系统滴答值
+    {//System::Tick();
+        return GetTickCount64();
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
     Variable::Vector4 RainbowColor(int Speed, const int Follo = 0) noexcept//彩虹色值
     {//System::RainbowColor(100);//颜色变换速度 (越大越慢)
         return { (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + Follo) * 127 + 128), (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + 2 + Follo) * 127 + 128), (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + 4 + Follo) * 127 + 128),255 };
@@ -1851,6 +1857,13 @@ namespace System//Windows系统
         if (Old_Value > Value) { Old_Value = Value; return true; }
         else if (Old_Value != Value)Old_Value = Value;
         return false;
+    }
+    template<class ValueClass, class CreateClassName>
+    BOOL Get_ValueChangeState_t(ValueClass Value, ValueClass threshold) noexcept//检测值是否变化 (附加检测变化的量 阈值)
+    {
+        static auto Old_Value = Value;
+        if (Old_Value >= Value + threshold || Old_Value <= Value - threshold) { Old_Value = Value; return true; }
+        else return false;
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
