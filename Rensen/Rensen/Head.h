@@ -1,4 +1,4 @@
-﻿//2024-03-21 20:40
+﻿//2024-03-22 21:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1837,14 +1837,14 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     template<class ValueClass, class CreateClassName>
     BOOL Get_ValueChangeState(ValueClass Value) noexcept//检测值是否变化
-    {
+    {//System::Get_ValueChangeState<int, class CLASS_Funtion_Test>(Variable);
         static auto Old_Value = Value;
         if (Old_Value != Value) { Old_Value = Value; return true; }
         else return false;
     }
     template<class ValueClass, class CreateClassName>
     BOOL Get_ValueBigger(ValueClass Value) noexcept//检测值是否变化 (变大)
-    {
+    {//System::Get_ValueBigger<int, class CLASS_Funtion_Test>(Variable);
         static auto Old_Value = Value;
         if (Old_Value < Value) { Old_Value = Value; return true; }
         else if (Old_Value != Value)Old_Value = Value;
@@ -1852,7 +1852,7 @@ namespace System//Windows系统
     }
     template<class ValueClass, class CreateClassName>
     BOOL Get_ValueSmaller(ValueClass Value) noexcept//检测值是否变化 (变小)
-    {
+    {//System::Get_ValueSmaller<int, class CLASS_Funtion_Test>(Variable);
         static auto Old_Value = Value;
         if (Old_Value > Value) { Old_Value = Value; return true; }
         else if (Old_Value != Value)Old_Value = Value;
@@ -1860,10 +1860,18 @@ namespace System//Windows系统
     }
     template<class ValueClass, class CreateClassName>
     BOOL Get_ValueChangeState_t(ValueClass Value, ValueClass threshold) noexcept//检测值是否变化 (附加检测变化的量 阈值)
-    {
+    {//System::Get_ValueChangeState_t<int, class CLASS_Funtion_Test>(Variable, 10);
         static auto Old_Value = Value;
         if (Old_Value >= Value + threshold || Old_Value <= Value - threshold) { Old_Value = Value; return true; }
         else return false;
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    BOOL Is_MousePos_InMid(HWND Window_Hwnd = 0)//检测光标是否在窗口最中间
+    {//System::Is_MousePos_InMid();
+        RECT Window_Pos; POINT Mouse_Pos;
+        GetWindowRect(Window_Hwnd, &Window_Pos); GetCursorPos(&Mouse_Pos);
+        return (Mouse_Pos.x == Window_Pos.left + (Window_Pos.right - Window_Pos.left) / 2 && Mouse_Pos.y == Window_Pos.top + (Window_Pos.bottom - Window_Pos.top) / 2);
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
