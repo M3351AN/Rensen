@@ -1,4 +1,4 @@
-﻿//2024-03-22 21:30
+﻿//2024-03-23 10:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -285,15 +285,24 @@ namespace Window//窗口
     template<class A>//防止同窗口冲突  不同的窗口改不同的类
     Variable::Vector2 Get_PixelColor(int X, int Y, HWND Window_HWND = 0) noexcept//采取屏幕颜色
     {//Window::Get_PixelColor<class Get_PixelColor>(100, 100).x;
-        static HDC DC = GetWindowDC(Window_HWND);
-        COLORREF pixel = GetPixel(DC, X, Y);
-        return { GetRValue(pixel), GetGValue(pixel), GetBValue(pixel) };//[0]red  [1]green  [2]blue
+        static auto Window_HDC = GetWindowDC(Window_HWND);
+        const auto Pixel = GetPixel(Window_HDC, X, Y);
+        return { GetRValue(Pixel), GetGValue(Pixel), GetBValue(Pixel) };//[0]red  [1]green  [2]blue
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
     Variable::Vector2 Get_Resolution() noexcept//获取屏幕分辨率（像素）
     {//Window::Get_Resolution().x;
         return { GetSystemMetrics(SM_CXSCREEN) ,GetSystemMetrics(SM_CYSCREEN) };//[0]==X [1]==Y
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    template<class A>//防止同窗口冲突  不同的窗口改不同的类
+    HDC GetDC(HWND Window_HWND, BOOL Change = false) noexcept//无内存泄漏的窗口HDC获取
+    {//Window::GetDC(NULL);
+        static auto Window_HDC = GetDC(Window_HWND);
+        if (Change) { Window_HDC = GetDC(Window_HWND); Change = false; }
+        return Window_HDC;
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-22 21:30]";//程序发布日期
-const float Rensen_Version = 3.11;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-23 10:50]";//程序发布日期
+const float Rensen_Version = 3.12;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -702,10 +702,11 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				}
 			}
 			//--------------------------------------
-			if (UI_Misc_AntiAFKKick && System::Sleep_Tick<class CLASS_MISC_ANTIAFKKICK>(5000)) { System::Mouse_Move(1, 0); Sleep(1); System::Mouse_Move(-1, 0); }//防止挂机踢出游戏脚本
+			if (UI_Misc_AntiAFKKick && System::Sleep_Tick<class CLASS_MISC_ANTIAFKKICK_>(5000)) { System::Mouse_Move(1, 0); Sleep(1); System::Mouse_Move(-1, 0); }//防止挂机踢出游戏脚本
 			//--------------------------------------
+			Sleep(1);//降低CPU占用
 		}
-		Sleep(5);//降低CPU占用
+		else Sleep(10);//降低CPU占用
 	}
 }
 void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
