@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-23 10:50]";//程序发布日期
-const float Rensen_Version = 3.12;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-24 20:00]";//程序发布日期
+const float Rensen_Version = 3.14;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -497,11 +497,12 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			else if (UI_Panel == 4)//Debug
 			{
 				const auto Block_PlayerList = GUI_VAR.GUI_Block(150, 30, 730, "Player list", 330);
-				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static int SelectPlayer = 0;
+				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static int SelectPlayer = 0; static string PlayerName = "";
 				GUI_VAR.GUI_Slider<int, class CLASS_Debug_PlayerID>(Block_PlayerList, 1, "Player ID", 0, 64, SelectPlayer);
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(3000)) { PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
-				GUI_VAR.GUI_List(Block_PlayerList, 2, PlayerNameList, SelectPlayer, 26);
+				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName);
+				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, SelectPlayer, 25);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
 				const auto Block_Info = GUI_VAR.GUI_Block(510, 30, 490, "Info", 330);
 				const auto Player_Pawn = Advanced::Traverse_Player(SelectPlayer);
