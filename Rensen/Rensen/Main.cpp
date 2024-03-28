@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-26 22:00]";//程序发布日期
-const float Rensen_Version = 3.15;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-28 22:30]";//程序发布日期
+const float Rensen_Version = 3.17;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -602,7 +602,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 	System::Log("Load Thread: Thread_Misc()");
 	Window::Windows Window_Watermark; const auto Window_Watermark_HWND = Window_Watermark.Create_RenderBlock_Alpha(Window::Get_Resolution().x, 50, "Rensen - Watermark");//创建水印透明窗口
 	Window::Render Window_Watermark_Render; Window_Watermark_Render.CreatePaint(Window_Watermark_HWND, 0, 0, Window::Get_Resolution().x, 50);
-	ReLoad(true);//刷新CS2_SDK内存数据 (初始化)
+	ReLoad(true);//刷新CS2_SDK内存数据 (快速初始化)
 	while (true)
 	{
 		ReLoad();//刷新CS2_SDK内存数据
@@ -892,13 +892,20 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂项
 {
 	System::Log("Load Thread: Thread_Funtion_PlayerESP()");
-	const auto FreeCS_ESP_RenderWindow = Window::NVIDIA_Overlay();//初始化英伟达覆盖
-	Window::Render ESP_Paint; ESP_Paint.CreatePaint(FreeCS_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
+	auto Rensen_ESP_RenderWindow = Window::NVIDIA_Overlay();//初始化英伟达覆盖
+	Window::Windows SpareRenderWindow;
+	if (!Rensen_ESP_RenderWindow)//当没有找到英伟达覆盖时 (不是英伟达显卡)
+	{
+		System::Log("Error: NVIDIA overlay window not found (Used Generate Alternative Window instead)", true);//未找到英伟达覆盖时报错
+		Rensen_ESP_RenderWindow = SpareRenderWindow.Create_RenderBlock_Alpha(0, 0, "NVIDIA overlay (Rensen)");//创建代替覆盖窗口
+	}
+	Window::Render ESP_Paint; ESP_Paint.CreatePaint(Rensen_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
 	while (true)
 	{
 		Sleep(UI_Visual_ESP_RenderSleep);
+		SpareRenderWindow.Fix_inWhile();//备用窗口消息循环
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
-		MoveWindow(FreeCS_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, TRUE);//修改 Pos & Size
+		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, TRUE);//修改 Pos & Size
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
@@ -912,7 +919,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);
 					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
-					const auto Top_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6) + Variable::Vector3{0, 0, 8}, Local_Matrix);
+					const auto Top_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6) + Variable::Vector3{ 0, 0, 8 }, Local_Matrix);
 					const auto Entity_Position = PlayerPawn.Origin();
 					if (Top_Pos.x < -100 || Top_Pos.x > CS_Scr_Res.r + 100)//检测是否在屏幕内
 					{
@@ -926,7 +933,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						}
 						continue;//不绘制ESP 重来
 					}
-					const auto Bottom_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.Origin() - Variable::Vector3{0, 0, 6}, Local_Matrix);
+					const auto Bottom_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.Origin() - Variable::Vector3{ 0, 0, 6 }, Local_Matrix);
 					const auto Hight = Bottom_Pos.y - Top_Pos.y;
 					const auto Width = Hight * 0.25;
 					const auto Left = Top_Pos.x - Width;
@@ -996,7 +1003,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 			{
 				static short Mark_DMG = 0;//造成的伤害
 				static Variable::Vector4 Mark_Color = 0;//绘制图标颜色
-				Mark_Color = Mark_Color - Variable::Vector4{10, 10, 10}; Mark_Color = Mark_Color.Re_Col();//透明化动画
+				Mark_Color = Mark_Color - Variable::Vector4{ 10, 10, 10 }; Mark_Color = Mark_Color.Re_Col();//透明化动画
 				static auto OldDamage = 0; const auto Damage = Advanced::Local_RoundDamage();//伤害
 				if (Damage > OldDamage || Damage < OldDamage)//当伤害变化
 				{
@@ -1177,7 +1184,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	{
 		const auto Local_UserName = System::Get_UserName();
 		for (short i = 0; i <= 500; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
-		UserID_READ.Release();
+		UserID_READ.Release();//释放缓存
 	}
 	if (Attest == false) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.", MB_ICONSTOP); exit(0); }//未被认证则直接退出
 	//----------------------------------------------------------------------------------------------------------------------------------

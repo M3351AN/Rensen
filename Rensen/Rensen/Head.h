@@ -1,4 +1,4 @@
-﻿//2024-03-26 22:00
+﻿//2024-03-28 21:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -448,23 +448,21 @@ namespace Window//窗口
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    LRESULT WINAPI Start_GDI_Window_Prosess(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) noexcept//辅助
+    LRESULT WINAPI Start_GDI_Window_Prosess(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) noexcept//窗口消息循环
     {
         switch (msg)
         {
-        case WM_ERASEBKGND: return TRUE;
-            break;
-        case WM_PAINT: return TRUE;
-            break;
+        case WM_ERASEBKGND: return TRUE; break;
+        case WM_PAINT: return TRUE; break;
+        case WM_CLOSE: exit(0); break;
         }
-        return DefWindowProcW(hwnd, msg, wp, lp);  //定义回调函数的返回值
+        return DefWindowProcW(hwnd, msg, wp, lp);//定义回调函数的返回值
     }
     class Windows//更加方便的 窗口创建
     {
     private:
         HWND Window_Hwnd = NULL;//GUI Window HWND
-        int BKX = 0;
-        int BKY = 0;
+        int BKX = 0; int BKY = 0;
     public:
         //----------------------------------------------------------------------------------------
         HWND Create_Window(int Size_X, int Size_Y, string WindowName, BOOL IfTop, HWND hWndParent = 0) noexcept//创建窗口
