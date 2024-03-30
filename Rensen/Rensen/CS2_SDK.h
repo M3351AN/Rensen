@@ -16,6 +16,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		SendMessage(CS2_MEM.Get_ProcessHWND(), WM_COPYDATA, 0, (LPARAM)&m_cData);
 		//-----------------------------------------------------------------------------------
 		if (Command_Str == "+jump")System::Key_Click(VK_F13, true, 57);//bind F13 "+jump;-jump";bind F14 "m_yaw 0.015";bind F15 "m_yaw 0.004";
+		if (Command_Str == "drop")System::Key_Click(0x47, true, 34);
 		/*
 		if (!System::Get_Key(VK_LWIN))//当没有按下WIN键(会阻止弹出Windows菜单)
 		{
