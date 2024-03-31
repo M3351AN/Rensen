@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-31 12:00]";//程序发布日期
-const float Rensen_Version = 3.19;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-31 18:00]";//程序发布日期
+const float Rensen_Version = 3.20;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_3840;
 	BOOL UI_Visual_Res_2560;
@@ -23,7 +23,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Setting_Menu_QuitCS;
 	BOOL UI_Setting_Menu_RestartMenu;
 	BOOL UI_Setting_Menu_Close;
-	//以上为按钮变量---------------------------------------------------------------------------------
+	string UI_Misc_SystemCommand;
+	BOOL UI_Misc_SendSystemCommand;
+	//以上变量不需要纳入参数------------------------------------------------------------------------
 	BOOL UI_Legit_Aimbot = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 1));
 	int UI_Legit_Aimbot_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 2));
 	BOOL UI_Legit_Aimbot_JudgingWall = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 3));
@@ -121,6 +123,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Spoof_DropC4 = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 104));
 	BOOL UI_Spoof_FakeAntiAim = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 105));
 	int UI_Spoof_FakeAntiAim_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 106));
+	BOOL UI_Spoof_KillDropSniper = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 107));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -230,7 +233,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Spoof_IncreaseRecoil_Value) + "\n" +
 			to_string(UI_Spoof_DropC4) + "\n" +
 			to_string(UI_Spoof_FakeAntiAim) + "\n" +
-			to_string(UI_Spoof_FakeAntiAim_Key) + "\n"
+			to_string(UI_Spoof_FakeAntiAim_Key) + "\n" +
+			to_string(UI_Spoof_KillDropSniper) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName) noexcept//加载Github云参数
@@ -335,6 +339,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Spoof_DropC4 = Variable::string_int_(URL_CONFIG.Read(104));
 			UI_Spoof_FakeAntiAim = Variable::string_int_(URL_CONFIG.Read(105));
 			UI_Spoof_FakeAntiAim_Key = Variable::string_int_(URL_CONFIG.Read(106));
+			UI_Spoof_KillDropSniper = Variable::string_int_(URL_CONFIG.Read(107));
 			URL_CONFIG.Release();
 		}
 	}
@@ -464,7 +469,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 2)//Misc
 			{
-				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 580, "Misc");
+				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 610, "Misc");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_25>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
@@ -487,27 +492,31 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 18, "Show console window", UI_Misc_ShowDebugWindow);
 				GUI_VAR.GUI_Button_Small(Block_Misc, 18, UI_Misc_ClearDebugWindow);
+				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_33>({ Block_Misc.x - 20,Block_Misc.y }, 19, UI_Misc_SystemCommand);
+				GUI_VAR.GUI_Button_Small(Block_Misc, 19, UI_Misc_SendSystemCommand);
 				const auto Block_Sonar = GUI_VAR.GUI_Block(580, 30, 130, "Sonar");
 				GUI_VAR.GUI_Checkbox(Block_Sonar, 1, "Enabled", UI_Misc_Sonar);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_33>(Block_Sonar, 1, UI_Misc_Sonar_Key);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_34>(Block_Sonar, 2, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_35>(Block_Sonar, 3, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_34>(Block_Sonar, 1, UI_Misc_Sonar_Key);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_35>(Block_Sonar, 2, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_36>(Block_Sonar, 3, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
 				const auto Block_CloudConfig = GUI_VAR.GUI_Block(580, 180, 150, "Cloud config");
 				GUI_VAR.GUI_Button(Block_CloudConfig, 1, "Load config", UI_Misc_LoadCloudConfig, 80);
 				GUI_VAR.GUI_List(Block_CloudConfig, 2, { "Legit","Rage","Legit - no visual" }, UI_Misc_SelectedConfig);
-				auto Block_Spoof = GUI_VAR.GUI_Block(580, 350, 250, "Spoof");
+				auto Block_Spoof = GUI_VAR.GUI_Block(580, 350, 280, "Spoof");
 				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });//恶搞功能总开关
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_36>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_37>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_37>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_38>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 4, "Increase recoil", UI_Spoof_IncreaseRecoil);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 6, "Unable to pick up C4", UI_Spoof_DropC4);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 7, "Fake anti aim", UI_Spoof_FakeAntiAim);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_39>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_40>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
+				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 8, "Kill drop sniper", UI_Spoof_KillDropSniper);
 				GUI_VAR.GUI_Tips(Block_Misc, 10, "Auto attack when conditions such as distance and blood volume are met.");
 				GUI_VAR.GUI_Tips(Block_Misc, 17, "Lock the game window to the front.");
 				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 18, "Clear console.");
+				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 19, "Send command to system.");
 				GUI_VAR.GUI_Tips(Block_Sonar, 1, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips({ Block_CloudConfig.x + 10,Block_CloudConfig.y }, 1, "Load parameter files stored in Github.");
 				GUI_VAR.GUI_Tips(Block_Spoof, 1, "Prank local player. (global switch)");
@@ -515,7 +524,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 4, "Enhanced upward deflection of firearms.");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 6, "Drop it when picking up C4.");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 7, "Rotate view......");
-				UI_WindowSize = { 1010,640 };
+				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 8, "Drop the weapon when killing an enemy with a sniper rifle.");
+				UI_WindowSize = { 1010,670 };
 			}
 			else if (UI_Panel == 3)//Setting
 			{
@@ -608,6 +618,16 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					else if (UI_Misc_SelectedConfig == 1)LoadCloudConfig("Rage");
 					else if (UI_Misc_SelectedConfig == 2)LoadCloudConfig("Legit No Visual");
 					System::Log("Misc: LoadCloudConfig [" + to_string(Config_ID) + "]");
+				}
+				if (UI_Misc_SendSystemCommand)//向系统发送指令
+				{
+					cout << UI_Misc_SystemCommand << endl;//打印控制台
+					if (Variable::String_Find(UI_Misc_SystemCommand, "/"))//检测是否是命令
+					{
+						string Last_Send_STR = UI_Misc_SystemCommand; Last_Send_STR.erase(0, 1);//擦除/
+						system(Last_Send_STR.c_str());
+					}
+					else System::Log("Misc: Invalid command. Please add / in front of.", true);
 				}
 				if (UI_Setting_Menu_OPENLINKAuthor)//打开作者Github主题页面
 				{
@@ -757,7 +777,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				//--------------------------------------
 				if (UI_Spoof_AimbotTeam && System::Get_Key(UI_Spoof_AimbotTeam_Key))//瞄准队友
 				{
-					float Aim_Range = 10;//瞄准范围
+					float Aim_Range = 8;//瞄准范围
 					for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
 					{
 						const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
@@ -774,11 +794,18 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				//--------------------------------------
 				if (UI_Spoof_FakeAntiAim && System::Get_Key(UI_Spoof_FakeAntiAim_Key))Advanced::Move_to_Angle(9999, 9999);//陀螺
 				//--------------------------------------
+				if (UI_Spoof_KillDropSniper)//丢枪狙
+				{
+					static auto OldKill = 0; const auto Kill = Advanced::Local_RoundDamage(true);//击杀
+					if (Kill > OldKill && Global_LocalPlayer.ActiveWeapon(true) == 3 && Global_LocalPlayer.ShotsFired() == 1)ExecuteCommand("drop");//丢弃武器
+					if (Kill != OldKill)OldKill = Kill;
+				}
+				//--------------------------------------
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
 			Sleep(1);//降低CPU占用
 		}
-		else Sleep(10);//降低CPU占用
+		else Sleep(20);//降低CPU占用
 	}
 }
 void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
@@ -890,7 +917,7 @@ void Thread_Funtion_Triggerbot() noexcept//功能线程: 自动扳机
 	{
 		if (Global_IsShowWindow && UI_Legit_Triggerbot && System::Get_Key(UI_Legit_Triggerbot_Key) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着 && 按键按下
 		{
-			System::Sleep_ns(600);//纳秒级延时
+			System::Sleep_ns(1000);//纳秒级延时
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器序号
 			const auto Local_ActiveWeaponType = Global_LocalPlayer.ActiveWeapon(true);//本地人物手持武器类型
 			if (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500 || Local_ActiveWeaponID == 31)continue;//过滤特殊武器 (刀子, 电击枪)
