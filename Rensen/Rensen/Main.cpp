@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-30 15:30]";//程序发布日期
-const float Rensen_Version = 3.18;//程序版本
+const string Rensen_ReleaseDate = "[2024-03-31 12:00]";//程序发布日期
+const float Rensen_Version = 3.19;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -586,7 +586,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 5, "Button 1", Debug_Control_Var::Button_1);
 				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 6, "Button 2", Debug_Control_Var::Button_2);
 				if (Debug_Control_Var::Button_1 || Debug_Control_Var::Button_2)System::Log("Debug: Click button");
-				if (Debug_Control_Var::Button_1)System::Log(System::Get_UserName());//打印用户名
+				if (Debug_Control_Var::Button_1)System::Log("Username: " + System::Get_UserName());//打印用户名
 				GUI_VAR.GUI_Tips(Block_DebugControl, 1, "Developer code debugging.");
 				UI_WindowSize = { 870,790 };
 			}
@@ -970,10 +970,11 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 		System::Log("Error: NVIDIA overlay window not found (Used Generate Alternative Window instead)", true);//未找到英伟达覆盖时报错
 		Rensen_ESP_RenderWindow = SpareRenderWindow.Create_RenderBlock_Alpha(0, 0, "NVIDIA overlay (Rensen)");//创建代替覆盖窗口
 	}
-	Window::Render ESP_Paint; ESP_Paint.CreatePaint(Rensen_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
+	Window::Render ESP_Paint; ESP_Paint.CreatePaint(Rensen_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);//创建内存画板
 	while (true)
 	{
 		Sleep(UI_Visual_ESP_RenderSleep);
+		if (SpareRenderWindow.Get_HWND() != 0)SpareRenderWindow.Fix_inWhile();//当已创建窗口时进入消息循环
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, TRUE);//修改 Pos & Size
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
@@ -1253,6 +1254,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
+		if (Local_UserName == "22684" || Local_UserName == "SAMSUNG") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单
 		for (short i = 0; i <= 500; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
 		UserID_READ.Release();//释放缓存
 	}
