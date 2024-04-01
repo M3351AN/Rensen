@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-03-31 18:00]";//程序发布日期
-const float Rensen_Version = 3.20;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-02 00:00]";//程序发布日期
+const float Rensen_Version = 3.22;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -369,7 +369,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
 			{
 				GUI_VAR.Global_Set_EasyGUI_Color(UI_Setting_Menu_MainColor);//设置主题颜色
-				GUI_VAR.GUI_BackGround(1369);//自定义颜色背景主题
+				GUI_VAR.GUI_BackGround(1369, true);//自定义颜色星空背景主题
 			}
 			else GUI_VAR.GUI_BackGround(1368);//默认(彩虹)
 			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Setting","Debug" }, UI_Panel);
@@ -1316,7 +1316,6 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (MenuWindowAlpha >= UI_Setting_Menu_MainColor.a)MenuWindowAlpha = UI_Setting_Menu_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
-		if (UI_Setting_Menu_CustomColor)GUI_VAR.Global_Set_EasyGUI_Color(UI_Setting_Menu_MainColor);//自定义菜单颜色
 		if (!System::Key_Toggle<class Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { GUI_VAR.Window_Show(); Menu_Open = true; }
 		else { if (MenuWindowAlpha == 0)GUI_VAR.Window_Hide(); Menu_Open = false; }
 		GUI_IO = GUI_VAR.Get_IO();//刷新GUI状态数据

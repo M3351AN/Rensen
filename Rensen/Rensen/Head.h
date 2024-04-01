@@ -1,4 +1,4 @@
-﻿//2024-03-31 12:00
+﻿//2024-04-02 00:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1904,7 +1904,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
 }
-namespace EasyGUI//EasyGUI Release[2024-03-31 12:00]
+namespace EasyGUI//EasyGUI Release[2024-04-02 00:00]
 {
     /*
     int main()
@@ -2477,7 +2477,7 @@ namespace EasyGUI//EasyGUI Release[2024-03-31 12:00]
             return IO;
         }
         //-------------------------------------------------------------------------------------------------------------------------------------------以下是控件函数*
-        void GUI_BackGround(short BackGround_StyleCode = 0) noexcept//绘制GUI窗口背景
+        void GUI_BackGround(short BackGround_StyleCode = 0, BOOL Star = false) noexcept//绘制GUI窗口背景
         {
             CHAR pszMem[MAX_PATH] = { 0 }; GetWindowTextA(EasyGUI_WindowHWND, pszMem, GetWindowTextLength(EasyGUI_WindowHWND) + 1);
             const short XX = EasyGUI_WindowPos.right - EasyGUI_WindowPos.left; const short YY = EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top;
@@ -2541,6 +2541,15 @@ namespace EasyGUI//EasyGUI Release[2024-03-31 12:00]
                 In_DrawGradientRect(7 + (XX - 7 * 2) / 2, 7, (XX - 7 * 2) / 2, 2, { 彩虹条颜色[3] / 2, 彩虹条颜色[4] / 2, 彩虹条颜色[5] / 2 }, { 彩虹条颜色[6] / 2, 彩虹条颜色[7] / 2, 彩虹条颜色[8] / 2 }, false);
                 In_DrawGradientRect(7, 7, (XX - 7 * 2) / 2, 1, { 彩虹条颜色[0], 彩虹条颜色[1], 彩虹条颜色[2] }, { 彩虹条颜色[3], 彩虹条颜色[4], 彩虹条颜色[5] }, false);
                 In_DrawGradientRect(7 + (XX - 7 * 2) / 2, 7, (XX - 7 * 2) / 2, 1, { 彩虹条颜色[3], 彩虹条颜色[4], 彩虹条颜色[5] }, { 彩虹条颜色[6], 彩虹条颜色[7], 彩虹条颜色[8] }, false);
+            }
+            if (Star)//星空背景
+            {
+                for (short SI = 0; SI < 100; ++SI)
+                {
+                    srand(SI);
+                    const short StarColor = rand() % 200 + 55;
+                    In_DrawRect(rand() % (XX - 14) + 7, rand() % (YY - 17) + 10, 1, 1, { StarColor,StarColor,StarColor });
+                }
             }
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
