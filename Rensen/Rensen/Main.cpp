@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-02 00:00]";//程序发布日期
-const float Rensen_Version = 3.22;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-03 16:00]";//程序发布日期
+const float Rensen_Version = 3.23;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -558,8 +558,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(3000)) { PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
 				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName);
+				if (PlayerName != "") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))SelectPlayer = i; }//当输入时(人物名称搜索)
 				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, SelectPlayer, 25);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
+				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 2, "Screch player name.");
 				const auto Block_Info = GUI_VAR.GUI_Block(510, 30, 490, "Info", 330);
 				const auto Player_Pawn = Advanced::Traverse_Player(SelectPlayer);
 				Variable::Vector4 Debug_PawnColor = { 0,0,0 };//人物数据地址绘制颜色
@@ -597,6 +599,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 6, "Button 2", Debug_Control_Var::Button_2);
 				if (Debug_Control_Var::Button_1 || Debug_Control_Var::Button_2)System::Log("Debug: Click button");
 				if (Debug_Control_Var::Button_1)System::Log("Username: " + System::Get_UserName());//打印用户名
+				if (Debug_Control_Var::Button_2)System::Log("GUI Draw FPS: " + to_string(GUI_VAR.Window_FPS()) + "." + to_string(System::Rand_Number(0, 999)));//打印GUI绘制帧数
 				GUI_VAR.GUI_Tips(Block_DebugControl, 1, "Developer code debugging.");
 				UI_WindowSize = { 870,790 };
 			}
@@ -613,7 +616,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				if (UI_Misc_ClearDebugWindow)system("cls");//清除控制台
 				if (UI_Misc_LoadCloudConfig)//加载Github上的云参数
 				{
-					const auto Config_ID = UI_Misc_SelectedConfig;
+					const auto Config_ID = UI_Misc_SelectedConfig;//防止套用的参数套写变量
 					if (UI_Misc_SelectedConfig == 0)LoadCloudConfig("Legit");
 					else if (UI_Misc_SelectedConfig == 1)LoadCloudConfig("Rage");
 					else if (UI_Misc_SelectedConfig == 2)LoadCloudConfig("Legit No Visual");
@@ -1281,7 +1284,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
-		if (Local_UserName == "22684" || Local_UserName == "SAMSUNG") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单
+		if (Local_UserName == "22684" || Local_UserName == "SAMSUNG") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单过滤
 		for (short i = 0; i <= 500; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
 		UserID_READ.Release();//释放缓存
 	}

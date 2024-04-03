@@ -1,4 +1,4 @@
-﻿//2024-04-02 00:00
+﻿//2024-04-03 16:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1904,7 +1904,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
 }
-namespace EasyGUI//EasyGUI Release[2024-04-02 00:00]
+namespace EasyGUI//EasyGUI Release[2024-04-03 16:00]
 {
     /*
     int main()
@@ -2399,6 +2399,11 @@ namespace EasyGUI//EasyGUI Release[2024-04-02 00:00]
         {
             CHAR pszMem[MAX_PATH] = { 0 }; GetWindowTextA(EasyGUI_WindowHWND, pszMem, GetWindowTextLength(EasyGUI_WindowHWND) + 1);
             return pszMem;
+        }
+        //---------------------------------------------------------------------------------------------------------------------------------------------------------
+        int Window_FPS() noexcept//获取GUI绘制帧数
+        {
+            return EasyGUI_FPS;
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         BOOL Window_Move(short Draw_ms = 5) noexcept//移动GUI窗口 (在GUI循环线程内加入此函数不需要添加延时函数来降低CPU占用)
