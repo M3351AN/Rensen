@@ -1,6 +1,6 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-03 16:00]";//程序发布日期
+const string Rensen_ReleaseDate = "[2024-04-03 20:00]";//程序发布日期
 const float Rensen_Version = 3.23;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
@@ -361,9 +361,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
 		static int UI_Panel = 0;//大区块选择
-		static vector<int> UI_WindowSize = { 0 ,0 };//窗体大小(用于开关动画)
+		static vector<int> UI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)UI_WindowSize = { 0,0 };//关闭窗体时
-		GUI_VAR.Window_SetSize({ (int)Variable::Animation<class Menu_Open_Animation_X>(UI_WindowSize[0],2),(int)Variable::Animation<class Menu_Open_Animation_Y>(UI_WindowSize[1],2) });//窗口大小动画
+		GUI_VAR.Window_SetSize({ (int)Variable::Animation<class Menu_Open_Animation_X>(UI_WindowSize[0],1.5),(int)Variable::Animation<class Menu_Open_Animation_Y>(UI_WindowSize[1],1.5) });//窗口大小动画
 		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
@@ -558,10 +558,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(3000)) { PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
 				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName);
-				if (PlayerName != "") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))SelectPlayer = i; }//当输入时(人物名称搜索)
+				if (PlayerName != "") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))SelectPlayer = i; }//人物名称搜索
 				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, SelectPlayer, 25);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
-				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 2, "Screch player name.");
+				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 2, "Search player name.");
 				const auto Block_Info = GUI_VAR.GUI_Block(510, 30, 490, "Info", 330);
 				const auto Player_Pawn = Advanced::Traverse_Player(SelectPlayer);
 				Variable::Vector4 Debug_PawnColor = { 0,0,0 };//人物数据地址绘制颜色
@@ -1297,7 +1297,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	printf("Welcome to Rensen for Counter-Strike 2 cheat.\nThe Rensen project is a version converted from FreeCS.\nNo team author By: https://github.com/Coslly\nThe following information returned is debugging information.\n");//作者留言
 	System::Log("Load Thread: main()");
 	Sleep(200);//修复重启进程冲突
-	if (!System::Judge_File(UI_LocalConfigPath)) { System::Create_File(UI_LocalConfigPath, UI_DefaultConfig); System::Self_Restart(); }//创建默认参数文件
+	if (!System::Judge_File(UI_LocalConfigPath)) { System::Create_File(UI_LocalConfigPath, UI_DefaultConfig); System::Self_Restart(); }//创建默认参数文件 (当未找到参数文件时)
 	thread Thread_Menu_ = thread(Thread_Menu);
 	thread Thread_Misc_ = thread(Thread_Misc);
 	Sleep(50);//防止重启卡线程 (以下为功能函数线程)
@@ -1314,8 +1314,8 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	{
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
-		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_Menu_MainColor.a / 8;
-		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_Menu_MainColor.a / 8;
+		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_Menu_MainColor.a / 5;//窗体透明度动画
+		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_Menu_MainColor.a / 5;
 		if (MenuWindowAlpha >= UI_Setting_Menu_MainColor.a)MenuWindowAlpha = UI_Setting_Menu_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
