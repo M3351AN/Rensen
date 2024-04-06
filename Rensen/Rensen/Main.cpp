@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-03 20:00]";//程序发布日期
-const float Rensen_Version = 3.23;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-06 12:30]";//程序发布日期
+const float Rensen_Version = 3.25;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -1153,7 +1153,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			{
 				short Show_Quantity = 0;//计算绘制的实体数量
 				Class_ID = {};//刷新有效实体ID
-				for (short i = 64; i <= 1024; ++i)//class id 64-1024
+				for (short i = 65; i <= 1024; ++i)//class id 65-1024
 				{
 					if (Show_Quantity > 40)continue;//限制数量
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, i);
@@ -1279,6 +1279,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 }
 int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 {
+	System::Anti_Debugger();//防止逆向破解
 	BOOL Attest = false;//认证变量
 	System::URL_READ UserID_READ = { "Cache_UserID" };
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
@@ -1312,6 +1313,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	thread Thread_Funtion_Sonar_ = thread(Thread_Funtion_Sonar);
 	while (true)//菜单动画和关闭快捷键
 	{
+		System::Anti_Debugger();//防止逆向破解
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
 		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_Menu_MainColor.a / 5;//窗体透明度动画
