@@ -1,5 +1,7 @@
 # Rensen for game Counter-Strike 2
 Just a multifunction cheat software developed for the game Counter-Strike 2.
+
+This project is the original Rensen address. If you find it at other addresses, please delete it immediately.
 ## 🤓Features
 - External Menu
 - Saveable System
