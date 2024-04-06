@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-06 12:30]";//程序发布日期
-const float Rensen_Version = 3.25;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-06 23:30]";//程序发布日期
+const float Rensen_Version = 3.27;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_3840;
 	BOOL UI_Visual_Res_2560;
@@ -124,6 +124,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Spoof_FakeAntiAim = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 105));
 	int UI_Spoof_FakeAntiAim_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 106));
 	BOOL UI_Spoof_KillDropSniper = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 107));
+	float UI_Setting_Menu_MenuAnimation = Variable::string_float_(System::Get_File(UI_LocalConfigPath, 108));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -234,13 +235,14 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Spoof_DropC4) + "\n" +
 			to_string(UI_Spoof_FakeAntiAim) + "\n" +
 			to_string(UI_Spoof_FakeAntiAim_Key) + "\n" +
-			to_string(UI_Spoof_KillDropSniper) + "\n"
+			to_string(UI_Spoof_KillDropSniper) + "\n" +
+			to_string(UI_Setting_Menu_MenuAnimation) + "\n"
 		);
 	}
-	void LoadCloudConfig(string FileName) noexcept//加载Github云参数
+	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
 	{
 		System::URL_READ URL_CONFIG = { "Cache_CloudConfig" };
-		if (URL_CONFIG.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/" + FileName + (string)".cfg?raw=true"))
+		if (URL_CONFIG.StoreMem(NormalURL + FileName + (string)".cfg?raw=true"))
 		{
 			UI_Legit_Aimbot = Variable::string_int_(URL_CONFIG.Read(1));
 			UI_Legit_Aimbot_Key = Variable::string_int_(URL_CONFIG.Read(2));
@@ -340,6 +342,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Spoof_FakeAntiAim = Variable::string_int_(URL_CONFIG.Read(105));
 			UI_Spoof_FakeAntiAim_Key = Variable::string_int_(URL_CONFIG.Read(106));
 			UI_Spoof_KillDropSniper = Variable::string_int_(URL_CONFIG.Read(107));
+			UI_Setting_Menu_MenuAnimation = Variable::string_float_(URL_CONFIG.Read(108));
 			URL_CONFIG.Release();
 		}
 	}
@@ -363,7 +366,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 		static int UI_Panel = 0;//大区块选择
 		static vector<int> UI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)UI_WindowSize = { 0,0 };//关闭窗体时
-		GUI_VAR.Window_SetSize({ (int)Variable::Animation<class Menu_Open_Animation_X>(UI_WindowSize[0],1.5),(int)Variable::Animation<class Menu_Open_Animation_Y>(UI_WindowSize[1],1.5) });//窗口大小动画
+		GUI_VAR.Window_SetSize({ (int)Variable::Animation<class Menu_Open_Animation_X>(UI_WindowSize[0],UI_Setting_Menu_MenuAnimation),(int)Variable::Animation<class Menu_Open_Animation_Y>(UI_WindowSize[1],UI_Setting_Menu_MenuAnimation) });//窗口大小动画
 		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
@@ -537,18 +540,20 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020.", { 150,255,150 });
 				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_Menu_OPENLINKAuthor);
-				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 250, "Menu");
-				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key"); GUI_VAR.GUI_KeySelector<class Rensen_Menu_1>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
+				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 280, "Menu");
+				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_41>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
 				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Button(Block_Menu, 3, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
-				GUI_VAR.GUI_Button(Block_Menu, 4, "Start CS", UI_Setting_Menu_StartCS, 85);
-				GUI_VAR.GUI_Button(Block_Menu, 5, "Quit CS", UI_Setting_Menu_QuitCS, 90);
-				GUI_VAR.GUI_Button(Block_Menu, 6, "Restart menu", UI_Setting_Menu_RestartMenu, 75);
-				GUI_VAR.GUI_Button(Block_Menu, 7, "Close", UI_Setting_Menu_Close, 95);
-				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 3, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
-				UI_WindowSize = { 580,490 };
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_42>(Block_Menu, 3, "Menu animation", 1.5, 5, UI_Setting_Menu_MenuAnimation);
+				GUI_VAR.GUI_Button(Block_Menu, 4, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
+				GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
+				GUI_VAR.GUI_Button(Block_Menu, 6, "Quit CS", UI_Setting_Menu_QuitCS, 90);
+				GUI_VAR.GUI_Button(Block_Menu, 7, "Restart menu", UI_Setting_Menu_RestartMenu, 75);
+				GUI_VAR.GUI_Button(Block_Menu, 8, "Close", UI_Setting_Menu_Close, 95);
+				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 4, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
+				UI_WindowSize = { 580,520 };
 			}
 			else if (UI_Panel == 4)//Debug
 			{
@@ -558,7 +563,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(3000)) { PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
 				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName);
-				if (PlayerName != "") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))SelectPlayer = i; }//人物名称搜索
+				if (PlayerName != "" && PlayerName != "None") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))SelectPlayer = i; }//人物名称搜索
 				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, SelectPlayer, 25);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 2, "Search player name.");
@@ -1279,7 +1284,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 }
 int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 {
-	System::Anti_Debugger();//防止逆向破解
+	System::Anti_Debugger();//防止逆向破解 //Debug
 	BOOL Attest = false;//认证变量
 	System::URL_READ UserID_READ = { "Cache_UserID" };
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
@@ -1313,11 +1318,10 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	thread Thread_Funtion_Sonar_ = thread(Thread_Funtion_Sonar);
 	while (true)//菜单动画和关闭快捷键
 	{
-		System::Anti_Debugger();//防止逆向破解
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
-		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_Menu_MainColor.a / 5;//窗体透明度动画
-		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_Menu_MainColor.a / 5;
+		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_Menu_MainColor.a / UI_Setting_Menu_MenuAnimation / 2;//窗体透明度动画
+		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_Menu_MainColor.a / UI_Setting_Menu_MenuAnimation / 2;
 		if (MenuWindowAlpha >= UI_Setting_Menu_MainColor.a)MenuWindowAlpha = UI_Setting_Menu_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度

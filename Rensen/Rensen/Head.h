@@ -1,4 +1,4 @@
-﻿//2024-04-06 12:30
+﻿//2024-04-06 23:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1910,7 +1910,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
 }
-namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
+namespace EasyGUI//EasyGUI Release[2024-04-06 23:00]
 {
     /*
     int main()
@@ -2145,38 +2145,44 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
             else  GradientFill(EasyGUI_DrawHDC, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
         }
         //---------------------------------------------------------------------
+        void In_DrawLine(int X, int Y, int XX, int YY, Variable::Vector4 Color, int LineThickness = 1) noexcept//屏幕画线 (方便制作GUI)
+        {
+            const auto LineColor = SelectObject(EasyGUI_DrawHDC, CreatePen(PS_SOLID, LineThickness, RGB(Color.r, Color.g, Color.b)));
+            MoveToEx(EasyGUI_DrawHDC, X, Y, NULL);
+            LineTo(EasyGUI_DrawHDC, XX, YY);
+            DeleteObject(LineColor);
+        }
+        //---------------------------------------------------------------------
         void In_DrawString(int X, int Y, string String, Vector4 TextColor, string Fount_Name, short Fount_Size, short Font_Width = FW_NORMAL, BOOL AntiAlias = true) noexcept//绘制文字 (方便制作GUI)
         {
-            const HDC StringHdc = EasyGUI_DrawHDC;
             HGDIOBJ FontPen;
-            if (AntiAlias)FontPen = SelectObject(StringHdc, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
-            else FontPen = SelectObject(StringHdc, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
-            SetTextColor(StringHdc, RGB(TextColor.r, TextColor.g, TextColor.b));//文字颜色
-            SetBkMode(StringHdc, TRANSPARENT);//背景透明
+            if (AntiAlias)FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
+            else FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
+            SetTextColor(EasyGUI_DrawHDC, RGB(TextColor.r, TextColor.g, TextColor.b));//文字颜色
+            SetBkMode(EasyGUI_DrawHDC, TRANSPARENT);//背景透明
             const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, NULL, 0);//转码 UTF-8 (为了显示中文)
             wchar_t* wide_text = new wchar_t[len];
             MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);//转码 UTF-8 (为了显示中文)
-            TextOutW(StringHdc, X, Y, wide_text, len - 1);
+            TextOutW(EasyGUI_DrawHDC, X, Y, wide_text, len - 1);
             DeleteObject(FontPen);
             delete[] wide_text;
         }
         //---------------------------------------------------------------------
         void In_DrawString_Simple(int X, int Y, string String, Vector4 TextColor = { 255,255,255 }) noexcept//绘制简单文字 (方便制作GUI)
         {
-            const HDC StringHdc = EasyGUI_DrawHDC;
-            HGDIOBJ FontPen = SelectObject(StringHdc, CreateFontA(12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, "Small Fonts"));
-            SetBkMode(StringHdc, TRANSPARENT);//背景透明
-            SetTextColor(StringHdc, RGB(0, 0, 0));//文字颜色
-            TextOutA(StringHdc, X + 1, Y + 1, String.c_str(), strlen(String.c_str()));
-            TextOutA(StringHdc, X - 1, Y - 1, String.c_str(), strlen(String.c_str()));
-            TextOutA(StringHdc, X + 1, Y - 1, String.c_str(), strlen(String.c_str()));
-            TextOutA(StringHdc, X - 1, Y + 1, String.c_str(), strlen(String.c_str()));
-            TextOutA(StringHdc, X + 1, Y, String.c_str(), strlen(String.c_str()));
-            TextOutA(StringHdc, X - 1, Y, String.c_str(), strlen(String.c_str()));
-            TextOutA(StringHdc, X, Y - 1, String.c_str(), strlen(String.c_str()));
-            TextOutA(StringHdc, X, Y + 1, String.c_str(), strlen(String.c_str()));
-            SetTextColor(StringHdc, RGB(TextColor.r, TextColor.g, TextColor.b));//文字颜色
-            TextOutA(StringHdc, X, Y, String.c_str(), strlen(String.c_str()));
+            HGDIOBJ FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, "Small Fonts"));
+            SetBkMode(EasyGUI_DrawHDC, TRANSPARENT);//背景透明
+            SetTextColor(EasyGUI_DrawHDC, RGB(0, 0, 0));//文字颜色
+            TextOutA(EasyGUI_DrawHDC, X + 1, Y + 1, String.c_str(), strlen(String.c_str()));
+            TextOutA(EasyGUI_DrawHDC, X - 1, Y - 1, String.c_str(), strlen(String.c_str()));
+            TextOutA(EasyGUI_DrawHDC, X + 1, Y - 1, String.c_str(), strlen(String.c_str()));
+            TextOutA(EasyGUI_DrawHDC, X - 1, Y + 1, String.c_str(), strlen(String.c_str()));
+            TextOutA(EasyGUI_DrawHDC, X + 1, Y, String.c_str(), strlen(String.c_str()));
+            TextOutA(EasyGUI_DrawHDC, X - 1, Y, String.c_str(), strlen(String.c_str()));
+            TextOutA(EasyGUI_DrawHDC, X, Y - 1, String.c_str(), strlen(String.c_str()));
+            TextOutA(EasyGUI_DrawHDC, X, Y + 1, String.c_str(), strlen(String.c_str()));
+            SetTextColor(EasyGUI_DrawHDC, RGB(TextColor.r, TextColor.g, TextColor.b));//文字颜色
+            TextOutA(EasyGUI_DrawHDC, X, Y, String.c_str(), strlen(String.c_str()));
             DeleteObject(FontPen);
         }
         //---------------------------------------------------------------------
@@ -2217,8 +2223,7 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
         template<class CreateClassName>//防止同函数同步
         BOOL In_TickSleep(int Time_MS) noexcept//不受线程影响的Sleep函数
         {
-            const long Tick = GetTickCount64();
-            static long OldTick = Tick;
+            const long Tick = GetTickCount64(); static long OldTick = Tick;
             if (Tick - OldTick >= Time_MS) { OldTick = Tick; return true; }//当达到一定数值返回并且重写变量
             else return false;
         }
@@ -2330,6 +2335,7 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
         }
         void Draw_GUI(BOOL ReverseColor = false) noexcept//双缓冲结束绘制 (绘制最终返回图片)
         {
+            if (EasyGUI_MousePos.x == 0 && EasyGUI_MousePos.y == 0)In_DrawString_Simple(0, 0, "You are a unique star in the universe.", Global_EasyGUIColor);//你是宇宙中独有的一颗星
             if (ReverseColor)BitBlt(EasyGUI_DrawHDC, 0, 0, PaintSize.x, PaintSize.y, EasyGUI_DrawHDC, 0, 0, PATINVERT);//反转颜色
             BitBlt(EasyGUI_WindowHDC, 0, 0, PaintSize.x, PaintSize.y, EasyGUI_DrawHDC, 0, 0, SRCCOPY);//最终绘制内存中的图像
             //--------------------------------消息循环
@@ -2339,9 +2345,10 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
+            GetCursorPos(&EasyGUI_MousePos); GetWindowRect(EasyGUI_WindowHWND, &EasyGUI_WindowPos);//刷新鼠标窗口坐标
             //--------------------------------帧数计算
             static int m_fps = 0; m_fps++;
-            const int Tick = GetTickCount(); static int Tick_Old = Tick;
+            const int Tick = GetTickCount64(); static int Tick_Old = Tick;
             if (Tick >= Tick_Old + 1000)//每1秒刷新 (计时器)
             {
                 Tick_Old = Tick;
@@ -2407,10 +2414,7 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
             return pszMem;
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
-        int Window_FPS() noexcept//获取GUI绘制帧数
-        {
-            return EasyGUI_FPS;
-        }
+        int Window_FPS() noexcept { return EasyGUI_FPS; }//获取GUI绘制帧数
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         BOOL Window_Move(short Draw_ms = 5) noexcept//移动GUI窗口 (在GUI循环线程内加入此函数不需要添加延时函数来降低CPU占用)
         {
@@ -2421,8 +2425,8 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
             }
+            GetCursorPos(&EasyGUI_MousePos); GetWindowRect(EasyGUI_WindowHWND, &EasyGUI_WindowPos);//刷新鼠标窗口坐标
             //---------------------------------------
-            GetCursorPos(&EasyGUI_MousePos); GetWindowRect(EasyGUI_WindowHWND, &EasyGUI_WindowPos);//刷新坐标
             static BOOL 防止脱离 = false;
             static int OldX, OldY;//按下时坐标
             static BOOL 保存鼠标坐标 = false;
@@ -2488,9 +2492,8 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
             return IO;
         }
         //-------------------------------------------------------------------------------------------------------------------------------------------以下是控件函数*
-        void GUI_BackGround(short BackGround_StyleCode = 0, BOOL Star = false) noexcept//绘制GUI窗口背景
+        void GUI_BackGround(short BackGround_StyleCode = 0, BOOL Particle_Animation = false) noexcept//绘制GUI窗口背景
         {
-            CHAR pszMem[MAX_PATH] = { 0 }; GetWindowTextA(EasyGUI_WindowHWND, pszMem, GetWindowTextLength(EasyGUI_WindowHWND) + 1);
             const short XX = EasyGUI_WindowPos.right - EasyGUI_WindowPos.left; const short YY = EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top;
             vector<int> 彩虹条颜色 = { 0,255,255,255,0,255,255,255,0 };
             vector<int> 主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,5,5,5,30,30,30 };
@@ -2553,13 +2556,16 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
                 In_DrawGradientRect(7, 7, (XX - 7 * 2) / 2, 1, { 彩虹条颜色[0], 彩虹条颜色[1], 彩虹条颜色[2] }, { 彩虹条颜色[3], 彩虹条颜色[4], 彩虹条颜色[5] }, false);
                 In_DrawGradientRect(7 + (XX - 7 * 2) / 2, 7, (XX - 7 * 2) / 2, 1, { 彩虹条颜色[3], 彩虹条颜色[4], 彩虹条颜色[5] }, { 彩虹条颜色[6], 彩虹条颜色[7], 彩虹条颜色[8] }, false);
             }
-            if (Star)//星空背景
+            if (Particle_Animation)//动画背景背景
             {
-                for (short SI = 0; SI < 100; ++SI)
+                struct c_particle { int c, x, y; };//粒子结构体 { color, x, y }
+                for (short i = 0; i <= 40; ++i)
                 {
-                    srand(SI);
-                    const short StarColor = rand() % 200 + 55;
-                    In_DrawRect(rand() % (XX - 14) + 7, rand() % (YY - 17) + 10, 1, 1, { StarColor,StarColor,StarColor });
+                    srand(i);//随机种子
+                    const c_particle Par = { rand() % 200 + 55, rand() % (XX - 14) + 7, rand() % (YY - 17) + 10 };//粒子结构变量
+                    const Vector2 MousePos = { EasyGUI_MousePos.x - EasyGUI_WindowPos.left ,EasyGUI_MousePos.y - EasyGUI_WindowPos.top };//窗口内的鼠标坐标
+                    if (hypot(MousePos.x - Par.x, MousePos.y - Par.y) <= 300)In_DrawLine(MousePos.x, MousePos.y, Par.x, Par.y, { Global_EasyGUIColor.r / 6,Global_EasyGUIColor.g / 6 ,Global_EasyGUIColor.b / 6 });//绘制粒子连接线
+                    In_DrawRect(Par.x, Par.y, 1, 1, { Par.c,Par.c,Par.c });//绘制粒子
                 }
             }
         }
@@ -2890,10 +2896,10 @@ namespace EasyGUI//EasyGUI Release[2024-04-03 20:00]
             In_DrawString_Simple(BlockPos.x + 8, BlockPos.y + 27 + (30 * (LineRow - 1)), "[?]", { 100,100,100 });//GUI绘制
             if (GetForegroundWindow() == EasyGUI_WindowHWND && In_MouseEventJudgment(BlockPos.x + 8, BlockPos.y + 26 + (30 * (LineRow - 1)), 13, 13) && !Mouse_Slider_)//当鼠标移动到问号 且GUI窗口为最顶层
             {
-                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 15, strlen(TipsString.c_str()) * 6, 20, { 0,0,0 });
-                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 1, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 15 + 1, strlen(TipsString.c_str()) * 6 - 2, 20 - 2, { 60,60,60 });
-                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 2, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 15 + 2, strlen(TipsString.c_str()) * 6 - 4, 20 - 4, { 15,15,15 });
-                In_DrawString_Simple(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 4, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 15 + 4, TipsString, TextColor);
+                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10, strlen(TipsString.c_str()) * 6, 20, { 0,0,0 });
+                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 1, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 1, strlen(TipsString.c_str()) * 6 - 2, 20 - 2, { 60,60,60 });
+                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 2, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 2, strlen(TipsString.c_str()) * 6 - 4, 20 - 4, { 15,15,15 });
+                In_DrawString_Simple(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 4, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 4, TipsString, TextColor);
                 return true;
             }
             else return false;
