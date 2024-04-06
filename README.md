@@ -1,4 +1,6 @@
 # Rensen for game Counter-Strike 2
+Just a multifunction cheat software developed for the game Counter-Strike 2.
+## 🤓Features
 - External Menu
 - Saveable System
 - Absolutely safe!!!
