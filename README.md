@@ -1,11 +1,10 @@
 # Rensen for game Counter-Strike 2
 Just a multifunction cheat software developed for the game Counter-Strike 2.
-
-This project is the original Rensen address. If you find it at other addresses, please delete it immediately.
 ## 🤓Features
 - External Menu
 - Saveable System
 - Absolutely safe!!!
+- Do not write memory!!!
 - C++ Build in Release | x64
 - Cloud update: https://github.com/Coslly/Misc/blob/main/About%20Rensen/Offsets.ofs
 - GUI project: https://github.com/Coslly/EasyGUI-Lightweight.git
@@ -18,3 +17,5 @@ Since the game update cannot truly restore the functions of the CSGO generation,
 `bind F13 "+jump;-jump";bind F14 "m_yaw 0.015";bind F15 "m_yaw 0.004";`
 # 💀Disclaimer
 I am not responsible for anything that happens when you use this software.
+
+This project is the original Rensen address. If you find it at other addresses, please delete it immediately.
