@@ -2149,7 +2149,7 @@ namespace EasyGUI//EasyGUI Release[2024-04-07 12:00]
             else  GradientFill(EasyGUI_DrawHDC, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
         }
         //---------------------------------------------------------------------
-        void In_DrawLine(int X, int Y, int XX, int YY, Variable::Vector4 Color, int LineThickness = 1) noexcept//屏幕画线 (方便制作GUI)
+        void In_DrawLine(int X, int Y, int XX, int YY, Vector4 Color, int LineThickness = 1) noexcept//屏幕画线 (方便制作GUI)
         {
             const auto LineColor = SelectObject(EasyGUI_DrawHDC, CreatePen(PS_SOLID, LineThickness, RGB(Color.r, Color.g, Color.b)));
             MoveToEx(EasyGUI_DrawHDC, X, Y, NULL);
