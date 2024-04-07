@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-07 12:00]";//程序发布日期
-const float Rensen_Version = 3.28;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-07 20:50]";//程序发布日期
+const float Rensen_Version = 3.30;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_3840;
 	BOOL UI_Visual_Res_2560;
@@ -125,6 +125,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	int UI_Spoof_FakeAntiAim_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 106));
 	BOOL UI_Spoof_KillDropSniper = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 107));
 	float UI_Setting_Menu_MenuAnimation = Variable::string_float_(System::Get_File(UI_LocalConfigPath, 108));
+	BOOL UI_Misc_HitMark_KillEffect = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 109));
+	int UI_Misc_HitMark_KillEffect_Quantity = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 110));
+	int UI_Misc_HitMark_KillEffect_Range = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 111));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -236,7 +239,10 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Spoof_FakeAntiAim) + "\n" +
 			to_string(UI_Spoof_FakeAntiAim_Key) + "\n" +
 			to_string(UI_Spoof_KillDropSniper) + "\n" +
-			to_string(UI_Setting_Menu_MenuAnimation) + "\n"
+			to_string(UI_Setting_Menu_MenuAnimation) + "\n" +
+			to_string(UI_Misc_HitMark_KillEffect) + "\n" +
+			to_string(UI_Misc_HitMark_KillEffect_Quantity) + "\n" +
+			to_string(UI_Misc_HitMark_KillEffect_Range) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -343,6 +349,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Spoof_FakeAntiAim_Key = Variable::string_int_(URL_CONFIG.Read(106));
 			UI_Spoof_KillDropSniper = Variable::string_int_(URL_CONFIG.Read(107));
 			UI_Setting_Menu_MenuAnimation = Variable::string_float_(URL_CONFIG.Read(108));
+			UI_Misc_HitMark_KillEffect = Variable::string_int_(URL_CONFIG.Read(109));
+			UI_Misc_HitMark_KillEffect_Quantity = Variable::string_int_(URL_CONFIG.Read(110));
+			UI_Misc_HitMark_KillEffect_Range = Variable::string_int_(URL_CONFIG.Read(111));
 			URL_CONFIG.Release();
 		}
 	}
@@ -472,7 +481,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 2)//Misc
 			{
-				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 610, "Misc");
+				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 700, "Misc");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_25>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
@@ -483,43 +492,46 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_27>(Block_Misc, 7, "Range", 3, 100, UI_Misc_HitMark_Range, "px");
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_28>(Block_Misc, 8, "Length", 3, 100, UI_Misc_HitMark_Length, "px");
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_29>(Block_Misc, 9, "Width", 1, 10, UI_Misc_HitMark_Width, "px");
-				GUI_VAR.GUI_Checkbox(Block_Misc, 10, "Knife bot", UI_Misc_AutoKnife);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_30>(Block_Misc, 10, UI_Misc_AutoKnife_Key);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 11, "Taser bot", UI_Misc_AutoTaser);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_31>(Block_Misc, 11, UI_Misc_AutoTaser_Key);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 12, "Water mark", UI_Misc_Watermark);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Sniper crosshair", UI_Misc_SniperCrosshair);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_32>(Block_Misc, 14, "Size", 10, 30, UI_Misc_SniperCrosshair_Size, "px");
-				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Anti AFK kick", UI_Misc_AntiAFKKick);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
-				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Lock game window", UI_Misc_LockGameWindow);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 18, "Show console window", UI_Misc_ShowDebugWindow);
-				GUI_VAR.GUI_Button_Small(Block_Misc, 18, UI_Misc_ClearDebugWindow);
-				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_33>({ Block_Misc.x - 20,Block_Misc.y }, 19, UI_Misc_SystemCommand);
-				GUI_VAR.GUI_Button_Small(Block_Misc, 19, UI_Misc_SendSystemCommand);
+				GUI_VAR.GUI_Checkbox({ Block_Misc.x + 20,Block_Misc.y }, 10, "Lightning effect", UI_Misc_HitMark_KillEffect);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_30>(Block_Misc, 11, "Quantity", 10, 500, UI_Misc_HitMark_KillEffect_Quantity);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Misc, 12, "Range", 10, 500, UI_Misc_HitMark_KillEffect_Range);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Knife bot", UI_Misc_AutoKnife);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_32>(Block_Misc, 13, UI_Misc_AutoKnife_Key);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Taser bot", UI_Misc_AutoTaser);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_33>(Block_Misc, 14, UI_Misc_AutoTaser_Key);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Water mark", UI_Misc_Watermark);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Sniper crosshair", UI_Misc_SniperCrosshair);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_34>(Block_Misc, 17, "Size", 10, 30, UI_Misc_SniperCrosshair_Size, "px");
+				GUI_VAR.GUI_Checkbox(Block_Misc, 18, "Anti AFK kick", UI_Misc_AntiAFKKick);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
+				GUI_VAR.GUI_Checkbox(Block_Misc, 20, "Lock game window", UI_Misc_LockGameWindow);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 21, "Show console window", UI_Misc_ShowDebugWindow);
+				GUI_VAR.GUI_Button_Small(Block_Misc, 21, UI_Misc_ClearDebugWindow);
+				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_35>({ Block_Misc.x - 20,Block_Misc.y }, 22, UI_Misc_SystemCommand);
+				GUI_VAR.GUI_Button_Small(Block_Misc, 22, UI_Misc_SendSystemCommand);
 				const auto Block_Sonar = GUI_VAR.GUI_Block(580, 30, 130, "Sonar");
 				GUI_VAR.GUI_Checkbox(Block_Sonar, 1, "Enabled", UI_Misc_Sonar);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_34>(Block_Sonar, 1, UI_Misc_Sonar_Key);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_35>(Block_Sonar, 2, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_36>(Block_Sonar, 3, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_36>(Block_Sonar, 1, UI_Misc_Sonar_Key);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_37>(Block_Sonar, 2, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Sonar, 3, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
 				const auto Block_CloudConfig = GUI_VAR.GUI_Block(580, 180, 150, "Cloud config");
 				GUI_VAR.GUI_Button(Block_CloudConfig, 1, "Load config", UI_Misc_LoadCloudConfig, 80);
 				GUI_VAR.GUI_List(Block_CloudConfig, 2, { "Legit","Rage","Legit - no visual" }, UI_Misc_SelectedConfig);
 				auto Block_Spoof = GUI_VAR.GUI_Block(580, 350, 280, "Spoof");
 				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });//恶搞功能总开关
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_37>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_38>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_39>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_40>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 4, "Increase recoil", UI_Spoof_IncreaseRecoil);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_41>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 6, "Unable to pick up C4", UI_Spoof_DropC4);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 7, "Fake anti aim", UI_Spoof_FakeAntiAim);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_40>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_42>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 8, "Kill drop sniper", UI_Spoof_KillDropSniper);
-				GUI_VAR.GUI_Tips(Block_Misc, 10, "Auto attack when conditions such as distance and blood volume are met.");
-				GUI_VAR.GUI_Tips(Block_Misc, 17, "Lock the game window to the front.");
-				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 18, "Clear console.");
-				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 19, "Send command to system.");
+				GUI_VAR.GUI_Tips(Block_Misc, 13, "Auto attack when conditions such as distance and blood volume are met.");
+				GUI_VAR.GUI_Tips(Block_Misc, 20, "Lock the game window to the front.");
+				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 21, "Clear console.");
+				GUI_VAR.GUI_Tips({ Block_Misc.x + 2,Block_Misc.y }, 22, "Send command to system.");
 				GUI_VAR.GUI_Tips(Block_Sonar, 1, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips({ Block_CloudConfig.x + 10,Block_CloudConfig.y }, 1, "Load parameter files stored in Github.");
 				GUI_VAR.GUI_Tips(Block_Spoof, 1, "Prank local player. (global switch)");
@@ -528,7 +540,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 6, "Drop it when picking up C4.");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 7, "Rotate view......");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 8, "Drop the weapon when killing an enemy with a sniper rifle.");
-				UI_WindowSize = { 1010,670 };
+				UI_WindowSize = { 1010,760 };
 			}
 			else if (UI_Panel == 3)//Setting
 			{
@@ -542,11 +554,11 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_Menu_OPENLINKAuthor);
 				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 280, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_41>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_43>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
 				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_42>(Block_Menu, 3, "Menu animation", 1.5, 5, UI_Setting_Menu_MenuAnimation);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_44>(Block_Menu, 3, "Menu animation", 1.5, 5, UI_Setting_Menu_MenuAnimation);
 				GUI_VAR.GUI_Button(Block_Menu, 4, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
 				GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
 				GUI_VAR.GUI_Button(Block_Menu, 6, "Quit CS", UI_Setting_Menu_QuitCS, 90);
@@ -1108,17 +1120,38 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 			if (UI_Misc_HitMark && Global_LocalPlayer.Health())//命中标记
 			{
 				static short Mark_DMG = 0;//造成的伤害
-				static Variable::Vector4 Mark_Color = 0;//绘制图标颜色
-				Mark_Color = Mark_Color - Variable::Vector4{ 10, 10, 10 }; Mark_Color = Mark_Color.Re_Col();//透明化动画
-				static auto OldDamage = 0; const auto Damage = Advanced::Local_RoundDamage();//伤害
+				static Variable::Vector4 Mark_Color, EffectColor;//绘制颜色
+				Mark_Color = Mark_Color - Variable::Vector4{ 10, 10, 10 }; Mark_Color = Mark_Color.Re_Col();//准星透明化动画
+				EffectColor = EffectColor - Variable::Vector4{ 20, 20, 20 }; EffectColor = EffectColor.Re_Col();//特效透明化动画
+				static auto OldDamage = 0; static auto OldKill = 0;
+				const auto Damage = Advanced::Local_RoundDamage();//伤害
+				const auto Kill = Advanced::Local_RoundDamage(true);//击杀
+				const auto IDEnt_Pos = Global_LocalPlayer.IDEntIndex_Pawn().BonePos(5); static auto Target_Pos = IDEnt_Pos;//特效目标坐标
 				if (Damage > OldDamage || Damage < OldDamage)//当伤害变化
 				{
+					if (Kill > OldKill && Global_LocalPlayer.ShotsFired())EffectColor = UI_Misc_HitMark_Color;//Kill
 					if (Damage > OldDamage) { Mark_Color = UI_Misc_HitMark_Color; Mark_DMG = Damage - OldDamage; }//Hit
-					OldDamage = Damage;//刷新
+					OldDamage = Damage; OldKill = Kill;//刷新
 				}
-				const short Range = UI_Misc_HitMark_Range, Length = UI_Misc_HitMark_Length, Width = UI_Misc_HitMark_Width;//绘制设置(距离,长度)
-				if (Mark_Color.r != 0 || Mark_Color.g != 0 || Mark_Color.b != 0)//有颜色时绘制
+				if (UI_Misc_HitMark_KillEffect)//闪电击杀效果
 				{
+					if (EffectColor.r != 0 || EffectColor.g != 0 || EffectColor.b != 0)//3D特效
+					{
+						const auto Range = UI_Misc_HitMark_KillEffect_Range;//爆炸半径 范围
+						const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
+						for (short i = 0; i <= UI_Misc_HitMark_KillEffect_Quantity; ++i)//炸裂粒子特效
+						{
+							srand(i * Kill);//随机种子
+							const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Target_Pos, Player_Matrix);//爆炸坐标
+							const auto Effect_Pos_To = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Target_Pos.x + rand() % Range - Range / 2,Target_Pos.y + rand() % Range - Range / 2,Target_Pos.z + rand() % Range - Range / 2 }, Player_Matrix);//爆炸后的随机落点
+							ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, EffectColor);//绘制粒子线条
+						}
+					}
+					else if (IDEnt_Pos.x != 0)Target_Pos = IDEnt_Pos;
+				}
+				if (Mark_Color.r != 0 || Mark_Color.g != 0 || Mark_Color.b != 0)//2D准星
+				{
+					const short Range = UI_Misc_HitMark_Range, Length = UI_Misc_HitMark_Length, Width = UI_Misc_HitMark_Width;//绘制设置(距离,长度)
 					ESP_Paint.Render_Line(CS_Scr_Res.r / 2 - Range, CS_Scr_Res.g / 2 - Range, CS_Scr_Res.r / 2 - Range - Length, CS_Scr_Res.g / 2 - Range - Length, Mark_Color, Width);
 					ESP_Paint.Render_Line(CS_Scr_Res.r / 2 + Range, CS_Scr_Res.g / 2 + Range, CS_Scr_Res.r / 2 + Range + Length, CS_Scr_Res.g / 2 + Range + Length, Mark_Color, Width);
 					ESP_Paint.Render_Line(CS_Scr_Res.r / 2 + Range, CS_Scr_Res.g / 2 - Range, CS_Scr_Res.r / 2 + Range + Length, CS_Scr_Res.g / 2 - Range - Length, Mark_Color, Width);
@@ -1197,7 +1230,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 							WEP_Render.Render_Line(Pos_3.x, Pos_3.y, Pos_4.x, Pos_4.y, Draw_Color);
 						}
 						else if (Entity_Name == "FLASHBANG")Entity_Name = "FLASH";//过滤字符串
-						WEP_Render.RenderA_GradientCircle(Entity_ScrPos.x, Entity_ScrPos.y, 15, { 1,1,1 }, Draw_Color, floor(sin((float)GetTickCount64() / 150) * 40 + 40) / 100 - 0.2);
+						WEP_Render.RenderA_GradientCircle(Entity_ScrPos.x, Entity_ScrPos.y, 15, { 1,1,1 }, Draw_Color, floor(sin((float)System::Tick() / 150) * 40 + 40) / 100 - 0.2);
 						WEP_Render.Render_SmpStr(Entity_ScrPos.x - 13, Entity_ScrPos.y, Entity_Name, { 200,200,200 }, { 1,1,1 });
 					}
 					else WEP_Render.Render_SmpStr(Entity_ScrPos.x - 15, Entity_ScrPos.y, Entity.ActiveWeaponName(true, Entity.Pawn()), { 200,200,200 }, { 1,1,1 });//武器绘制
