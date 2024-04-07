@@ -1,4 +1,4 @@
-﻿//2024-04-06 23:00
+﻿//2024-04-07 12:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1903,14 +1903,18 @@ namespace System//Windows系统
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    void Anti_Debugger() noexcept//反调试 (防止程序被逆向破解 可放入循环)
+    void Anti_Debugger(string Log = "") noexcept//反调试 (防止程序被逆向破解 可放入循环)
     {//System::Anti_Debugger();
-        if (IsDebuggerPresent())exit(0);//检测调试状态 (缺点是会被Hook绕过)
+        if (IsDebuggerPresent())
+        {
+            if (Log != "")printf((Log + "\n\n\n\n\n\n\n\n\n\n\n\n").c_str());
+            exit(0);//检测调试状态 (缺点是会被Hook绕过)
+        }
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
 }
-namespace EasyGUI//EasyGUI Release[2024-04-06 23:00]
+namespace EasyGUI//EasyGUI Release[2024-04-07 12:00]
 {
     /*
     int main()
@@ -1920,7 +1924,7 @@ namespace EasyGUI//EasyGUI Release[2024-04-06 23:00]
         EasyGUI::EasyGUI GUI_Variable;//Initialize GUI variables
         GUI_Variable.Window_Create(590, 360, "Test Windows", true);
         GUI_Variable.Window_SetAlpha(250);
-        while (1)
+        while (true)
         {
             static BOOL UI_Checkbox = false;
             static int UI_Slider_int = 5;
@@ -2705,7 +2709,7 @@ namespace EasyGUI//EasyGUI Release[2024-04-06 23:00]
             In_DrawRect(BlockPos.x - 1 + 55, BlockPos.y - 1 + (6 + 30 * LineRow), 230 + 2, 7, { 0,0,0 });//黑色外边框
             if (DetectMousePos || OutSide)In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), 230, 5, { 30,30,30 }, Global_EasyGUIColor / 4, true);//滑条背景
             else In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), 230, 5, { 20,20,20 }, Global_EasyGUIColor / 5, true);
-            In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), In_Animation<CreateClassName>(SliderPos, 1.05, { 0,230 }), 5, Global_EasyGUIColor, Global_EasyGUIColor / 5, true);//滑条 (动画0.8果冻效果)
+            In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), In_Animation<CreateClassName>(SliderPos, 1.5, { 0,230 }), 5, Global_EasyGUIColor, Global_EasyGUIColor / 5, true);//滑条 (动画0.8果冻效果)
             In_DrawString(BlockPos.x + 55 + 1, BlockPos.y - 16 + (6 + 30 * LineRow) + 1, Text, { 0,0,0 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
             In_DrawString(BlockPos.x + 55, BlockPos.y - 16 + (6 + 30 * LineRow), Text, TextColor, Global_EasyGUIFont, Global_EasyGUIFontSize);
             In_DrawString_Simple(BlockPos.x + 230 + 10 + 55, BlockPos.y - 4 + (6 + 30 * LineRow), ss.str() + UnitString, { 150,150,150 });//返回值绘制

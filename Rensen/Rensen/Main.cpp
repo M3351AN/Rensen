@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-06 23:30]";//程序发布日期
-const float Rensen_Version = 3.27;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-07 12:00]";//程序发布日期
+const float Rensen_Version = 3.28;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -1011,7 +1011,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 		Sleep(UI_Visual_ESP_RenderSleep);
 		if (SpareRenderWindow.Get_HWND() != 0)SpareRenderWindow.Fix_inWhile();//当已创建窗口时进入消息循环
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
-		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, TRUE);//修改 Pos & Size
+		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//修改 Pos & Size
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
@@ -1284,7 +1284,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 }
 int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 {
-	System::Anti_Debugger();//防止逆向破解 //Debug
+	System::Anti_Debugger("Debugging is disabled after compilation is completed.");//防止逆向破解
 	BOOL Attest = false;//认证变量
 	System::URL_READ UserID_READ = { "Cache_UserID" };
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
