@@ -1,4 +1,4 @@
-﻿//2024-04-07 20:50
+﻿//2024-04-09 18:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -2496,7 +2496,7 @@ namespace EasyGUI
             return IO;
         }
         //-------------------------------------------------------------------------------------------------------------------------------------------以下是控件函数*
-        void GUI_BackGround(short BackGround_StyleCode = 0, BOOL Particle_Animation = false) noexcept//绘制GUI窗口背景
+        void GUI_BackGround(short BackGround_StyleCode = 0) noexcept//绘制GUI窗口背景
         {
             const short XX = EasyGUI_WindowPos.right - EasyGUI_WindowPos.left; const short YY = EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top;
             vector<int> 彩虹条颜色 = { 0,255,255,255,0,255,255,255,0 };
@@ -2560,18 +2560,6 @@ namespace EasyGUI
                 In_DrawGradientRect(7, 7, (XX - 7 * 2) / 2, 1, { 彩虹条颜色[0], 彩虹条颜色[1], 彩虹条颜色[2] }, { 彩虹条颜色[3], 彩虹条颜色[4], 彩虹条颜色[5] }, false);
                 In_DrawGradientRect(7 + (XX - 7 * 2) / 2, 7, (XX - 7 * 2) / 2, 1, { 彩虹条颜色[3], 彩虹条颜色[4], 彩虹条颜色[5] }, { 彩虹条颜色[6], 彩虹条颜色[7], 彩虹条颜色[8] }, false);
             }
-            if (Particle_Animation)//动画背景背景
-            {
-                struct c_particle { int c, x, y; };//粒子结构体 { color, x, y }
-                for (short i = 0; i <= 40; ++i)
-                {
-                    srand(i);//随机种子
-                    const c_particle Par = { rand() % 200 + 55, rand() % (XX - 14) + 7, rand() % (YY - 17) + 10 };//粒子结构变量
-                    const Vector2 MousePos = { EasyGUI_MousePos.x - EasyGUI_WindowPos.left ,EasyGUI_MousePos.y - EasyGUI_WindowPos.top };//窗口内的鼠标坐标
-                    if (hypot(MousePos.x - Par.x, MousePos.y - Par.y) <= 300)In_DrawLine(MousePos.x, MousePos.y, Par.x, Par.y, { Global_EasyGUIColor.r / 6,Global_EasyGUIColor.g / 6 ,Global_EasyGUIColor.b / 6 });//绘制粒子连接线
-                    In_DrawRect(Par.x, Par.y, 1, 1, { Par.c,Par.c,Par.c });//绘制粒子
-                }
-            }
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         Vector2 GUI_Block(int X, int Y, int YY, string BlockText, int XX = 400) noexcept//绘制按钮的区块
@@ -2604,7 +2592,7 @@ namespace EasyGUI
                 else if (DetectMousePos)
                 {
                     In_DrawGradientRect(X + 2, Y + 20 + 30 * i - 4, XX - 4, 15 + 8, Global_EasyGUIColor / 5, { 20,20,20 });
-                    if (GetForegroundWindow() == EasyGUI_WindowHWND && In_KeyEvent(VK_LBUTTON, true) && !Mouse_Slider_)m_In_Block = i;
+                    if (GetForegroundWindow() == EasyGUI_WindowHWND && !Mouse_Slider_ && In_KeyEvent(VK_LBUTTON, true))m_In_Block = i;
                 }
                 In_DrawString(X + 20 + 1, Y + 20 + 30 * i + 1, BlockText_[i], { 0,0,0 }, Global_EasyGUIFont, 15);
                 In_DrawString(X + 20 + 1, Y + 20 + 30 * i, BlockText_[i], { 220,220,220 }, Global_EasyGUIFont, 15);
@@ -2709,7 +2697,7 @@ namespace EasyGUI
             In_DrawRect(BlockPos.x - 1 + 55, BlockPos.y - 1 + (6 + 30 * LineRow), 230 + 2, 7, { 0,0,0 });//黑色外边框
             if (DetectMousePos || OutSide)In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), 230, 5, { 30,30,30 }, Global_EasyGUIColor / 4, true);//滑条背景
             else In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), 230, 5, { 20,20,20 }, Global_EasyGUIColor / 5, true);
-            In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), In_Animation<CreateClassName>(SliderPos, 1.5, { 0,230 }), 5, Global_EasyGUIColor, Global_EasyGUIColor / 5, true);//滑条 (动画0.8果冻效果)
+            In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), In_Animation<CreateClassName>(SliderPos, 1.05, { 0,230 }), 5, Global_EasyGUIColor, Global_EasyGUIColor / 5, true);//滑条 (动画0.8果冻效果)
             In_DrawString(BlockPos.x + 55 + 1, BlockPos.y - 16 + (6 + 30 * LineRow) + 1, Text, { 0,0,0 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
             In_DrawString(BlockPos.x + 55, BlockPos.y - 16 + (6 + 30 * LineRow), Text, TextColor, Global_EasyGUIFont, Global_EasyGUIFontSize);
             In_DrawString_Simple(BlockPos.x + 230 + 10 + 55, BlockPos.y - 4 + (6 + 30 * LineRow), ss.str() + UnitString, { 150,150,150 });//返回值绘制

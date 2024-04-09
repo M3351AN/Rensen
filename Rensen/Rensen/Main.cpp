@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-07 20:50]";//程序发布日期
-const float Rensen_Version = 3.30;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-09 20:00]";//程序发布日期
+const float Rensen_Version = 3.31;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -381,7 +381,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
 			{
 				GUI_VAR.Global_Set_EasyGUI_Color(UI_Setting_Menu_MainColor);//设置主题颜色
-				GUI_VAR.GUI_BackGround(1369, true);//自定义颜色星空背景主题
+				GUI_VAR.GUI_BackGround(1369);//自定义颜色星空背景主题
 			}
 			else GUI_VAR.GUI_BackGround(1368);//默认(彩虹)
 			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Setting","Debug" }, UI_Panel);
@@ -448,7 +448,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 2, "Box", UI_Visual_ESP_Box);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 3, "Health bar", UI_Visual_ESP_Health);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 4, "Weapon text", UI_Visual_ESP_ActiveWeapon);
-				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 5, "Snap line", UI_Visual_ESP_Snapline);
+				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 5, "Line", UI_Visual_ESP_Snapline);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 6, "Skeleton", UI_Visual_ESP_Skeleton);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 7, "Head dot", UI_Visual_ESP_HeadDot);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 8, "State", UI_Visual_ESP_State);
@@ -471,9 +471,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_Misc_Radar_ = GUI_VAR.GUI_Block(580, 300, 190, "Radar");
 				GUI_VAR.GUI_Checkbox(Block_Misc_Radar_, 1, "Enabled", UI_Visual_Radar);
 				GUI_VAR.GUI_Checkbox({ Block_Misc_Radar_.x + 20,Block_Misc_Radar_.y }, 2, "Follow angle", UI_Visual_Radar_FollowAngle);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_22>(Block_Misc_Radar_, 3, "Radar range", 0.2, 25, UI_Visual_Radar_Range);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_23>(Block_Misc_Radar_, 4, "Radar size", 150, 500, UI_Visual_Radar_Size, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_24>(Block_Misc_Radar_, 5, "Radar alpha", 100, 230, UI_Visual_Radar_Alpha);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_22>(Block_Misc_Radar_, 3, "Range", 0.2, 25, UI_Visual_Radar_Range);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_23>(Block_Misc_Radar_, 4, "Size", 150, 500, UI_Visual_Radar_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_24>(Block_Misc_Radar_, 5, "Alpha", 100, 230, UI_Visual_Radar_Alpha);
 				GUI_VAR.GUI_Tips(Block_ESP, 1, "Learn enemy coordinates through walls. (ESP Full screen cannot be used)");
 				GUI_VAR.GUI_Tips({ Block_Resolution.x + 10,Block_Resolution.y }, 1, "Flexible switching of window resolution.");
 				GUI_VAR.GUI_Tips(Block_Misc_Radar_, 1, "Exterior window radar. (Full screen cannot be used)");
@@ -558,7 +558,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
 				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_44>(Block_Menu, 3, "Menu animation", 1.5, 5, UI_Setting_Menu_MenuAnimation);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_44>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
 				GUI_VAR.GUI_Button(Block_Menu, 4, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
 				GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
 				GUI_VAR.GUI_Button(Block_Menu, 6, "Quit CS", UI_Setting_Menu_QuitCS, 90);
@@ -615,7 +615,12 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 5, "Button 1", Debug_Control_Var::Button_1);
 				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 6, "Button 2", Debug_Control_Var::Button_2);
 				if (Debug_Control_Var::Button_1 || Debug_Control_Var::Button_2)System::Log("Debug: Click button");
-				if (Debug_Control_Var::Button_1)System::Log("Username: " + System::Get_UserName());//打印用户名
+				if (Debug_Control_Var::Button_1)
+				{
+					System::Log("Username: " + System::Get_UserName());//打印用户名
+					System::Log("Computername: " + System::Get_ComputerName());//打印用户电脑名
+					System::Log("IP V4: " + System::Get_IPv4Address());//打印用户IPV4
+				}
 				if (Debug_Control_Var::Button_2)System::Log("GUI Draw FPS: " + to_string(GUI_VAR.Window_FPS()) + "." + to_string(System::Rand_Number(0, 999)));//打印GUI绘制帧数
 				GUI_VAR.GUI_Tips(Block_DebugControl, 1, "Developer code debugging.");
 				UI_WindowSize = { 870,790 };
@@ -1122,14 +1127,14 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				static short Mark_DMG = 0;//造成的伤害
 				static Variable::Vector4 Mark_Color, EffectColor;//绘制颜色
 				Mark_Color = Mark_Color - Variable::Vector4{ 10, 10, 10 }; Mark_Color = Mark_Color.Re_Col();//准星透明化动画
-				EffectColor = EffectColor - Variable::Vector4{ 20, 20, 20 }; EffectColor = EffectColor.Re_Col();//特效透明化动画
+				EffectColor = EffectColor - Variable::Vector4{ 8, 8, 8 }; EffectColor = EffectColor.Re_Col();//特效透明化动画
 				static auto OldDamage = 0; static auto OldKill = 0;
 				const auto Damage = Advanced::Local_RoundDamage();//伤害
 				const auto Kill = Advanced::Local_RoundDamage(true);//击杀
 				const auto IDEnt_Pos = Global_LocalPlayer.IDEntIndex_Pawn().BonePos(5); static auto Target_Pos = IDEnt_Pos;//特效目标坐标
 				if (Damage > OldDamage || Damage < OldDamage)//当伤害变化
 				{
-					if (Kill > OldKill && Global_LocalPlayer.ShotsFired())EffectColor = UI_Misc_HitMark_Color;//Kill
+					if (Kill > OldKill && Global_LocalPlayer.ShotsFired()) { EffectColor = UI_Misc_HitMark_Color; }//Kill
 					if (Damage > OldDamage) { Mark_Color = UI_Misc_HitMark_Color; Mark_DMG = Damage - OldDamage; }//Hit
 					OldDamage = Damage; OldKill = Kill;//刷新
 				}
