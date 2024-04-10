@@ -1,4 +1,4 @@
-﻿//2024-04-10 11:00
+﻿//2024-04-10 19:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -2213,6 +2213,7 @@ namespace EasyGUI
         template<class CreateClassName>//防止冲突
         float In_Animation(float Value, float Speed = 1.3, Vector2 Limit = { 0,0 }) noexcept//快到慢动画
         {
+            if (Speed == 1)return Value;//无动画
             static float ReturnValue = Value;
             if (Value > ReturnValue)ReturnValue += (Value - ReturnValue) / Speed;
             else if (Value < ReturnValue)ReturnValue -= (ReturnValue - Value) / Speed;
