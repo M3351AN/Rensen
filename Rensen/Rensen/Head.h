@@ -1,4 +1,4 @@
-﻿//2024-04-09 18:00
+﻿//2024-04-10 11:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -3021,7 +3021,12 @@ namespace EasyGUI
             {
                 if (i >= LimitLine)continue;//限制行数
                 const BOOL DetectMousePos = In_MouseEventJudgment(BlockPos.x + 54, BlockPos.y + StartLineRow * 30 + i * 25 - 5, 232, 20);//光标检测范围
-                if (GetForegroundWindow() == EasyGUI_WindowHWND && !Mouse_Slider_ && DetectMousePos && In_KeyEvent(VK_LBUTTON, true))m_InLine = i;//赋值选择
+                if (GetForegroundWindow() == EasyGUI_WindowHWND && !Mouse_Slider_ && DetectMousePos)
+                {
+                    if (In_KeyEvent(VK_LBUTTON, true))m_InLine = i;//赋值选择
+                    if (In_KeyEvent(VK_UP, true))--m_InLine;
+                    if (In_KeyEvent(VK_DOWN, true))++m_InLine;
+                }
                 if (m_InLine == i)
                 {
                     In_DrawGradientRect(BlockPos.x + 54, BlockPos.y + StartLineRow * 30 + i * 25 - 5, 232, 20, Global_EasyGUIColor / 6, { 15,15,15 });

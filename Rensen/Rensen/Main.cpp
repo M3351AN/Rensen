@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-09 20:00]";//程序发布日期
-const float Rensen_Version = 3.31;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-10 11:00]";//程序发布日期
+const float Rensen_Version = 3.32;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
