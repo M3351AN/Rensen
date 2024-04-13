@@ -1,4 +1,4 @@
-﻿//2024-04-13 20:00
+﻿//2024-04-14 00:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1907,7 +1907,7 @@ namespace System//Windows系统
     {//System::Anti_Debugger();
         if (IsDebuggerPresent())
         {
-            if (Log != "")printf((Log + "\n\n\n\n\n\n\n\n\n\n\n\n").c_str());
+            if (Log != "")printf((Log + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n").c_str());
             exit(0);//检测调试状态 (缺点是会被Hook绕过)
         }
     }
@@ -2549,7 +2549,7 @@ namespace EasyGUI
                     (int)(Sins.x * Global_EasyGUIColor.g / 2 + Global_EasyGUIColor.g / 2),
                     (int)(Sins.x * Global_EasyGUIColor.b / 2 + Global_EasyGUIColor.b / 2)
                 };
-                const auto Min = 40; for (int i = 0; i <= 8; ++i)if (彩虹条颜色[i] < Min)彩虹条颜色[i] = Min;//颜色最小值
+                const auto Min = 50; for (int i = 0; i <= 8; ++i)if (彩虹条颜色[i] < Min)彩虹条颜色[i] = Min;//颜色最小值
                 主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,0,0,0,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7,Global_EasyGUIColor.b / 7 };
             }
             In_DrawRect(0, 0, XX, YY, { 主题颜色[0], 主题颜色[1], 主题颜色[2] });

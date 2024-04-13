@@ -222,7 +222,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (!PlayerController)return "None";
 			else return CS2_MEM.Read_str(PlayerController + CS2_Offsets::m_iszPlayerName);
 		}
-		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber()) && PlayerPawn.Origin().x != 0); }//判断人物是否是敌人
+		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber())); }//判断人物是否是敌人
 		BOOL Stop_Move(short TriggerValue = 50, BOOL Movement = true) noexcept//急停
 		{
 			const auto LocalVel = Global_LocalPlayer.Velocity();
@@ -303,7 +303,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			for (short i = 0; i <= 64; ++i)//最大人数64
 			{
 				const auto PlayerPawn = Advanced::Traverse_Player(i);
-				if (!PlayerPawn.Health() > 0 || PlayerPawn.Origin().x == 0)continue;//多点检测
+				if (!PlayerPawn.Health() > 0 || (PlayerPawn.Origin().x == 0 && PlayerPawn.Origin().y == 0))continue;//多点检测
 				Global_ValidClassID.push_back(i);
 			}
 		}
