@@ -1,4 +1,4 @@
-﻿//2024-04-10 19:00
+﻿//2024-04-13 20:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -2097,7 +2097,7 @@ namespace EasyGUI
         //------------------
         HWND EasyGUI_WindowHWND = NULL;//GUI Window HWND
         HDC EasyGUI_WindowHDC = NULL;//GUI Window HDC
-        Vector2 PaintSize;//DoubleBufferPaint Size 画布大小
+        Vector2 PaintSize = { 0,0 };//DoubleBufferPaint Size 画布大小
         HDC EasyGUI_DrawHDC = NULL;//EasyGUI DrawHDC GUI要绘制的HDC
         POINT EasyGUI_MousePos;//EasyGUI鼠标坐标
         RECT EasyGUI_WindowPos;//EasyGUI窗口坐标
@@ -2484,15 +2484,15 @@ namespace EasyGUI
             IO.WindowTitle = Windowtitle;
             IO.MousePos = { EasyGUI_MousePos.x,EasyGUI_MousePos.y };
             IO.GUIColor_Rainbow = {
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 3) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2 + 3) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 4 + 3) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2 + 2) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 4 + 2) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 1) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2 + 1) * 127 + 128),
-                 (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 4 + 1) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 3) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 2 + 3) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 4 + 3) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 2) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 2 + 2) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 4 + 2) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 1) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 2 + 1) * 127 + 128),
+                 (int)floor(sin((float)GetTickCount64() / 3000 * 2 + 4 + 1) * 127 + 128),
             };
             return IO;
         }
@@ -2507,35 +2507,37 @@ namespace EasyGUI
                 彩虹条颜色 = { 16,16,16,16,16,16,16,16,16 };
                 主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,15,15,15,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
             }
-            else if (BackGround_StyleCode == 1337)//仿
+            else if (BackGround_StyleCode == 1)//仿
             {
                 彩虹条颜色 = { 100,255,255,255,100,255,255,255,100 };
                 主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,5,5,5,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
             }
-            else if (BackGround_StyleCode == 1367)//仿2
+            else if (BackGround_StyleCode == 2)//仿2
             {
                 彩虹条颜色 = { 0,255,255,255,0,255,255,255,0 };
                 主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,3,3,3,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
             }
-            else if (BackGround_StyleCode == 1368)//彩色变色渐变条*****************
+            else if (BackGround_StyleCode == 3)//彩色变色渐变条*****************
             {
+                const auto Speed = 3000;//渐变条变化速度
                 彩虹条颜色 = {
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 3) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2 + 3) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 4 + 3) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2 + 2) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 4 + 2) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 1) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 2 + 1) * 127 + 128),
-                    (int)floor(sin((float)GetTickCount64() / 3500 * 2 + 4 + 1) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 3) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 2 + 3) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 4 + 3) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 2) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 2 + 2) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 4 + 2) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 1) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 2 + 1) * 127 + 128),
+                    (int)floor(sin((float)GetTickCount64() / Speed * 2 + 4 + 1) * 127 + 128),
                 };
                 主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,3,3,3, Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
                 Global_EasyGUIColor = { 彩虹条颜色[3],彩虹条颜色[4], 彩虹条颜色[5] };
             }
-            else if (BackGround_StyleCode == 1369 || BackGround_StyleCode == 1)//主题色渐变条*****************
+            else if (BackGround_StyleCode == 4)//主题色渐变条*****************
             {
-                const Vector3 Sins = { sin((float)GetTickCount64() / 1000 + 0), sin((float)GetTickCount64() / 1000 + 1),sin((float)GetTickCount64() / 1000 + 2) };
+                const auto Speed = 800;//渐变条变化速度
+                const Vector3 Sins = { sin((float)GetTickCount64() / Speed + 0), sin((float)GetTickCount64() / Speed + 1),sin((float)GetTickCount64() / Speed + 2) };
                 彩虹条颜色 = {
                     (int)(Sins.z * Global_EasyGUIColor.r / 2 + Global_EasyGUIColor.r / 2),
                     (int)(Sins.z * Global_EasyGUIColor.g / 2 + Global_EasyGUIColor.g / 2),
@@ -2547,6 +2549,7 @@ namespace EasyGUI
                     (int)(Sins.x * Global_EasyGUIColor.g / 2 + Global_EasyGUIColor.g / 2),
                     (int)(Sins.x * Global_EasyGUIColor.b / 2 + Global_EasyGUIColor.b / 2)
                 };
+                const auto Min = 40; for (int i = 0; i <= 8; ++i)if (彩虹条颜色[i] < Min)彩虹条颜色[i] = Min;//颜色最小值
                 主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,0,0,0,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7,Global_EasyGUIColor.b / 7 };
             }
             In_DrawRect(0, 0, XX, YY, { 主题颜色[0], 主题颜色[1], 主题颜色[2] });
@@ -3037,7 +3040,8 @@ namespace EasyGUI
                 else {
                     if (DetectMousePos)In_DrawGradientRect(BlockPos.x + 54, BlockPos.y + StartLineRow * 30 + i * 25 - 5, 232, 20, Global_EasyGUIColor / 7, { 15,15,15 });//当光标选择时视觉反馈 (在上方时)
                     In_DrawString(BlockPos.x + 65 + 1, BlockPos.y + StartLineRow * 30 + i * 25 - 1 + 1, LineString[i], { 0,0,0 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
-                    In_DrawString(BlockPos.x + 65, BlockPos.y + StartLineRow * 30 + i * 25 - 1, LineString[i], { 200,200,200 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
+                    if (LineString[i] == "None" || LineString[i] == "none")In_DrawString(BlockPos.x + 65, BlockPos.y + StartLineRow * 30 + i * 25 - 1, LineString[i], { 80,80,80 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
+                    else In_DrawString(BlockPos.x + 65, BlockPos.y + StartLineRow * 30 + i * 25 - 1, LineString[i], { 200,200,200 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
                 }
             }
             return m_InLine;

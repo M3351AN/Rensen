@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-10 19:00]";//程序发布日期
-const float Rensen_Version = 3.33;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-13 20:30]";//程序发布日期
+const float Rensen_Version = 3.34;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -384,9 +384,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
 			{
 				GUI_VAR.Global_Set_EasyGUI_Color(UI_Setting_Menu_MainColor);//设置主题颜色
-				GUI_VAR.GUI_BackGround(1369);//自定义颜色星空背景主题
+				GUI_VAR.GUI_BackGround(4);//自定义颜色星空背景主题
 			}
-			else GUI_VAR.GUI_BackGround(1368);//默认(彩虹)
+			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
 			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Setting","Debug" }, UI_Panel);
 			if (UI_Panel == 0)//Legit
 			{
@@ -625,8 +625,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					System::Log("Computername: " + System::Get_ComputerName());//打印用户电脑名
 					System::Log("IP V4: " + System::Get_IPv4Address());//打印用户IPV4
 				}
-				if (Debug_Control_Var::Button_2)System::Log("GUI Draw FPS: " + to_string(GUI_VAR.Window_FPS()) + "." + to_string(System::Rand_Number(0, 999)));//打印GUI绘制帧数
 				GUI_VAR.GUI_Tips(Block_DebugControl, 1, "Developer code debugging.");
+				GUI_VAR.GUI_Tips(Block_DebugControl, 2, "GUI Draw FPS: " + to_string(GUI_VAR.Window_FPS() + System::Rand_Number(0, 1)) + "." + to_string(System::Rand_Number(1, 999)) + "  (" + to_string(GUI_VAR.Window_FPS()) + ")");//绘制GUI绘制帧数
 				UI_WindowSize = { 870,790 };
 			}
 			GUI_VAR.Draw_GUI(Debug_Control_Var::Checkbox_2);//最终绘制GUI画板
@@ -1367,7 +1367,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (MenuWindowAlpha >= UI_Setting_Menu_MainColor.a)MenuWindowAlpha = UI_Setting_Menu_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
-		if (!System::Key_Toggle<class Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { GUI_VAR.Window_Show(); Menu_Open = true; }
+		if (!System::Key_Toggle<class CLASS_Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { GUI_VAR.Window_Show(); Menu_Open = true; }
 		else { if (MenuWindowAlpha == 0)GUI_VAR.Window_Hide(); Menu_Open = false; }
 		GUI_IO = GUI_VAR.Get_IO();//刷新GUI状态数据
 		if (!UI_Setting_Menu_CustomColor)GUI_IO.GUIColor = { GUI_IO.GUIColor_Rainbow[3],GUI_IO.GUIColor_Rainbow[4],GUI_IO.GUIColor_Rainbow[5] };//GUI主题颜色到功能函数

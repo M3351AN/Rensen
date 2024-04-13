@@ -2,7 +2,7 @@
 BOOL TeamCheck = false;//人物所处队伍变量
 namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 {
-	HWND CS2_HWND = 0;
+	HWND CS2_HWND = NULL;
 	System::Memory CS2_MEM = { "cs2.exe" };
 	auto Module_client = CS2_MEM.Get_Module("client.dll");//模块地址: 本地
 	auto Module_engine = CS2_MEM.Get_Module("engine.dll");//模块地址: 引擎
