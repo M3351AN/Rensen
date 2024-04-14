@@ -5,7 +5,7 @@
 </p>
 Just a multifunction cheat software developed for the game Counter-Strike 2.
 
-The only sales channel 淘宝: [Rensen淘宝](https://item.taobao.com/item.htm?ft=t&id=783904867844)
+The only sales channel TAOBAO: [Coslly的小店](https://item.taobao.com/item.htm?ft=t&id=783904867844)
 ## 🤓Features
 - External Menu
 - Saveable System
