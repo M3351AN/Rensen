@@ -1,4 +1,4 @@
-﻿//2024-04-14 00:00
+﻿//2024-04-14 14:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -587,9 +587,8 @@ namespace Window//窗口
         //----------------------------------------------------------------------------------------
         void UpdateRenderBlock() noexcept//DeleteColor(Put in the while() and Update < Render)
         {
-            static HDC wind = GetWindowDC(Window_Hwnd);
-            static HGDIOBJ huabi = SelectObject(wind, CreateSolidBrush(RGB(0, 0, 0)));
-            BitBlt(wind, 0, 0, 99999, 99999, wind, 0, 0, PATCOPY);
+            static const auto WindowDC = GetWindowDC(Window_Hwnd);
+            BitBlt(WindowDC, 0, 0, 99999, 99999, WindowDC, 0, 0, BLACKNESS);
         }
         //----------------------------------------------------------------------------------------
         HWND Get_HWND() noexcept { return Window_Hwnd; }//获取窗口HWND

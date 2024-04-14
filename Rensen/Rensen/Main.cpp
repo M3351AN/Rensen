@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-14 01:30]";//程序发布日期
-const float Rensen_Version = 3.37;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-14 14:00]";//程序发布日期
+const float Rensen_Version = 3.40;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560;
 	BOOL UI_Visual_Res_1920;
@@ -57,7 +57,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Visual_ESP_Box = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 35));
 	BOOL UI_Visual_ESP_Health = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 36));
 	BOOL UI_Visual_ESP_ActiveWeapon = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 37));
-	BOOL UI_Visual_ESP_Snapline = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 38));
+	BOOL UI_Visual_ESP_Line = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 38));
 	BOOL UI_Visual_ESP_Skeleton = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 39));
 	BOOL UI_Visual_ESP_HeadDot = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 40));
 	BOOL UI_Visual_ESP_State = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 41));
@@ -126,6 +126,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Misc_ByPassOBS = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 113));
 	BOOL UI_Misc_SavePerformance = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 114));
 	BOOL UI_Legit_Aimbot_AutoScope = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 115));
+	BOOL UI_Misc_NightMode = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 116));
+	int UI_Misc_NightMode_Alpha = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 117));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -167,7 +169,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Visual_ESP_Box) + "\n" +
 			to_string(UI_Visual_ESP_Health) + "\n" +
 			to_string(UI_Visual_ESP_ActiveWeapon) + "\n" +
-			to_string(UI_Visual_ESP_Snapline) + "\n" +
+			to_string(UI_Visual_ESP_Line) + "\n" +
 			to_string(UI_Visual_ESP_Skeleton) + "\n" +
 			to_string(UI_Visual_ESP_HeadDot) + "\n" +
 			to_string(UI_Visual_ESP_State) + "\n" +
@@ -244,7 +246,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Visual_ESP_Skeleton_Thickness) + "\n" +
 			to_string(UI_Misc_ByPassOBS) + "\n" +
 			to_string(UI_Misc_SavePerformance) + "\n" +
-			to_string(UI_Legit_Aimbot_AutoScope) + "\n"
+			to_string(UI_Legit_Aimbot_AutoScope) + "\n" +
+			to_string(UI_Misc_NightMode) + "\n" +
+			to_string(UI_Misc_NightMode_Alpha) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -289,7 +293,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Visual_ESP_Box = Variable::string_int_(URL_CONFIG.Read(35));
 			UI_Visual_ESP_Health = Variable::string_int_(URL_CONFIG.Read(36));
 			UI_Visual_ESP_ActiveWeapon = Variable::string_int_(URL_CONFIG.Read(37));
-			UI_Visual_ESP_Snapline = Variable::string_int_(URL_CONFIG.Read(38));
+			UI_Visual_ESP_Line = Variable::string_int_(URL_CONFIG.Read(38));
 			UI_Visual_ESP_Skeleton = Variable::string_int_(URL_CONFIG.Read(39));
 			UI_Visual_ESP_HeadDot = Variable::string_int_(URL_CONFIG.Read(40));
 			UI_Visual_ESP_State = Variable::string_int_(URL_CONFIG.Read(41));
@@ -358,6 +362,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Misc_ByPassOBS = Variable::string_int_(URL_CONFIG.Read(113));
 			UI_Misc_SavePerformance = Variable::string_int_(URL_CONFIG.Read(114));
 			UI_Legit_Aimbot_AutoScope = Variable::string_int_(URL_CONFIG.Read(115));
+			UI_Misc_NightMode = Variable::string_int_(URL_CONFIG.Read(116));
+			UI_Misc_NightMode_Alpha = Variable::string_int_(URL_CONFIG.Read(117));
 			URL_CONFIG.Release();
 		}
 	}
@@ -456,7 +462,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 2, "Box", UI_Visual_ESP_Box);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 3, "Health bar", UI_Visual_ESP_Health);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 4, "Weapon text", UI_Visual_ESP_ActiveWeapon);
-				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 5, "Line", UI_Visual_ESP_Snapline);
+				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 5, "Line", UI_Visual_ESP_Line);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 6, "Skeleton", UI_Visual_ESP_Skeleton);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_19>(Block_ESP, 7, "Thickness", 1, 5, UI_Visual_ESP_Skeleton_Thickness, "px");
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 8, "Head dot", UI_Visual_ESP_HeadDot);
@@ -492,7 +498,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 2)//Misc
 			{
-				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 550, "Misc");
+				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 610, "Misc");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
@@ -512,7 +518,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Hide from OBS", UI_Misc_ByPassOBS);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Save performance", UI_Misc_SavePerformance);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
+				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Night mode", UI_Misc_NightMode);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>(Block_Misc, 18, "Alpha", 50, 150, UI_Misc_NightMode_Alpha);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
 				const auto Block_Resolution = GUI_VAR.GUI_Block(580, 30, 160, "Screen resolution");
 				GUI_VAR.GUI_Button(Block_Resolution, 1, "2560 * 1440", UI_Visual_Res_2560, 78);
 				GUI_VAR.GUI_Button(Block_Resolution, 2, "1920 * 1080", UI_Visual_Res_1920, 78);
@@ -537,6 +545,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
 				GUI_VAR.GUI_Tips(Block_Misc, 14, "Lock the game window to the front.");
 				GUI_VAR.GUI_Tips(Block_Misc, 16, "Reduce the load on the CPU.");
+				GUI_VAR.GUI_Tips(Block_Misc, 17, "Reduce screen brightness.");
 				GUI_VAR.GUI_Tips({ Block_Resolution.x + 10,Block_Resolution.y }, 1, "Flexible switching of window resolution.");
 				GUI_VAR.GUI_Tips({ Block_CloudConfig.x + 10,Block_CloudConfig.y }, 1, "Load parameter files stored in Github.");
 				GUI_VAR.GUI_Tips(Block_Spoof, 1, "Prank local player. (global switch)");
@@ -700,6 +709,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功能)
 {
 	System::Log("Load Thread: Thread_Misc()");
+	Window::Windows Window_NightMode; Window_NightMode.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, "Rensen - NightMode");//夜晚模式窗口
 	Window::Windows Window_Watermark; const auto Window_Watermark_HWND = Window_Watermark.Create_RenderBlock_Alpha(Window::Get_Resolution().x, 50, "Rensen - Watermark");//创建水印透明窗口
 	Window::Render Window_Watermark_Render; Window_Watermark_Render.CreatePaint(Window_Watermark_HWND, 0, 0, Window::Get_Resolution().x, 50);
 	ReLoad(true);//刷新CS2_SDK内存数据 (快速初始化)
@@ -710,10 +720,23 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (UI_Misc_LockGameWindow && !Menu_Open)SetForegroundWindow(CS2_HWND);//锁定CS窗口到最前端
 		if (UI_Debug_ShowDebugWindow)ShowWindow(GetConsoleWindow(), true);//显示控制台
 		else ShowWindow(GetConsoleWindow(), false);//隐藏控制台
+		if (UI_Misc_NightMode && (Global_IsShowWindow || Menu_Open))//夜晚模式 (降低屏幕亮度)
+		{
+			const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
+			MoveWindow(Window_NightMode.Get_HWND(), CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//对齐覆盖游戏窗口
+			if (System::Sleep_Tick<class CLASS_NightMode_Window_Sleep_>(200))//降低CPU占用
+			{
+				Window_NightMode.Set_WindowTitle(System::Rand_String(10));//随机夜晚模式窗口标题
+				Window_NightMode.UpdateRenderBlock();//绘制黑板
+				Window_NightMode.Fix_inWhile();//窗口消息循环
+			}
+			Window_NightMode.Set_WindowAlpha(Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(UI_Misc_NightMode_Alpha, 5));//修改透明度
+		}
+		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//隐藏窗口
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);
-			if (System::Sleep_Tick<class WaterMark_Window_Sleep_Class_>(200))//降低CPU占用
+			if (System::Sleep_Tick<class CLASS_WaterMark_Window_Sleep_>(200))//降低CPU占用
 			{
 				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
 				static string WaterMark_String = "";
@@ -786,6 +809,10 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 							Sleep(1);
 							ExecuteCommand("-attack");
 						}
+						Sleep(1);
+						ExecuteCommand("+lookatweapon");
+						Sleep(1);
+						ExecuteCommand("-lookatweapon");
 					}
 				}
 			}
@@ -1080,7 +1107,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					const auto Right = Top_Pos.x + Width;
 					if (Variable::Coor_Dis_3D(Local_Position, Entity_Position) <= 4000)//距离检测 降低CPU占用
 					{
-						if (UI_Visual_ESP_Snapline)ESP_Paint.RenderA_GradientLine(CS_Scr_Res.r / 2, CS_Scr_Res.g, Left + (Right - Left) / 2, Bottom_Pos.y, { 0,0,0,0 }, Draw_Color.D_Alpha(150));//射线
+						if (UI_Visual_ESP_Line)ESP_Paint.RenderA_GradientLine(CS_Scr_Res.r / 2, CS_Scr_Res.g, Left + (Right - Left) / 2, Bottom_Pos.y, { 0,0,0,0 }, Draw_Color.D_Alpha(200));//射线
 						if (UI_Visual_ESP_Skeleton)//骨骼
 						{
 							static const vector<short> Bone_Flags = { 6,5,4,13,14,15,14,13,4,8,9,10,9,8,4,3,2,1,25,26,27,26,25,1,22,23,24,24 };
@@ -1095,7 +1122,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					if (UI_Visual_ESP_HeadDot)//头点
 					{
 						const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6), Local_Matrix);
-						ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 10, Draw_Color.D_Alpha(100), { 0,0,0,0 });
+						ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 15, Draw_Color.D_Alpha(100), { 0,0,0,0 });
 					}
 					if (UI_Visual_ESP_Box)//方框
 					{
@@ -1206,7 +1233,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			if (Menu_Open)Sleep(50);//节省CPU性能 (可有可无)
 			auto Draw_Color = GUI_IO.GUIColor;
 			if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
-			MoveWindow(Render_Window_HWND, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, TRUE);//Pos & Size
+			MoveWindow(Render_Window_HWND, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//Pos & Size
 			const auto Entitylist = Base::EntityList(); const auto Local_Origin = Global_LocalPlayer.Origin(); const auto Local_ViewMatrix = Base::ViewMatrix();
 			static vector<short> Class_ID = {};//有效实体ID
 			if (System::Get_Key(0x47) || System::Sleep_Tick<class CLASS_Drops_ESP_Reload_ClassID_>(500))//特殊算法为了提高绘制效率
@@ -1260,7 +1287,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			}
 			else Sleep(100);
 		}
-		else { MoveWindow(Render_Window_HWND, 0, 0, 0, 0, TRUE); Sleep(20); }
+		else { MoveWindow(Render_Window_HWND, 0, 0, 0, 0, true); Sleep(20); }
 		WEP_Render.DrawPaint(true);
 	}
 }
