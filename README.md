@@ -1,6 +1,4 @@
-<h1 align="center">
-  <img src="https://raw.githubusercontent.com/CowNowK/AimStar/master/AS_Logo.png" alt="icon" style="width: 100px; height: 100px"><br>
-  AimStar
+# ✨Rensen for game Counter-Strike 2
 </h1>
 <p align="center">
 <a href="https://en.wikipedia.org/wiki/C%2B%2B"><img src="https://img.shields.io/badge/build-C++-blue?style=flat&label=Language&logo=visualstudio&logoColor=%231082c3"></a>
@@ -8,12 +6,6 @@
 <a href="https://github.com/CowNowK/AimStar/releases"><img src="https://img.shields.io/github/v/release/CowNowK/AimStar?color=orange&logoColor=orange&label=Download&logo=DocuSign"></a>
 <a href="https://discord.com/invite/VgRrxwesPz"><img src="https://img.shields.io/discord/1179009716307886080?logo=discord&logoColor=%234ec920"></a>
 </p>
-<h4 align="center">
-  ⛔ USE AT YOUR OWN RISK ⛔
-</h4>
-
-
-# ✨Rensen for game Counter-Strike 2
 Just a multifunction cheat software developed for the game Counter-Strike 2.
 
 The only sales channel 淘宝: [Rensen淘宝](https://item.taobao.com/item.htm?ft=t&id=783904867844)
