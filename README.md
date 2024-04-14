@@ -9,7 +9,7 @@ The only sales channel TAOBAO: https://item.taobao.com/item.htm?ft=t&id=78390486
 - Do not write memory!!!
 - Bypass Valve Anti-Cheat
 - C++ Build in Release | x64
-- GUI project: [EasyGUI-Lightweight]([https://discord.com/invite/VgRrxwesPz](https://github.com/Coslly/EasyGUI-Lightweight.git))
+- GUI project: [EasyGUI-Lightweight](https://github.com/Coslly/EasyGUI-Lightweight.git)
 - Cloud update: https://github.com/Coslly/Misc/blob/main/About%20Rensen/Offsets.ofs
 - Authentication: https://github.com/Coslly/Misc/blob/main/About%20Rensen/UserID.uid
 ## 🤩Showcase
