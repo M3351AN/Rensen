@@ -5,6 +5,7 @@ Just a multifunction cheat software developed for the game Counter-Strike 2.
 - Saveable System
 - Absolutely safe!!!
 - Do not write memory!!!
+- Bypass Valve Anti-Cheat
 - C++ Build in Release | x64
 - GUI project: https://github.com/Coslly/EasyGUI-Lightweight.git
 - Cloud update: https://github.com/Coslly/Misc/blob/main/About%20Rensen/Offsets.ofs
