@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
 const string Rensen_ReleaseDate = "[2024-04-16 20:30]";//程序发布日期
-const float Rensen_Version = 3.43;//程序版本
+const float Rensen_Version = 3.45;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -709,9 +709,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功能)
 {
 	System::Log("Load Thread: Thread_Misc()");
-	Window::Windows Window_NightMode; Window_NightMode.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, "Rensen - NightMode");//夜晚模式窗口
 	Window::Windows Window_Watermark; const auto Window_Watermark_HWND = Window_Watermark.Create_RenderBlock_Alpha(Window::Get_Resolution().x, 50, "Rensen - Watermark");//创建水印透明窗口
-	Window::Render Window_Watermark_Render; Window_Watermark_Render.CreatePaint(Window_Watermark_HWND, 0, 0, Window::Get_Resolution().x, 50); Window_Watermark.Set_WindowDeleteColor();
+	Window::Render Window_Watermark_Render; Window_Watermark_Render.CreatePaint(Window_Watermark_HWND, 0, 0, Window::Get_Resolution().x, 50);
+	Window::Windows Window_NightMode; Window_NightMode.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, "Rensen - NightMode");//夜晚模式窗口
+	Window_Watermark.Show_Window();//将水印修改为最前端绘制覆盖窗口
 	ReLoad(true);//刷新CS2_SDK内存数据 (快速初始化)
 	while (true)
 	{
@@ -720,19 +721,6 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (UI_Misc_LockGameWindow && !Menu_Open)SetForegroundWindow(CS2_HWND);//锁定CS窗口到最前端
 		if (UI_Debug_ShowDebugWindow)ShowWindow(GetConsoleWindow(), true);//显示控制台
 		else ShowWindow(GetConsoleWindow(), false);//隐藏控制台
-		if (UI_Misc_NightMode && CS2_HWND && (Global_IsShowWindow || Menu_Open))//夜晚模式 (降低屏幕亮度)
-		{
-			const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
-			MoveWindow(Window_NightMode.Get_HWND(), CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//对齐覆盖游戏窗口
-			if (System::Sleep_Tick<class CLASS_NightMode_Window_Sleep_>(500))//降低CPU占用
-			{
-				Window_NightMode.Set_WindowTitle(System::Rand_String(10));//随机夜晚模式窗口标题
-				Window_NightMode.UpdateRenderBlock();//绘制黑板
-				Window_NightMode.Fix_inWhile();//夜晚模式消息循环
-			}
-			Window_NightMode.Set_WindowAlpha(Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(UI_Misc_NightMode_Alpha, 5));//修改透明度
-		}
-		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//隐藏窗口
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);
@@ -760,6 +748,19 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			}
 		}
 		else Window_Watermark.Set_WindowPos(99999, 99999);
+		if (UI_Misc_NightMode && CS2_HWND && (Global_IsShowWindow || Menu_Open))//夜晚模式 (降低屏幕亮度)
+		{
+			const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
+			MoveWindow(Window_NightMode.Get_HWND(), CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//对齐覆盖游戏窗口
+			if (System::Sleep_Tick<class CLASS_NightMode_Window_Sleep_>(500))//降低CPU占用
+			{
+				Window_NightMode.Set_WindowTitle(System::Rand_String(10));//随机夜晚模式窗口标题
+				Window_NightMode.UpdateRenderBlock();//绘制黑板
+				Window_NightMode.Fix_inWhile();//夜晚模式消息循环
+			}
+			Window_NightMode.Set_WindowAlpha(Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(UI_Misc_NightMode_Alpha, 5));//修改透明度
+		}
+		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//隐藏窗口
 		if (Global_IsShowWindow && Global_LocalPlayer.Health())//一些杂项功能
 		{
 			const auto Local_Pos = Global_LocalPlayer.Origin();//本地人物坐标
