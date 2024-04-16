@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-14 14:20]";//程序发布日期
-const float Rensen_Version = 3.41;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-16 20:30]";//程序发布日期
+const float Rensen_Version = 3.43;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -711,7 +711,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 	System::Log("Load Thread: Thread_Misc()");
 	Window::Windows Window_NightMode; Window_NightMode.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, "Rensen - NightMode");//夜晚模式窗口
 	Window::Windows Window_Watermark; const auto Window_Watermark_HWND = Window_Watermark.Create_RenderBlock_Alpha(Window::Get_Resolution().x, 50, "Rensen - Watermark");//创建水印透明窗口
-	Window::Render Window_Watermark_Render; Window_Watermark_Render.CreatePaint(Window_Watermark_HWND, 0, 0, Window::Get_Resolution().x, 50);
+	Window::Render Window_Watermark_Render; Window_Watermark_Render.CreatePaint(Window_Watermark_HWND, 0, 0, Window::Get_Resolution().x, 50); Window_Watermark.Set_WindowDeleteColor();
 	ReLoad(true);//刷新CS2_SDK内存数据 (快速初始化)
 	while (true)
 	{
@@ -720,7 +720,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (UI_Misc_LockGameWindow && !Menu_Open)SetForegroundWindow(CS2_HWND);//锁定CS窗口到最前端
 		if (UI_Debug_ShowDebugWindow)ShowWindow(GetConsoleWindow(), true);//显示控制台
 		else ShowWindow(GetConsoleWindow(), false);//隐藏控制台
-		if (CS2_HWND && UI_Misc_NightMode && (Global_IsShowWindow || Menu_Open))//夜晚模式 (降低屏幕亮度)
+		if (UI_Misc_NightMode && CS2_HWND && (Global_IsShowWindow || Menu_Open))//夜晚模式 (降低屏幕亮度)
 		{
 			const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 			MoveWindow(Window_NightMode.Get_HWND(), CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//对齐覆盖游戏窗口
@@ -728,11 +728,11 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			{
 				Window_NightMode.Set_WindowTitle(System::Rand_String(10));//随机夜晚模式窗口标题
 				Window_NightMode.UpdateRenderBlock();//绘制黑板
+				Window_NightMode.Fix_inWhile();//夜晚模式消息循环
 			}
 			Window_NightMode.Set_WindowAlpha(Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(UI_Misc_NightMode_Alpha, 5));//修改透明度
 		}
 		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//隐藏窗口
-		Window_NightMode.Fix_inWhile();//夜晚模式消息循环
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);
@@ -840,7 +840,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				//--------------------------------------
 				if (UI_Spoof_AimbotTeam && System::Get_Key(UI_Spoof_AimbotTeam_Key))//瞄准队友
 				{
-					float Aim_Range = 8;//瞄准范围
+					float Aim_Range = 10;//瞄准范围
 					for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
 					{
 						const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
@@ -1018,7 +1018,7 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 			}
 			if (UI_Legit_MagnetAim && System::Is_MousePos_InMid(CS2_HWND) && !System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon() != 0)//磁吸瞄准
 			{
-				float Aim_Range = 5;
+				float Aim_Range = 8;
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
@@ -1122,7 +1122,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					if (UI_Visual_ESP_HeadDot)//头点
 					{
 						const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6), Local_Matrix);
-						ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 15, Draw_Color.D_Alpha(100), { 0,0,0,0 });
+						ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 15, Draw_Color.D_Alpha(150), { 0,0,0,0 }, 0.2);
 					}
 					if (UI_Visual_ESP_Box)//方框
 					{
@@ -1136,7 +1136,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						if (PlayerHealth > 100)Health_Ma = 1;
 						else if (PlayerHealth < 0)Health_Ma = 0;//限制值 防止绘制出错
 						ESP_Paint.RenderA_SolidRect(Left - 6, Top_Pos.y - 1, 4, Bottom_Pos.y - Top_Pos.y + 3, { 0,0,0,130 });
-						if (UI_Visual_ESP_CustomColor)ESP_Paint.RenderA_SolidRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, Draw_Color.D_Alpha(200));
+						if (UI_Visual_ESP_CustomColor)ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, Draw_Color.D_Alpha(200), { 0,0,0,200 }, true);
 						else ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, { (int)(1 - Health_Ma * 255),(int)(255 * Health_Ma),0,200 }, { 255,0,0,200 }, true);
 						if (PlayerHealth < 100 && PlayerHealth > 0)ESP_Paint.Render_SmpStr(Left - 8, Bottom_Pos.y - Hight * Health_Ma - 6, to_string(PlayerHealth), { 150,150,150 }, { 0 }, false);
 					}
@@ -1208,11 +1208,11 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					if (UI_Visual_HitMark_Damage)ESP_Paint.Render_String(CS_Scr_Res.r / 2 - 5, CS_Scr_Res.g / 2 + Range + 10, to_string(Mark_DMG), "Small Fonts", 11, Mark_Color, false);
 				}
 			}
-			if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped()) { ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, UI_Misc_SniperCrosshair_Size, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }); }//狙击枪准星
+			if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped())ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, UI_Misc_SniperCrosshair_Size, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }, 0.3);//狙击枪准星
 			if (Menu_Open)Sleep(5);//菜单打开时降低绘制速度以降低CPU使用率
 		}
 		else Sleep(20);
-		ESP_Paint.DrawPaint();
+		ESP_Paint.DrawPaint();//绘制画板
 	}
 }
 void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
@@ -1338,6 +1338,7 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 		else Radar_Size_ = 0;
 		Radar_Window.Set_WindowSize(RadarSizeAnimation, RadarSizeAnimation + 15);
 		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2.5));
+		Radar_Window.Fix_inWhile();//窗口消息循环
 	}
 }
 void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
