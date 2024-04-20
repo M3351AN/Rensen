@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-16 20:30]";//程序发布日期
-const float Rensen_Version = 3.45;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-20 16:30]";//程序发布日期
+const float Rensen_Version = 3.46;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560;
 	BOOL UI_Visual_Res_1920;
@@ -128,6 +128,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Legit_Aimbot_AutoScope = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 115));
 	BOOL UI_Misc_NightMode = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 116));
 	int UI_Misc_NightMode_Alpha = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 117));
+	BOOL UI_Spoof_LearnPlayer = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 118));
+	int UI_Spoof_LearnPlayer_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 119));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -248,7 +250,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Misc_SavePerformance) + "\n" +
 			to_string(UI_Legit_Aimbot_AutoScope) + "\n" +
 			to_string(UI_Misc_NightMode) + "\n" +
-			to_string(UI_Misc_NightMode_Alpha) + "\n"
+			to_string(UI_Misc_NightMode_Alpha) + "\n" +
+			to_string(UI_Spoof_LearnPlayer) + "\n" +
+			to_string(UI_Spoof_LearnPlayer_Key) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -364,13 +368,15 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Legit_Aimbot_AutoScope = Variable::string_int_(URL_CONFIG.Read(115));
 			UI_Misc_NightMode = Variable::string_int_(URL_CONFIG.Read(116));
 			UI_Misc_NightMode_Alpha = Variable::string_int_(URL_CONFIG.Read(117));
+			UI_Spoof_LearnPlayer = Variable::string_int_(URL_CONFIG.Read(118));
+			UI_Spoof_LearnPlayer_Key = Variable::string_int_(URL_CONFIG.Read(119));
 			URL_CONFIG.Release();
 		}
 	}
 	//----------------------------------------------------------------------------------------------
 	namespace Debug_Control_Var//测试调试用的控件变量 (按钮 滑条 选择框 按键选择框 控制台控件)
 	{
-		string SystemCommand; BOOL SendSystemCommand, ClearCommand;
+		int SelectPlayer; string SystemCommand; BOOL SendSystemCommand, ClearCommand;
 		BOOL Checkbox_1, Checkbox_2;
 		int KeySelector_1, KeySelector_2, Slider_1;
 		float Slider_2;
@@ -529,7 +535,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_CloudConfig = GUI_VAR.GUI_Block(580, 210, 150, "Cloud config");
 				GUI_VAR.GUI_Button(Block_CloudConfig, 1, "Load config", UI_Misc_LoadCloudConfig, 80);
 				GUI_VAR.GUI_List(Block_CloudConfig, 2, { "Legit","Rage","Legit - no visual" }, UI_Misc_SelectedConfig);
-				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 280, "Spoof");
+				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 310, "Spoof");
 				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });//恶搞功能总开关
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_39>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
@@ -540,6 +546,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 7, "Fake anti aim", UI_Spoof_FakeAntiAim);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_42>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 8, "Kill drop sniper", UI_Spoof_KillDropSniper);
+				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 9, "Learn player", UI_Spoof_LearnPlayer);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_43>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
 				GUI_VAR.GUI_Tips(Block_Misc, 2, "Play Beep when hitting player.");
 				GUI_VAR.GUI_Tips(Block_Misc, 5, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
@@ -554,7 +562,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 6, "Drop it when picking up C4.");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 7, "Rotate view......");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 8, "Drop the weapon when killing an enemy with a sniper rifle.");
-				UI_WindowSize = { 1010,690 };
+				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 9, "Learn recent player actions.");
+				UI_WindowSize = { 1010,720 };
 			}
 			else if (UI_Panel == 3)//Setting
 			{
@@ -568,11 +577,11 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", { 150,255,150 });
 				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 280, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_43>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_44>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
 				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_44>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_45>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
 				GUI_VAR.GUI_Button(Block_Menu, 4, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
 				GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
 				GUI_VAR.GUI_Button(Block_Menu, 6, "Quit CS", UI_Setting_Menu_QuitCS, 90);
@@ -584,17 +593,17 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			else if (UI_Panel == 4)//Debug
 			{
 				const auto Block_PlayerList = GUI_VAR.GUI_Block(150, 30, 790, "Player list", 330);
-				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static int SelectPlayer = 0; static string PlayerName = "";
-				GUI_VAR.GUI_Slider<int, class CLASS_Debug_PlayerID>(Block_PlayerList, 1, "Player ID", 0, 64, SelectPlayer);
+				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static string PlayerName = "";
+				GUI_VAR.GUI_Slider<int, class CLASS_Debug_PlayerID>(Block_PlayerList, 1, "Player ID", 0, 64, Debug_Control_Var::SelectPlayer);
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(3000)) { PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
 				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName);
-				if (PlayerName != "" && PlayerName != "None") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))SelectPlayer = i; }//人物名称搜索
-				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, SelectPlayer, 27);
+				if (PlayerName != "" && PlayerName != "None") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))Debug_Control_Var::SelectPlayer = i; }//人物名称搜索
+				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, Debug_Control_Var::SelectPlayer, 27);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 2, "Search player name.");
 				const auto Block_Info = GUI_VAR.GUI_Block(510, 30, 490, "Info", 330);
-				const auto Player_Pawn = Advanced::Traverse_Player(SelectPlayer);
+				const auto Player_Pawn = Advanced::Traverse_Player(Debug_Control_Var::SelectPlayer);
 				Variable::Vector4 Debug_PawnColor = { 0,0,0 };//人物数据地址绘制颜色
 				if (Player_Pawn.Pawn() == Global_LocalPlayer.Pawn())Debug_PawnColor = { 100,100,255 };//自身
 				else if (Player_Pawn.TeamNumber() == Global_LocalPlayer.TeamNumber())Debug_PawnColor = { 0,255,0 };//同队
@@ -602,7 +611,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				if (Player_Pawn.Health() == 0)Debug_PawnColor = { 150,150,150 };//无效或是死亡
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 1, "client.dll -> " + Variable::Hex_String(Module_client));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 2, "Pawn -> " + Variable::Hex_String(Player_Pawn.Pawn()), Debug_PawnColor);
-				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 3, "Name: " + Advanced::Player_Name(SelectPlayer));
+				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 3, "Name: " + Advanced::Player_Name(Debug_Control_Var::SelectPlayer));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 4, "Health: " + to_string(Player_Pawn.Health()));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 5, "Armor: " + to_string(Player_Pawn.Armor()));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 6, "TeamNum: " + to_string(Player_Pawn.TeamNumber()));
@@ -616,7 +625,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 14, "Origin: ");
 				auto PlayerOrigin = Player_Pawn.Origin(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 14, PlayerOrigin);
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 15, "Angle: ");
-				auto PlayerViewAngle = Base::ViewAngles(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 15, PlayerViewAngle);
+				auto PlayerViewAngle = Player_Pawn.ViewAngles(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 15, PlayerViewAngle);
 				GUI_VAR.GUI_Tips({ Block_Info.x + 3,Block_Info.y }, 1, "Cloud offsets date: [" + CS2_Offsets::Offsets_Date + "]");
 				//-----------------------------------------------------------------------------------------------------------------------------测试控件-------
 				const auto Block_DebugControl = GUI_VAR.GUI_Block(510, 540, 280, "Debug control", 330);
@@ -863,6 +872,33 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					static auto OldKill = 0; const auto Kill = Advanced::Local_RoundDamage(true);//击杀
 					if (Kill > OldKill && Global_LocalPlayer.ActiveWeapon(true) == 3 && Global_LocalPlayer.ShotsFired() == 1)ExecuteCommand("drop");//丢弃武器
 					if (Kill != OldKill)OldKill = Kill;
+				}
+				//--------------------------------------
+				static BOOL IS_LearnPlayer = false;//释放按键判断变量
+				if (UI_Spoof_LearnPlayer && System::Get_Key(UI_Spoof_LearnPlayer_Key))//模仿最近玩家
+				{
+					IS_LearnPlayer = true;
+					struct RecPla { Base::PlayerPawn Pawn = { 0 }; int Dis = 99999; }; RecPla RecentPlayer;//最近的玩家结构体变量
+					for (short i = 0; i < Global_ValidClassID.size(); ++i)//遍历计算最近玩家
+					{
+						const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
+						if (PlayerPawn.Pawn() == Global_LocalPlayer.Pawn())continue;//过滤本地人物
+						const auto For_Dis = Variable::Coor_Dis_3D(Global_LocalPlayer.Origin(), PlayerPawn.Origin());
+						if (RecentPlayer.Dis > For_Dis) { RecentPlayer.Dis = For_Dis; RecentPlayer.Pawn = PlayerPawn; }
+					}
+					if (RecentPlayer.Dis < 1000)//超出范围则不执行 (因为跟不上)
+					{
+						//Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles());//学习玩家朝向角度
+						Advanced::Move_to_Pos(RecentPlayer.Pawn.Origin());//移动到玩家
+					}
+				}
+				else if (IS_LearnPlayer == true)//释放按键
+				{
+					ExecuteCommand("-forward");
+					ExecuteCommand("-right");
+					ExecuteCommand("-back");
+					ExecuteCommand("-left");//释放所有按键
+					IS_LearnPlayer = false;
 				}
 				//--------------------------------------
 			}
@@ -1375,7 +1411,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	{
 		const auto Local_UserName = System::Get_UserName();
 		if (Local_UserName == "22684" || Local_UserName == "SAMSUNG") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单过滤
-		for (short i = 0; i <= 500; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
+		for (short i = 0; i <= 1000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
 		UserID_READ.Release();//释放缓存
 	}
 	if (Attest == false) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.", MB_ICONSTOP); exit(0); }//未被认证则直接退出

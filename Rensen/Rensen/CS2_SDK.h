@@ -13,7 +13,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	void ExecuteCommand(string Command_Str) noexcept//发送指令到CS控制台
 	{
 		COPYDATASTRUCT m_cData; m_cData.cbData = strlen(Command_Str.c_str()) + 1; m_cData.dwData = 0; m_cData.lpData = (void*)Command_Str.c_str();
-		SendMessage(CS2_MEM.Get_ProcessHWND(), WM_COPYDATA, 0, (LPARAM)&m_cData);
+		SendMessage(CS2_MEM.Get_ProcessHWND(), WM_COPYDATA, 0, (LPARAM)&m_cData);//发送命令
 		//-----------------------------------------------------------------------------------
 		if (Command_Str == "+jump")System::Key_Click(VK_F13, true, 57);//bind F13 "+jump;-jump";bind F14 "m_yaw 0.015";bind F15 "m_yaw 0.004";
 		if (Command_Str == "+lookatweapon")System::Key_Click(0x46, true, 33);
@@ -25,21 +25,22 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			else if (Command_Str == "m_yaw 0.004000")System::Key_Click(VK_F15, true, 59);
 		}
 		*/
+		//Shoot 开火和使用
 		if (Command_Str == "+attack")mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 		else if (Command_Str == "-attack")mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 		if (Command_Str == "+attack2")mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
 		else if (Command_Str == "-attack2")mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
-		//Movement
-		if (Command_Str == "+back")System::Key_Con(0x53, true, 31);//S
-		else if (Command_Str == "-back")System::Key_Con(0x53, false, 31);
+		//Movement 移动
 		if (Command_Str == "+forward")System::Key_Con(0x57, true, 17);//W
 		else if (Command_Str == "-forward")System::Key_Con(0x57, false, 17);
-		if (Command_Str == "+right")System::Key_Con(0x44, true, 32);//D
-		else if (Command_Str == "-right")System::Key_Con(0x44, false, 32);
+		if (Command_Str == "+back")System::Key_Con(0x53, true, 31);//S
+		else if (Command_Str == "-back")System::Key_Con(0x53, false, 31);
 		if (Command_Str == "+left")System::Key_Con(0x41, true, 30);//A
 		else if (Command_Str == "-left")System::Key_Con(0x41, false, 30);
+		if (Command_Str == "+right")System::Key_Con(0x44, true, 32);//D
+		else if (Command_Str == "-right")System::Key_Con(0x44, false, 32);
 	}
-	namespace CS2_Offsets//CS2固定偏移量(游戏更新时需要同时更新 https://github.com/a2x/cs2-dumper.git)
+	namespace CS2_Offsets//CS2固定偏移量 (游戏更新时需要同时更新 https://github.com/a2x/cs2-dumper.git)
 	{
 		string Offsets_Date = "0000-00-00 00:00";
 		uintptr_t dwLocalPlayerController = 0;
@@ -68,12 +69,13 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		uintptr_t m_iNumRoundKills = 0;
 		uintptr_t m_unTotalRoundDamageDealt = 0;
 		uintptr_t m_iItemDefinitionIndex = 0;//m_AttributeManager + m_Item + m_iItemDefinitionIndex
+		uintptr_t m_angEyeAngles = 0;
 	}
 	namespace Base//基础内存函数
 	{
 		uintptr_t EntityList() noexcept { return CS2_MEM.Read<uintptr_t>(Module_client + CS2_Offsets::dwEntityList); }//实体列表
 		uintptr_t Convert(uintptr_t EntityList, uintptr_t Player) noexcept { return CS2_MEM.Read<uintptr_t>(CS2_MEM.Read<uintptr_t>(EntityList + 8 * ((Player & 0x7FFF) >> 9) + 16) + 120 * (Player & 0x1FF)); }//各种转换
-		class PlayerPawn
+		class PlayerPawn//玩家Pawn内存类
 		{
 		private:uintptr_t m_PlayerPawn = 0; public:PlayerPawn(uintptr_t dwPlayerPawn) noexcept { m_PlayerPawn = dwPlayerPawn; };
 			   uintptr_t Pawn() const noexcept { return m_PlayerPawn; }//人物地址
@@ -201,6 +203,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 				   const auto BoneMatrix = CS2_MEM.Read<uintptr_t>(CS2_MEM.Read<uintptr_t>(m_PlayerPawn + CS2_Offsets::m_pGameSceneNode) + CS2_Offsets::m_dwBoneMatrix);
 				   return CS2_MEM.Read<Variable::Vector3>(BoneMatrix + Bone_ID * 0x20);
 			   }
+			   Variable::Vector3 ViewAngles() const noexcept { return CS2_MEM.Read<Variable::Vector3>(m_PlayerPawn + CS2_Offsets::m_angEyeAngles); }//人物朝向角度
 		};
 		PlayerPawn LocalPlayer() noexcept { return CS2_MEM.Read<uintptr_t>(Module_client + CS2_Offsets::dwLocalPlayerPawn); }//本地人物
 		uintptr_t LocalPlayerController() noexcept { return CS2_MEM.Read<uintptr_t>(Module_client + CS2_Offsets::dwLocalPlayerController); }//本地人物控制器
@@ -248,10 +251,33 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (Return_Kill)return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_iNumRoundKills);
 			else return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_unTotalRoundDamageDealt);
 		}
-		void Move_to_Angle(Variable::Vector3 Angles = { 0,0,0 }, float Smooth = 40) noexcept//将视角移动到指定坐标
+		void Move_to_Angle(Variable::Vector3 Target_Angles = { 0,0,0 }, float Smooth = 40) noexcept//本地人物将视角移动到指定坐标
 		{
-			const auto LocalPlayer_Angle = Base::ViewAngles();
-			System::Mouse_Move((-Angles.y + LocalPlayer_Angle.y) * Smooth, (Angles.x - LocalPlayer_Angle.x) * Smooth);
+			const auto LocalPlayer_Angle = Base::ViewAngles();//本地人物朝向
+			System::Mouse_Move((-Target_Angles.y + LocalPlayer_Angle.y) * Smooth, (Target_Angles.x - LocalPlayer_Angle.x) * Smooth);
+		}
+		void Move_to_Pos(Variable::Vector3 Target_Pos = { 0,0,0 }, float Edge = 5) noexcept//本地人物移动到指定世界坐标
+		{
+			const auto LocalPlayer_Pos = Global_LocalPlayer.Origin();//本地人物所处世界坐标
+			const auto Target_Distance = hypot(LocalPlayer_Pos.x - Target_Pos.x, LocalPlayer_Pos.y - Target_Pos.y);;//计算与目标坐标的距离
+			if (Target_Distance <= Edge)return;//达到边缘则不进行移动
+			auto Offset_Angle = Base::ViewAngles().y - Variable::Pos_Angle(LocalPlayer_Pos, Target_Pos); if (Offset_Angle < 0)Offset_Angle += 360;//角度偏移
+			if (Offset_Angle > 315 - 30 || Offset_Angle < 45 + 30)ExecuteCommand("+forward");
+			else ExecuteCommand("-forward");
+			if (Offset_Angle > 45 - 30 && Offset_Angle < 135 + 30)ExecuteCommand("+right");
+			else ExecuteCommand("-right");
+			if (Offset_Angle > 135 - 30 && Offset_Angle < 225 + 30)ExecuteCommand("+back");
+			else ExecuteCommand("-back");
+			if (Offset_Angle > 225 - 30 && Offset_Angle < 315 + 30)ExecuteCommand("+left");
+			else ExecuteCommand("-left");
+			if (Target_Distance <= Edge * 2)//降低移动速度
+			{
+				Sleep(5);//按键缓冲
+				ExecuteCommand("-forward");
+				ExecuteCommand("-right");
+				ExecuteCommand("-back");
+				ExecuteCommand("-left");//释放所有按键
+			}
 		}
 	}
 	void ReLoad(BOOL Timeout = false) noexcept//刷新CS2进程地址和模块地址和有效实体
@@ -297,6 +323,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 					CS2_Offsets::m_iNumRoundKills = Variable::string_uint_(URL_OFFSETS.Read(50));
 					CS2_Offsets::m_unTotalRoundDamageDealt = Variable::string_uint_(URL_OFFSETS.Read(52));
 					CS2_Offsets::m_iItemDefinitionIndex = Variable::string_uint_(URL_OFFSETS.Read(54));
+					CS2_Offsets::m_angEyeAngles = Variable::string_uint_(URL_OFFSETS.Read(56));
 					URL_OFFSETS.Release();//释放文件
 				}
 			}
