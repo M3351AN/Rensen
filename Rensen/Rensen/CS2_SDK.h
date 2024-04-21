@@ -256,28 +256,29 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			const auto LocalPlayer_Angle = Base::ViewAngles();//本地人物朝向
 			System::Mouse_Move((-Target_Angles.y + LocalPlayer_Angle.y) * Smooth, (Target_Angles.x - LocalPlayer_Angle.x) * Smooth);
 		}
-		void Move_to_Pos(Variable::Vector3 Target_Pos = { 0,0,0 }, float Edge = 5) noexcept//本地人物移动到指定世界坐标
+		BOOL Move_to_Pos(Variable::Vector3 Target_Pos = { 0,0,0 }, float Edge = 5) noexcept//本地人物移动到指定世界坐标
 		{
 			const auto LocalPlayer_Pos = Global_LocalPlayer.Origin();//本地人物所处世界坐标
 			const auto Target_Distance = hypot(LocalPlayer_Pos.x - Target_Pos.x, LocalPlayer_Pos.y - Target_Pos.y);;//计算与目标坐标的距离
-			if (Target_Distance <= Edge)return;//达到边缘则不进行移动
+			if (Target_Distance <= Edge)return true;//达到边缘则不进行移动
 			auto Offset_Angle = Base::ViewAngles().y - Variable::Pos_Angle(LocalPlayer_Pos, Target_Pos); if (Offset_Angle < 0)Offset_Angle += 360;//角度偏移
-			if (Offset_Angle > 315 - 30 || Offset_Angle < 45 + 30)ExecuteCommand("+forward");
+			if (Offset_Angle > 315 - 15 || Offset_Angle < 45 + 15)ExecuteCommand("+forward");
 			else ExecuteCommand("-forward");
-			if (Offset_Angle > 45 - 30 && Offset_Angle < 135 + 30)ExecuteCommand("+right");
+			if (Offset_Angle > 45 - 15 && Offset_Angle < 135 + 15)ExecuteCommand("+right");
 			else ExecuteCommand("-right");
-			if (Offset_Angle > 135 - 30 && Offset_Angle < 225 + 30)ExecuteCommand("+back");
+			if (Offset_Angle > 135 - 15 && Offset_Angle < 225 + 15)ExecuteCommand("+back");
 			else ExecuteCommand("-back");
-			if (Offset_Angle > 225 - 30 && Offset_Angle < 315 + 30)ExecuteCommand("+left");
+			if (Offset_Angle > 225 - 15 && Offset_Angle < 315 + 15)ExecuteCommand("+left");
 			else ExecuteCommand("-left");
 			if (Target_Distance <= Edge * 2)//降低移动速度
 			{
-				Sleep(5);//按键缓冲
+				Sleep(1);//按键缓冲
 				ExecuteCommand("-forward");
 				ExecuteCommand("-right");
 				ExecuteCommand("-back");
 				ExecuteCommand("-left");//释放所有按键
 			}
+			return false;//未移动到目标坐标
 		}
 	}
 	void ReLoad(BOOL Timeout = false) noexcept//刷新CS2进程地址和模块地址和有效实体

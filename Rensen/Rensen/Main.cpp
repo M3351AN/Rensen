@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-20 16:30]";//程序发布日期
-const float Rensen_Version = 3.46;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-21 19:50]";//程序发布日期
+const float Rensen_Version = 3.49;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560;
 	BOOL UI_Visual_Res_1920;
@@ -130,6 +130,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	int UI_Misc_NightMode_Alpha = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 117));
 	BOOL UI_Spoof_LearnPlayer = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 118));
 	int UI_Spoof_LearnPlayer_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 119));
+	BOOL UI_Misc_AutoPeek = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 120));
+	int UI_Misc_AutoPeek_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 121));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -252,7 +254,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Misc_NightMode) + "\n" +
 			to_string(UI_Misc_NightMode_Alpha) + "\n" +
 			to_string(UI_Spoof_LearnPlayer) + "\n" +
-			to_string(UI_Spoof_LearnPlayer_Key) + "\n"
+			to_string(UI_Spoof_LearnPlayer_Key) + "\n" +
+			to_string(UI_Misc_AutoPeek) + "\n" +
+			to_string(UI_Misc_AutoPeek_Key) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -370,6 +374,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Misc_NightMode_Alpha = Variable::string_int_(URL_CONFIG.Read(117));
 			UI_Spoof_LearnPlayer = Variable::string_int_(URL_CONFIG.Read(118));
 			UI_Spoof_LearnPlayer_Key = Variable::string_int_(URL_CONFIG.Read(119));
+			UI_Misc_AutoPeek = Variable::string_int_(URL_CONFIG.Read(120));
+			UI_Misc_AutoPeek_Key = Variable::string_int_(URL_CONFIG.Read(121));
 			URL_CONFIG.Release();
 		}
 	}
@@ -400,7 +406,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
 			{
 				GUI_VAR.Global_Set_EasyGUI_Color(UI_Setting_Menu_MainColor);//设置主题颜色
-				GUI_VAR.GUI_BackGround(4);//自定义颜色星空背景主题
+				GUI_VAR.GUI_BackGround(4);//自定义颜色背景主题
 			}
 			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
 			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Setting","Debug" }, UI_Panel);
@@ -504,7 +510,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 2)//Misc
 			{
-				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 610, "Misc");
+				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 640, "Misc");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
@@ -526,7 +532,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Save performance", UI_Misc_SavePerformance);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Night mode", UI_Misc_NightMode);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>(Block_Misc, 18, "Alpha", 50, 150, UI_Misc_NightMode_Alpha);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
+				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Auto peek", UI_Misc_AutoPeek);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_40>(Block_Misc, 19, UI_Misc_AutoPeek_Key);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 20, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
 				const auto Block_Resolution = GUI_VAR.GUI_Block(580, 30, 160, "Screen resolution");
 				GUI_VAR.GUI_Button(Block_Resolution, 1, "2560 * 1440", UI_Visual_Res_2560, 78);
 				GUI_VAR.GUI_Button(Block_Resolution, 2, "1920 * 1080", UI_Visual_Res_1920, 78);
@@ -538,22 +546,23 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 310, "Spoof");
 				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });//恶搞功能总开关
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_39>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_40>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_41>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_42>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 4, "Increase recoil", UI_Spoof_IncreaseRecoil);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_41>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_43>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 6, "Unable to pick up C4", UI_Spoof_DropC4);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 7, "Fake anti aim", UI_Spoof_FakeAntiAim);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_42>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_44>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 8, "Kill drop sniper", UI_Spoof_KillDropSniper);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 9, "Learn player", UI_Spoof_LearnPlayer);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_43>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_45>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
 				GUI_VAR.GUI_Tips(Block_Misc, 2, "Play Beep when hitting player.");
 				GUI_VAR.GUI_Tips(Block_Misc, 5, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
 				GUI_VAR.GUI_Tips(Block_Misc, 14, "Lock the game window to the front.");
 				GUI_VAR.GUI_Tips(Block_Misc, 16, "Reduce the load on the CPU.");
 				GUI_VAR.GUI_Tips(Block_Misc, 17, "Reduce screen brightness.");
+				GUI_VAR.GUI_Tips(Block_Misc, 19, "Return to coordinates when shooting.");
 				GUI_VAR.GUI_Tips({ Block_Resolution.x + 10,Block_Resolution.y }, 1, "Flexible switching of window resolution.");
 				GUI_VAR.GUI_Tips({ Block_CloudConfig.x + 10,Block_CloudConfig.y }, 1, "Load parameter files stored in Github.");
 				GUI_VAR.GUI_Tips(Block_Spoof, 1, "Prank local player. (global switch)");
@@ -575,20 +584,20 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
 				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_Menu_OPENLINKAuthor);
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", { 150,255,150 });
-				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 280, "Menu");
+				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 250, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_44>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_46>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
 				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_45>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_47>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
 				GUI_VAR.GUI_Button(Block_Menu, 4, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
-				GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
-				GUI_VAR.GUI_Button(Block_Menu, 6, "Quit CS", UI_Setting_Menu_QuitCS, 90);
-				GUI_VAR.GUI_Button(Block_Menu, 7, "Restart menu", UI_Setting_Menu_RestartMenu, 75);
-				GUI_VAR.GUI_Button(Block_Menu, 8, "Unload", UI_Setting_Menu_Unload, 95);
+				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 5, "Quit CS", UI_Setting_Menu_QuitCS, 90);
+				else GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
+				GUI_VAR.GUI_Button(Block_Menu, 6, "Restart menu", UI_Setting_Menu_RestartMenu, 75);
+				GUI_VAR.GUI_Button(Block_Menu, 7, "Unload", UI_Setting_Menu_Unload, 95);
 				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 4, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
-				UI_WindowSize = { 580,520 };
+				UI_WindowSize = { 580,490 };
 			}
 			else if (UI_Panel == 4)//Debug
 			{
@@ -775,14 +784,11 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			const auto Local_Pos = Global_LocalPlayer.Origin();//本地人物坐标
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
 			//----------------------------------------------------------------------------------------------------------------------------------------
-			for (int i = 0; i <= 20; ++i)//重复遍历 增加容错率
-			{
-				if (UI_Misc_BunnyHop && System::Get_Key(VK_SPACE) && Global_LocalPlayer.Flags() & (1 << 0))//连跳
-				{//开关 & 按下空格 & 当本地人物触及到地面
-					ExecuteCommand("+jump");//跳跃
-					Sleep(1);
-					ExecuteCommand("-jump");
-				}
+			if (UI_Misc_BunnyHop && System::Get_Key(VK_SPACE) && Global_LocalPlayer.Flags() & (1 << 0))//连跳
+			{//开关 & 按下空格 & 当本地人物触及到地面
+				ExecuteCommand("+jump");//跳跃
+				Sleep(1);
+				ExecuteCommand("-jump");
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
 			if (UI_Misc_HitSound)//击打音效
@@ -808,7 +814,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					const auto Angle = Variable::CalculateAngle(Local_Pos + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(3), Base::ViewAngles());
 					if (Variable::Coor_Dis_3D(Local_Pos, Player_Pos) <= 65 && hypot(Angle.x, Angle.y) <= 50)//判断距离(世界坐标, 本地人物视角)
 					{
-						if (PlayerPawn.Health() <= 55 && PlayerPawn.Health() > 30)//血量判断重刀还是轻刀
+						if ((PlayerPawn.Health() <= 55 && PlayerPawn.Health() > 30) || Variable::Dif_Value_Ran<float>(Base::ViewAngles().y, PlayerPawn.ViewAngles().y, 50))//血量判断重刀还是轻刀
 						{
 							ExecuteCommand("+attack2");
 							Sleep(1);
@@ -888,7 +894,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					}
 					if (RecentPlayer.Dis < 1000)//超出范围则不执行 (因为跟不上)
 					{
-						//Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles());//学习玩家朝向角度
+						//Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles(), 2);//学习玩家朝向角度
 						Advanced::Move_to_Pos(RecentPlayer.Pawn.Origin());//移动到玩家
 					}
 				}
@@ -1245,11 +1251,46 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					if (UI_Visual_HitMark_Damage)ESP_Paint.Render_String(CS_Scr_Res.r / 2 - 5, CS_Scr_Res.g / 2 + Range + 10, to_string(Mark_DMG), "Small Fonts", 11, Mark_Color, false);
 				}
 			}
+			if (UI_Misc_AutoPeek)//AutoPeek
+			{
+				auto Range = 30;//范围变量
+				const auto LocalPlayer_Pos = Global_LocalPlayer.Origin(); static BOOL IS_SAVED_POS = false; static auto Peek_Pos = LocalPlayer_Pos;//缓存要移动的坐标
+				static BOOL DO_MOVE = false;//判断是否要移动到目标坐标
+				if (System::Get_Key(UI_Misc_AutoPeek_Key))
+				{
+					if (!IS_SAVED_POS) { Peek_Pos = LocalPlayer_Pos; IS_SAVED_POS = true; }//刷新缓存坐标
+					if (Variable::Coor_Dis_3D(LocalPlayer_Pos, Peek_Pos) > 250)Peek_Pos = LocalPlayer_Pos;//如果距离太远那么再次刷新
+					if (Global_LocalPlayer.ShotsFired() != 0)DO_MOVE = true;//开枪后移动
+					if (DO_MOVE && Advanced::Move_to_Pos(Peek_Pos, Range))DO_MOVE = false;//判断结束移动
+					const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
+					Range += 5;//范围修正
+					for (short i = 0; i <= 10; ++i)//绘制Peek圆圈
+					{
+						srand(i + System::Tick());//随机种子
+						const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Peek_Pos, Player_Matrix);//起点坐标
+						const auto Effect_Pos_To = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Peek_Pos.x + rand() % Range - Range / 2,Peek_Pos.y + rand() % Range - Range / 2,Peek_Pos.z }, Player_Matrix);
+						if (DO_MOVE)ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor, 2);
+						else ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor / 2);
+					}
+				}
+				else {
+					IS_SAVED_POS = false;
+					if (DO_MOVE)//防止串按键
+					{
+						ExecuteCommand("-forward");
+						ExecuteCommand("-right");
+						ExecuteCommand("-back");
+						ExecuteCommand("-left");//释放所有按键
+						DO_MOVE = false;
+					}
+				}
+			}
 			if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped())ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, UI_Misc_SniperCrosshair_Size, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }, 0.3);//狙击枪准星
+			ESP_Paint.DrawPaint();//最终绘制画板 (降低延迟)
 			if (Menu_Open)Sleep(5);//菜单打开时降低绘制速度以降低CPU使用率
 		}
 		else Sleep(20);
-		ESP_Paint.DrawPaint();//绘制画板
+		ESP_Paint.DrawPaint();//最终绘制画板
 	}
 }
 void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
@@ -1410,7 +1451,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
-		if (Local_UserName == "22684" || Local_UserName == "SAMSUNG") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单过滤
+		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单过滤 (作者)
 		for (short i = 0; i <= 1000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
 		UserID_READ.Release();//释放缓存
 	}

@@ -1,4 +1,4 @@
-﻿//2024-04-20 16:00
+﻿//2024-04-21 19:50
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -309,6 +309,13 @@ namespace Variable//变量转换
     {//Variable::String_Lower("Abc"); return "abc"
         string STR = Str; transform(STR.begin(), STR.end(), STR.begin(), tolower);
         return STR;
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    template<class CLASS>//变量类型
+    BOOL Dif_Value_Ran(CLASS Value_1, CLASS Value_2, CLASS Dif) noexcept//判断两个值之间的差值范围 (判断范围大于差值或是小于差值)
+    {
+        return abs(Value_1 - Value_2) < Dif;//True在范围内 False不在范围内
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -901,6 +908,34 @@ namespace Window//窗口
             pathBrush.SetFocusScales(Focus, Focus);//设置聚焦缩放0-1 float
             HDCwind.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);//抗锯齿 https://blog.csdn.net/hgy413/article/details/6692932
             HDCwind.FillEllipse(&pathBrush, X - Size / 2, Y - Size / 2, Size, Size);
+        }
+        //------------------------------------------------------------------------------------------------
+        void RenderA_GradientEllipse(int X, int Y, int Size_X, int Size_Y, Variable::Vector4 Color_1, Variable::Vector4 Color_2, float Focus = 0.5f) noexcept//绘制路径渐变椭圆形(包含Alpha) 内到外
+        {
+            Gdiplus::Graphics HDCwind(hMenDC);
+            Gdiplus::GraphicsPath m_Path;//构造空路径
+            m_Path.AddEllipse(X - Size_X / 2, Y - Size_Y / 2, Size_X, Size_Y);//添加椭圆
+            Gdiplus::PathGradientBrush pathBrush(&m_Path);//使用路径创建画刷
+            pathBrush.SetCenterColor(Gdiplus::Color(Color_1.a, Color_1.r, Color_1.g, Color_1.b));//设置中心颜色
+            Gdiplus::Color colors[] = { Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b) };//边界颜色
+            int i = 1; pathBrush.SetSurroundColors(colors, &i);
+            pathBrush.SetFocusScales(Focus, Focus);//设置聚焦缩放0-1 float
+            HDCwind.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);//抗锯齿 https://blog.csdn.net/hgy413/article/details/6692932
+            HDCwind.FillEllipse(&pathBrush, X - Size_X / 2, Y - Size_Y / 2, Size_X, Size_Y);
+        }
+        //------------------------------------------------------------------------------------------------
+        void RenderA_GradientEllipse_2P(int X, int Y, int XX, int YY, Variable::Vector4 Color_1, Variable::Vector4 Color_2, float Focus = 0.5f) noexcept//绘制路径渐变椭圆形(包含Alpha) 内到外
+        {
+            Gdiplus::Graphics HDCwind(hMenDC);
+            Gdiplus::GraphicsPath m_Path;//构造空路径
+            m_Path.AddEllipse(X, Y, XX, YY);//添加椭圆
+            Gdiplus::PathGradientBrush pathBrush(&m_Path);//使用路径创建画刷
+            pathBrush.SetCenterColor(Gdiplus::Color(Color_1.a, Color_1.r, Color_1.g, Color_1.b));//设置中心颜色
+            Gdiplus::Color colors[] = { Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b) };//边界颜色
+            int i = 1; pathBrush.SetSurroundColors(colors, &i);
+            pathBrush.SetFocusScales(Focus, Focus);//设置聚焦缩放0-1 float
+            HDCwind.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);//抗锯齿 https://blog.csdn.net/hgy413/article/details/6692932
+            HDCwind.FillEllipse(&pathBrush, X, Y, XX, YY);
         }
         //------------------------------------------------------------------------------------------------
         void Render_Image(string ImageFile, int X, int Y, int XX, int YY) noexcept//屏幕图像绘制  CPU占用高 绘制慢*
@@ -1921,6 +1956,7 @@ namespace System//Windows系统
         if (IsDebuggerPresent())
         {
             if (Log != "")printf((Log + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n").c_str());
+            ShowWindow(GetConsoleWindow(), false);//隐藏控制台窗口
             exit(0);//检测调试状态 (缺点是会被Hook绕过)
         }
     }
@@ -2172,6 +2208,7 @@ namespace EasyGUI
         //---------------------------------------------------------------------
         void In_DrawString(int X, int Y, string String, Vector4 TextColor, string Fount_Name, short Fount_Size, short Font_Width = FW_NORMAL, BOOL AntiAlias = true) noexcept//绘制文字 (方便制作GUI)
         {
+            if (String == "")return;
             HGDIOBJ FontPen;
             if (AntiAlias)FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
             else FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
@@ -2187,6 +2224,7 @@ namespace EasyGUI
         //---------------------------------------------------------------------
         void In_DrawString_Simple(int X, int Y, string String, Vector4 TextColor = { 255,255,255 }) noexcept//绘制简单文字 (方便制作GUI)
         {
+            if (String == "")return;
             HGDIOBJ FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, "Small Fonts"));
             SetBkMode(EasyGUI_DrawHDC, TRANSPARENT);//背景透明
             SetTextColor(EasyGUI_DrawHDC, RGB(0, 0, 0));//文字颜色
