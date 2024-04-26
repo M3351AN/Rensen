@@ -18,13 +18,6 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		if (Command_Str == "+jump")System::Key_Click(VK_F13, true, 57);//bind F13 "+jump;-jump";bind F14 "m_yaw 0.015";bind F15 "m_yaw 0.004";
 		if (Command_Str == "+lookatweapon")System::Key_Click(0x46, true, 33);
 		if (Command_Str == "drop")System::Key_Click(0x47, true, 34);
-		/*
-		if (!System::Get_Key(VK_LWIN))//当没有按下WIN键(会阻止弹出Windows菜单)
-		{
-			if (Command_Str == "m_yaw 0.015000")System::Key_Click(VK_F14, true, 58);
-			else if (Command_Str == "m_yaw 0.004000")System::Key_Click(VK_F15, true, 59);
-		}
-		*/
 		//Shoot 开火和使用
 		if (Command_Str == "+attack")mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 		else if (Command_Str == "-attack")mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
@@ -90,7 +83,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			   }
 			   short Flags() const noexcept { return CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_fFlags); }//人物状态
 			   short ShotsFired() const noexcept { return CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_iShotsFired); }//人物开枪子弹数量
-			   short MoveSpeed() const noexcept { const auto Velocity = CS2_MEM.Read<Variable::Vector3>(m_PlayerPawn + CS2_Offsets::m_vecVelocity); return hypot(Velocity.x, Velocity.y); }//人物移动速度
+			   float MoveSpeed() const noexcept { const auto Velocity = CS2_MEM.Read<Variable::Vector3>(m_PlayerPawn + CS2_Offsets::m_vecVelocity); return hypot(Velocity.x, Velocity.y); }//人物移动速度
 			   short Spotted() const noexcept { return CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_bSpotted); }//人物发现状态
 			   short Scoped() const noexcept { const auto Scoped = CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_bIsScoped); if (Scoped == 65536)return 0; else return Scoped; }//人物狙击枪开镜
 			   short ActiveWeapon(BOOL Type = 0) const noexcept//人物手持武器(类型,ID)
@@ -194,7 +187,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			   Variable::Vector3 Origin() const noexcept { return CS2_MEM.Read<Variable::Vector3>(CS2_MEM.Read<uintptr_t>(m_PlayerPawn + CS2_Offsets::m_pGameSceneNode) + CS2_Offsets::m_vecOrigin); }//人物世界坐标
 			   Variable::Vector3 AimPunchAngle() const noexcept//人物手持武器后坐力
 			   {
-				   struct UtlVec { DWORD64 count; DWORD64 data; }; const auto PunchCache = CS2_MEM.Read<UtlVec>(m_PlayerPawn + CS2_Offsets::m_aimPunchCache);
+				   struct UtlVec { DWORD64 count; DWORD64 data; }; const auto PunchCache = CS2_MEM.Read<UtlVec>(m_PlayerPawn + CS2_Offsets::m_aimPunchCache);//后座缓存
 				   if (PunchCache.count > 0 && PunchCache.count < 0xFFFF)return CS2_MEM.Read<Variable::Vector3>(PunchCache.data + (PunchCache.count - 1) * sizeof(Variable::Vector3));
 			   }
 			   Variable::Vector3 ViewOffset() const noexcept { return CS2_MEM.Read<Variable::Vector3>(m_PlayerPawn + CS2_Offsets::m_vecViewOffset); }//人物朝向偏移
@@ -220,6 +213,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (ReturnPlayerController)return PlayerController;
 			return Base::Convert(Entitylist, CS2_MEM.Read<uint32_t>(PlayerController + CS2_Offsets::m_hPlayerPawn));
 		}
+		string LocalPlayer_Name() noexcept { return CS2_MEM.Read_str(Base::LocalPlayerController() + CS2_Offsets::m_iszPlayerName); }//本地人物名称
 		string Player_Name(short i) noexcept//通过ClassID获取名称
 		{
 			const auto PlayerController = Base::Convert(Base::EntityList(), i);
@@ -253,8 +247,13 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		}
 		void Move_to_Angle(Variable::Vector3 Target_Angles = { 0,0,0 }, float Smooth = 40) noexcept//本地人物将视角移动到指定坐标
 		{
-			const auto LocalPlayer_Angle = Base::ViewAngles();//本地人物朝向
-			System::Mouse_Move((-Target_Angles.y + LocalPlayer_Angle.y) * Smooth, (Target_Angles.x - LocalPlayer_Angle.x) * Smooth);
+			for (int i = 0; i <= 30; ++i)
+			{
+				const auto LocalPlayer_Angle = Base::ViewAngles();//本地人物朝向
+				if (abs(Target_Angles.x - LocalPlayer_Angle.x) <= 0.25 && abs(Target_Angles.y - LocalPlayer_Angle.y) <= 0.25)return;
+				System::Mouse_Move((-Target_Angles.y + LocalPlayer_Angle.y) * Smooth, (Target_Angles.x - LocalPlayer_Angle.x) * Smooth);
+				System::Sleep_ns(1000);
+			}
 		}
 		BOOL Move_to_Pos(Variable::Vector3 Target_Pos = { 0,0,0 }, float Edge = 5) noexcept//本地人物移动到指定世界坐标
 		{

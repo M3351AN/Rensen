@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-21 19:50]";//程序发布日期
-const float Rensen_Version = 3.49;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-26 17:30]";//程序发布日期
+const float Rensen_Version = 3.53;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560;
 	BOOL UI_Visual_Res_1920;
@@ -132,6 +132,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	int UI_Spoof_LearnPlayer_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 119));
 	BOOL UI_Misc_AutoPeek = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 120));
 	int UI_Misc_AutoPeek_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 121));
+	BOOL UI_Spoof_FakeRageBot = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 122));
+	int UI_Spoof_FakeRageBot_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 123));
+	int UI_Spoof_FakeRageBot_Target = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 124));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -256,7 +259,10 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Spoof_LearnPlayer) + "\n" +
 			to_string(UI_Spoof_LearnPlayer_Key) + "\n" +
 			to_string(UI_Misc_AutoPeek) + "\n" +
-			to_string(UI_Misc_AutoPeek_Key) + "\n"
+			to_string(UI_Misc_AutoPeek_Key) + "\n" +
+			to_string(UI_Spoof_FakeRageBot) + "\n" +
+			to_string(UI_Spoof_FakeRageBot_Key) + "\n" +
+			to_string(UI_Spoof_FakeRageBot_Target) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -376,6 +382,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Spoof_LearnPlayer_Key = Variable::string_int_(URL_CONFIG.Read(119));
 			UI_Misc_AutoPeek = Variable::string_int_(URL_CONFIG.Read(120));
 			UI_Misc_AutoPeek_Key = Variable::string_int_(URL_CONFIG.Read(121));
+			UI_Spoof_FakeRageBot = Variable::string_int_(URL_CONFIG.Read(122));
+			UI_Spoof_FakeRageBot_Key = Variable::string_int_(URL_CONFIG.Read(123));
+			UI_Spoof_FakeRageBot_Target = Variable::string_int_(URL_CONFIG.Read(124));
 			URL_CONFIG.Release();
 		}
 	}
@@ -486,7 +495,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_21>(Block_ESP, 14, "Radius", 0, 100, UI_Visual_ESP_OutFOV_Radius, "%");
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 15, "Custom color", UI_Visual_ESP_CustomColor);
 				GUI_VAR.GUI_ColorSelector(Block_ESP, 15, UI_Visual_ESP_CustomColor_Color);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_22>(Block_ESP, 16, "Draw delay", 1, 20, UI_Visual_ESP_RenderSleep, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_22>(Block_ESP, 16, "Draw delay", 1, 30, UI_Visual_ESP_RenderSleep, "ms");
 				const auto Block_Hitmark = GUI_VAR.GUI_Block(580, 30, 280, "Hit mark");
 				GUI_VAR.GUI_Checkbox(Block_Hitmark, 1, "Enabled", UI_Visual_HitMark);
 				GUI_VAR.GUI_ColorSelector(Block_Hitmark, 1, UI_Visual_HitMark_Color);
@@ -525,7 +534,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_37>(Block_Misc, 9, UI_Misc_AutoTaser_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 10, "Water mark", UI_Misc_Watermark);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 11, "Sniper crosshair", UI_Misc_SniperCrosshair);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Misc, 12, "Size", 10, 30, UI_Misc_SniperCrosshair_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Misc, 12, "Size", 10, 40, UI_Misc_SniperCrosshair_Size, "px");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Anti AFK kick", UI_Misc_AntiAFKKick);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Hide from OBS", UI_Misc_ByPassOBS);
@@ -543,7 +552,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_CloudConfig = GUI_VAR.GUI_Block(580, 210, 150, "Cloud config");
 				GUI_VAR.GUI_Button(Block_CloudConfig, 1, "Load config", UI_Misc_LoadCloudConfig, 80);
 				GUI_VAR.GUI_List(Block_CloudConfig, 2, { "Legit","Rage","Legit - no visual" }, UI_Misc_SelectedConfig);
-				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 310, "Spoof");
+				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 370, "Spoof");
 				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });//恶搞功能总开关
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_41>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
@@ -556,6 +565,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 8, "Kill drop sniper", UI_Spoof_KillDropSniper);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 9, "Learn player", UI_Spoof_LearnPlayer);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_45>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
+				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 10, "Fake ragebot", UI_Spoof_FakeRageBot);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_46>(Block_Spoof, 10, UI_Spoof_FakeRageBot_Key);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_47>({ Block_Spoof.x + 20,Block_Spoof.y }, 11, "Target: " + Advanced::Player_Name(UI_Spoof_FakeRageBot_Target), 0, 64, UI_Spoof_FakeRageBot_Target);
 				GUI_VAR.GUI_Tips(Block_Misc, 2, "Play Beep when hitting player.");
 				GUI_VAR.GUI_Tips(Block_Misc, 5, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
@@ -572,7 +584,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 7, "Rotate view......");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 8, "Drop the weapon when killing an enemy with a sniper rifle.");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 9, "Learn recent player actions.");
-				UI_WindowSize = { 1010,720 };
+				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 10, "Mimic Ragebot silent aim.");
+				UI_WindowSize = { 1010,780 };
 			}
 			else if (UI_Panel == 3)//Setting
 			{
@@ -586,11 +599,11 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", { 150,255,150 });
 				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 250, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_46>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
 				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_47>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_49>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
 				GUI_VAR.GUI_Button(Block_Menu, 4, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
 				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 5, "Quit CS", UI_Setting_Menu_QuitCS, 90);
 				else GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
@@ -737,8 +750,12 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		ReLoad();//刷新CS2_SDK内存数据
 		Global_TeamCheck = UI_Misc_TeamCheck;//队伍判断(文件跨越修改变量)
 		if (UI_Misc_LockGameWindow && !Menu_Open)SetForegroundWindow(CS2_HWND);//锁定CS窗口到最前端
-		if (UI_Debug_ShowDebugWindow)ShowWindow(GetConsoleWindow(), true);//显示控制台
-		else ShowWindow(GetConsoleWindow(), false);//隐藏控制台
+		if (UI_Debug_ShowDebugWindow)
+		{
+			Window::Show_ConsoleWindow();//显示控制台
+			Window::Set_Topmost_Status(GetConsoleWindow(), true);//将控制台窗口改为最前端
+		}
+		else Window::Hide_ConsoleWindow();//隐藏控制台
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);
@@ -907,6 +924,24 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					IS_LearnPlayer = false;
 				}
 				//--------------------------------------
+				if (UI_Spoof_FakeRageBot && System::Get_Key(UI_Spoof_FakeRageBot_Key))//对某玩家实施暴力瞄准
+				{
+					const auto Target = Advanced::Traverse_Player(UI_Spoof_FakeRageBot_Target);
+					if (Target.Health())//目标活着
+					{
+						const auto Aim_Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), Target.BonePos(6), Global_LocalPlayer.AimPunchAngle() * 2);//计算要瞄准的目标视角坐标
+						const auto Old_Angle = Base::ViewAngles();//原始视角坐标 (要返回的坐标)
+						Advanced::Move_to_Angle(Aim_Angle);
+						if (Global_LocalPlayer.IDEntIndex_Pawn().Pawn() == Target.Pawn())//检查是否瞄准到
+						{
+							ExecuteCommand("+attack");
+							ExecuteCommand("-attack");
+						}
+						Advanced::Move_to_Angle(Old_Angle);
+						Sleep(200);//防止重复冲突
+					}
+				}
+				//--------------------------------------
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
 			Sleep(1);//降低CPU占用
@@ -919,7 +954,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 	System::Log("Load Thread: Thread_Funtion_Aimbot()");
 	while (true)
 	{
-		System::Sleep_ns(600);//比Sleep更快的函数为了更加自然平滑
+		System::Sleep_ns(500);//比Sleep更快的函数为了更加自然平滑
 		if (Global_IsShowWindow && UI_Legit_Aimbot && System::Get_Key(UI_Legit_Aimbot_Key) && Global_LocalPlayer.Health())
 		{
 			static short Aim_Range, Aim_Parts; static float Aim_Smooth;//瞄准范围,瞄准部位,瞄准平滑度
@@ -1112,14 +1147,25 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 	Window::Render ESP_Paint; ESP_Paint.CreatePaint(Rensen_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);//创建内存画板
 	while (true)
 	{
-		Sleep(UI_Visual_ESP_RenderSleep);
+		Sleep(UI_Visual_ESP_RenderSleep);//降低CPU占用
 		if (SpareRenderWindow.Get_HWND() != 0)SpareRenderWindow.Fix_inWhile();//当已创建窗口时进入消息循环
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//修改 Pos & Size
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
-			if (Menu_Open)Sleep(20);//节省CPU性能 (可有可无)
+			if (UI_Debug_ShowDebugWindow && Debug_Control_Var::Checkbox_1)//调试绘制
+			{
+				const auto DrawColor_1 = System::RainbowColor(5), DrawColor_2 = System::RainbowColor(5, 1);
+				ESP_Paint.RenderA_GradientRect(0, 0, Window::Get_Resolution().x, 150, { 0,0,0,200 }, { 0,0,0,0 }, true);
+				ESP_Paint.RenderA_GradientLine(0, 0, Window::Get_Resolution().x, 0, DrawColor_1, DrawColor_2, 3);
+				int DrawPos = 10;//文字Y坐标
+				ESP_Paint.RenderA_GradientString(10, DrawPos, "Draw FPS: " + to_string(ESP_Paint.FPS()), "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//FPS
+				ESP_Paint.RenderA_GradientString(10, DrawPos, "Name: " + Advanced::LocalPlayer_Name(), "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物名称
+				ESP_Paint.RenderA_GradientString(10, DrawPos, "Pos: [" + Variable::Float_Precision(Global_LocalPlayer.Origin().x) + ", " + Variable::Float_Precision(Global_LocalPlayer.Origin().y) + ", " + Variable::Float_Precision(Global_LocalPlayer.Origin().z) + "]", "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物坐标
+				ESP_Paint.RenderA_GradientString(10, DrawPos, "Angle: [" + Variable::Float_Precision(Base::ViewAngles().x) + ", " + Variable::Float_Precision(Base::ViewAngles().y) + "]", "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物视角
+				ESP_Paint.RenderA_GradientString(10, DrawPos, "Speed: " + Variable::Float_Precision(Global_LocalPlayer.MoveSpeed()), "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物移动速度
+			}
 			if (UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)))//ESP 透视
 			{
 				auto Draw_Color = GUI_IO.GUIColor;
@@ -1206,8 +1252,8 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				if (Local_ActiveWeaponType == 1)Circle_Range = UI_Legit_Armory_Range_PISTOL * 5;
 				else if (Local_ActiveWeaponType == 2)Circle_Range = UI_Legit_Armory_Range_RIFLE * 5;
 				else if (Local_ActiveWeaponType == 3) { if (Global_LocalPlayer.Scoped())Circle_Range = UI_Legit_Armory_Range_SNIPER * 14; else Circle_Range = UI_Legit_Armory_Range_SNIPER * 5; }
-				if (Circle_Range)Circle_Range = Circle_Range + Global_LocalPlayer.AimPunchAngle().x * -25;
-				ESP_Paint.Render_HollowCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 2), GUI_IO.GUIColor / 5);
+				Circle_Range += abs(Global_LocalPlayer.AimPunchAngle().x * 25);//后坐力反馈
+				ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), { 0,0,0,0 }, GUI_IO.GUIColor.D_Alpha(80), 0.95);
 			}
 			if (UI_Visual_HitMark && Global_LocalPlayer.Health())//命中标记
 			{
@@ -1251,7 +1297,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					if (UI_Visual_HitMark_Damage)ESP_Paint.Render_String(CS_Scr_Res.r / 2 - 5, CS_Scr_Res.g / 2 + Range + 10, to_string(Mark_DMG), "Small Fonts", 11, Mark_Color, false);
 				}
 			}
-			if (UI_Misc_AutoPeek)//AutoPeek
+			if (UI_Misc_AutoPeek && Global_LocalPlayer.Health())//AutoPeek
 			{
 				auto Range = 30;//范围变量
 				const auto LocalPlayer_Pos = Global_LocalPlayer.Origin(); static BOOL IS_SAVED_POS = false; static auto Peek_Pos = LocalPlayer_Pos;//缓存要移动的坐标
@@ -1267,7 +1313,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					for (short i = 0; i <= 10; ++i)//绘制Peek圆圈
 					{
 						srand(i + System::Tick());//随机种子
-						const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Peek_Pos, Player_Matrix);//起点坐标
+						const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Peek_Pos, Player_Matrix);//起点坐标 (屏幕2D坐标)
 						const auto Effect_Pos_To = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Peek_Pos.x + rand() % Range - Range / 2,Peek_Pos.y + rand() % Range - Range / 2,Peek_Pos.z }, Player_Matrix);
 						if (DO_MOVE)ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor, 2);
 						else ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor / 2);
@@ -1286,11 +1332,10 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				}
 			}
 			if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped())ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, UI_Misc_SniperCrosshair_Size, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }, 0.3);//狙击枪准星
-			ESP_Paint.DrawPaint();//最终绘制画板 (降低延迟)
-			if (Menu_Open)Sleep(5);//菜单打开时降低绘制速度以降低CPU使用率
 		}
 		else Sleep(20);
 		ESP_Paint.DrawPaint();//最终绘制画板
+		if (CS2_HWND && Menu_Open)Sleep(10);//菜单打开时降低绘制速度以降低CPU使用率
 	}
 }
 void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
@@ -1302,7 +1347,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 	WEP_Render.CreatePaint(Render_Window_HWND, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
 	while (true)
 	{
-		Sleep(UI_Visual_ESP_RenderSleep);
+		Sleep(UI_Visual_ESP_RenderSleep);//降低CPU占用
 		RenderWindow.Set_WindowTitle(System::Rand_String(10));//随机实体透视窗口标题
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		WEP_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//刷新绘制画板
@@ -1330,7 +1375,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 					if (Entity.ActiveWeaponName(true, Entity.Pawn()) == "NONE" && !Variable::String_Find(Entity.EntityName(), "_projectile"))continue;//检测实体名称是否有效
 					if (Entity.EntityName() == "hegrenade_projectile" && !System::Get_ValueChangeState<float, class CLASS_Drops_ESP_Delete_StopedEntity_>(Entity_Pos.x))continue;//排除手雷缓存 (受累爆炸后不在移动时就是留下的缓存)
 					Class_ID.push_back(i); ++Show_Quantity;//计算有效实体数量
-					System::Sleep_ns(20);//降低CPU占用
+					System::Sleep_ns(10);//降低CPU占用
 				}
 			}
 			if (Class_ID.size() > 0)
@@ -1460,11 +1505,11 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	Beep(100, 50);//开启音效
 	System::Anti_click();//控制台不被暂停
 	Window::Hide_ConsoleWindow();//隐藏控制台
-	system("cls");//清空控制台
+	Window::Initialization_ConsoleWindow();//初始化控制台窗口 (初始化窗口大小, 清除字符)
 	printf("Welcome to Rensen for Counter-Strike 2 cheat.\nThe Rensen project is a version converted from FreeCS.\nNo team author By: https://github.com/Coslly\nThe following information returned is debugging information.\n");//作者留言
 	System::Log("Load Thread: main()");
 	Sleep(200);//修复重启进程冲突
-	if (!System::Judge_File(UI_LocalConfigPath)) { System::Create_File(UI_LocalConfigPath, UI_DefaultConfig); System::Self_Restart(); }//创建默认参数文件 (当未找到参数文件时)
+	if (!System::Judge_File(UI_LocalConfigPath)) { System::Create_File(UI_LocalConfigPath, UI_DefaultConfig); System::Self_Restart(); }//创建默认参数文件 (当未找到参数文件时, 第一次启动时)
 	thread Thread_Menu_ = thread(Thread_Menu);
 	thread Thread_Misc_ = thread(Thread_Misc);
 	Sleep(50);//防止重启卡线程 (以下为功能函数线程)

@@ -1,4 +1,4 @@
-﻿//2024-04-21 19:50
+﻿//2024-04-26 17:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -54,7 +54,7 @@ namespace Variable//变量转换
 {
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    float PI() noexcept//圆周率
+    constexpr float PI() noexcept//圆周率
     {//Variable::PI();
         return 3.14159265358;
     }
@@ -180,7 +180,7 @@ namespace Variable//变量转换
         }
         int r, g, b, a;
     };
-    Vector3 CalculateAngle(Vector3 localPosition, Vector3 enemyPosition, Vector3 viewAngles) noexcept
+    Vector3 CalculateAngle(Vector3 localPosition, Vector3 enemyPosition, Vector3 viewAngles = { 0,0,0 }) noexcept
     {
         return ((enemyPosition - localPosition).ToAngle() - viewAngles);
     }
@@ -233,7 +233,7 @@ namespace Variable//变量转换
         return { 距离 * sin(radian),距离 * cos(radian) };
     }
     //-----------------------------------------------------------------------------------------------------------------------------
-    vector<float> Ang_Pos_(int X, int Y, int Dis, float Ang, float Ang_) noexcept//角度距离转坐标
+    vector<float> Ang_Pos_(int X, int Y, int Dis, float Ang, float Ang_ = 0) noexcept//角度距离转坐标
     {//Variable::Ang_Pos_(0, 0, 10, 10, 10);
         const float radian = ((Ang + Ang_) * 3.1415926535) / 180;
         vector<float> ReturnValue = { X + Dis * sin(radian),Y + Dis * cos(radian) };
@@ -483,9 +483,14 @@ namespace Window//窗口
     {//Window::Set_ConsoleWindowTitle("ah");
         system(("title " + title).c_str());
     }
+    void Initialization_ConsoleWindow() noexcept//初始化控制台窗口 (初始化窗口大小, 清除字符)
+    {//Window::Initialization_ConsoleWindow();
+        system("cls");
+        MoveWindow(GetConsoleWindow(), 10, 10, 600, 400, true);
+    }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    LRESULT WINAPI Start_GDI_Window_Prosess(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) noexcept//窗口消息循环
+    LRESULT WINAPI Window_Process_Loop(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) noexcept//窗口消息循环
     {
         switch (msg)
         {
@@ -509,7 +514,7 @@ namespace Window//窗口
             WNDCLASS RenderWindowM;
             memset(&RenderWindowM, 0, sizeof(RenderWindowM));
             RenderWindowM.style = CS_HREDRAW | CS_VREDRAW;
-            RenderWindowM.lpfnWndProc = Start_GDI_Window_Prosess;//关联消息处理函数,告诉操作系统，如果有事件发生调用这个函数
+            RenderWindowM.lpfnWndProc = Window_Process_Loop;//关联消息处理函数,告诉操作系统，如果有事件发生调用这个函数
             RenderWindowM.cbClsExtra = 0;
             RenderWindowM.cbWndExtra = 0;
             RenderWindowM.hInstance = GetModuleHandle(NULL);//实例句柄
@@ -550,7 +555,7 @@ namespace Window//窗口
             WNDCLASS RenderWindowM;
             memset(&RenderWindowM, 0, sizeof(RenderWindowM));
             RenderWindowM.style = CS_HREDRAW | CS_VREDRAW;
-            RenderWindowM.lpfnWndProc = Start_GDI_Window_Prosess;
+            RenderWindowM.lpfnWndProc = Window_Process_Loop;
             RenderWindowM.cbClsExtra = 0;
             RenderWindowM.cbWndExtra = 0;
             RenderWindowM.hInstance = GetModuleHandle(NULL);
@@ -583,7 +588,7 @@ namespace Window//窗口
             WNDCLASS RenderWindowM;
             memset(&RenderWindowM, 0, sizeof(RenderWindowM));
             RenderWindowM.style = CS_HREDRAW | CS_VREDRAW;
-            RenderWindowM.lpfnWndProc = Start_GDI_Window_Prosess;
+            RenderWindowM.lpfnWndProc = Window_Process_Loop;
             RenderWindowM.cbClsExtra = 0;
             RenderWindowM.cbWndExtra = 0;
             RenderWindowM.hInstance = GetModuleHandle(NULL);
@@ -892,6 +897,24 @@ namespace Window//窗口
             Gdiplus::SolidBrush Brush_Shadow(Gdiplus::Color(Color.a / 1.5, 0, 0, 0));//阴影颜色
             HDCwind.DrawString(wide_text, -1, &font, Gdiplus::PointF(X + 1, Y + 1), &Brush_Shadow);
             Gdiplus::SolidBrush Brush_Text(Gdiplus::Color(Color.a, Color.r, Color.g, Color.b));//文字颜色
+            HDCwind.DrawString(wide_text, -1, &font, Gdiplus::PointF(X, Y), &Brush_Text);
+            delete[] wide_text;//释放
+        }
+        //------------------------------------------------------------------------------------------------
+        void RenderA_GradientString(int X, int Y, string String, string Font, int FontSize, Variable::Vector4 Color_1, Variable::Vector4 Color_2, BOOL AntiAlias = true) noexcept//渐变文字绘制(包含Alpha)
+        {
+            if (Font == "0" || Font == "NONE")Font = "Lucida Console";//默认字体
+            Gdiplus::Graphics HDCwind(hMenDC);//HDC
+            Gdiplus::FontFamily  fontFamily(wstring(Font.begin(), Font.end()).c_str());
+            if (AntiAlias)HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintAntiAlias);//抗锯齿 https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-textrenderinghint
+            else HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintSingleBitPerPixelGridFit);
+            Gdiplus::Font font(&fontFamily, FontSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);//字体状况(大小or斜体) https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-fontstyle
+            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, NULL, 0);//转码 UTF-8 (为了显示中文)
+            wchar_t* wide_text = new wchar_t[len];
+            MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);//转码 UTF-8 (为了显示中文)
+            Gdiplus::SolidBrush Brush_Shadow(Gdiplus::Color(Color_1.a / 1.5, 0, 0, 0));//阴影颜色
+            HDCwind.DrawString(wide_text, -1, &font, Gdiplus::PointF(X + 1, Y + 1), &Brush_Shadow);
+            Gdiplus::LinearGradientBrush Brush_Text(Gdiplus::Point(X, 0), Gdiplus::Point(X + String.size() * FontSize/1.7, 0), Gdiplus::Color(Color_1.a, Color_1.r, Color_1.g, Color_1.b), Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b));
             HDCwind.DrawString(wide_text, -1, &font, Gdiplus::PointF(X, Y), &Brush_Text);
             delete[] wide_text;//释放
         }
@@ -1276,6 +1299,13 @@ namespace Window//窗口
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
+    void Set_Topmost_Status(HWND Window_HWND, BOOL IS_TOP = true) noexcept//修改窗口为最前端覆盖窗口 (可覆盖全屏游戏)
+    {//Window::Set_Topmost_Status(WIndowHWND);
+        SetWindowPos(Window_HWND, IS_TOP ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        CheckDlgButton(Window_HWND, 102, (DWORD)GetWindowLongPtr(Window_HWND, GWL_EXSTYLE) & WS_EX_TOPMOST);
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
 }
 namespace System//Windows系统
 {
@@ -1287,9 +1317,9 @@ namespace System//Windows系统
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    Variable::Vector4 RainbowColor(int Speed, const int Follo = 0) noexcept//彩虹色值
+    Variable::Vector4 RainbowColor(int Speed, const float Follo = 0) noexcept//彩虹色值
     {//System::RainbowColor(100);//颜色变换速度 (越大越慢)
-        return { (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + Follo) * 127 + 128), (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + 2 + Follo) * 127 + 128), (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + 4 + Follo) * 127 + 128),255 };
+        return { (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 - Follo) * 127 + 128), (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + 2 - Follo) * 127 + 128), (int)floor(sin((float)GetTickCount64() / (Speed * 100) * 2 + 4 - Follo) * 127 + 128),255 };
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1318,6 +1348,25 @@ namespace System//Windows系统
         else {
             keybd_event(VK_CODE, SCAN_CODE, 0, 0);
             keybd_event(VK_CODE, SCAN_CODE, KEYEVENTF_KEYUP, 0);
+        }
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    void Mouse_Click(int VK_CODE, BOOL Sleep_ = false) noexcept//按下弹起鼠标上的某个键位
+    {//System::Mouse_Click(1);
+        if (VK_CODE == 1)
+        {
+            mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+            if (Sleep_)Sleep(1);
+            mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+            if (Sleep_)Sleep(1);
+        }
+        else if (VK_CODE == 2)
+        {
+            mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+            if (Sleep_)Sleep(1);
+            mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+            if (Sleep_)Sleep(1);
         }
     }
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1721,9 +1770,9 @@ namespace System//Windows系统
         if (sys.wSecond < 10)Second = "0" + Second;
         if (sys.wMilliseconds < 10)Millisecond = "00" + Millisecond;
         else if (sys.wMilliseconds < 100)Millisecond = "0" + Millisecond;
-        const HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (b_Error)SetConsoleTextAttribute(handle, FOREGROUND_INTENSITY | 5);
-        else SetConsoleTextAttribute(handle, FOREGROUND_INTENSITY | 2);
+        const auto Handle = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (b_Error)SetConsoleTextAttribute(Handle, 12);
+        else SetConsoleTextAttribute(Handle, 10);
         printf(("[" + Hour + ":" + Minute + ":" + Second + "." + Millisecond + "] " + Str + "\n").c_str());
     }
     //-----------------------------------------------------------------------------------------------------------------------------
