@@ -1,4 +1,4 @@
-﻿//2024-04-26 17:30
+﻿//2024-04-27 10:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -615,6 +615,14 @@ namespace Window//窗口
         {
             static const auto WindowDC = GetWindowDC(Window_Hwnd);
             BitBlt(WindowDC, 0, 0, 99999, 99999, WindowDC, 0, 0, BLACKNESS);
+        }
+        //----------------------------------------------------------------------------------------
+        void BackGround_Color(Variable::Vector4 Color = { 0,0,0,0 }) noexcept//绘制颜色背景
+        {
+            static const auto WindowDC = GetWindowDC(Window_Hwnd);
+            const auto Color_Object = SelectObject(WindowDC, CreateSolidBrush(RGB(Color.r, Color.g, Color.b)));//颜色画笔
+            BitBlt(WindowDC, 0, 0, 99999, 99999, WindowDC, 0, 0, PATCOPY);
+            DeleteObject(Color_Object);//释放内存
         }
         //----------------------------------------------------------------------------------------
         HWND Get_HWND() noexcept { return Window_Hwnd; }//获取窗口HWND
@@ -2324,6 +2332,21 @@ namespace EasyGUI
             }
             return ReturnValue;
         }
+        template<class CreateClassName>
+        Vector4 In_Animation_Col(Vector4 To_VAlue, float Speed = 10) noexcept//快到慢颜色动画
+        {
+            if (Speed < 1)Speed = 1;//防止过量
+            static Vector4 ReturnValue = To_VAlue;
+            if (To_VAlue.r > ReturnValue.r)ReturnValue.r += (To_VAlue.r - ReturnValue.r) / Speed;
+            else if (To_VAlue.r < ReturnValue.r)ReturnValue.r -= (ReturnValue.r - To_VAlue.r) / Speed;
+            if (To_VAlue.g > ReturnValue.g)ReturnValue.g += (To_VAlue.g - ReturnValue.g) / Speed;
+            else if (To_VAlue.g < ReturnValue.g)ReturnValue.g -= (ReturnValue.g - To_VAlue.g) / Speed;
+            if (To_VAlue.b > ReturnValue.b)ReturnValue.b += (To_VAlue.b - ReturnValue.b) / Speed;
+            else if (To_VAlue.b < ReturnValue.b)ReturnValue.b -= (ReturnValue.b - To_VAlue.b) / Speed;
+            if (To_VAlue.a > ReturnValue.a)ReturnValue.a += (To_VAlue.a - ReturnValue.a) / Speed;
+            else if (To_VAlue.a < ReturnValue.a)ReturnValue.a -= (ReturnValue.a - To_VAlue.a) / Speed;
+            return ReturnValue;
+        }
         //---------------------------------------------------------------------
         template<class CreateClassName>//防止同函数同步
         BOOL In_TickSleep(int Time_MS) noexcept//不受线程影响的Sleep函数
@@ -2337,7 +2360,7 @@ namespace EasyGUI
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         void Global_Set_EasyGUI_Font(string Font) noexcept { Global_EasyGUIFont = Font; }//设置全局GUI字体
         void Global_Set_EasyGUI_FontSize(int Size) noexcept { Global_EasyGUIFontSize = Size; }//设置全局GUI字体大小
-        void Global_Set_EasyGUI_Color(Vector4 GlobalColor) noexcept { Global_EasyGUIColor = GlobalColor; }//设置全局主题颜色
+        void Global_Set_EasyGUI_Color(Vector4 GlobalColor) noexcept { Global_EasyGUIColor = In_Animation_Col<class EasyGUI_MainColor_Animation_>(GlobalColor); }//设置全局主题颜色
         string Global_Get_EasyGUI_Font() noexcept { return Global_EasyGUIFont; }//获取全局GUI字体
         int Global_Get_EasyGUI_FontSize() noexcept { return Global_EasyGUIFontSize; }//获取全局GUI字体大小
         Vector4 Global_Get_EasyGUI_Color() noexcept { return Global_EasyGUIColor; }//获取全局主题颜色

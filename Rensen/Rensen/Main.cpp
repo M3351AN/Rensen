@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-26 17:30]";//程序发布日期
-const float Rensen_Version = 3.53;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-27 10:30]";//程序发布日期
+const float Rensen_Version = 3.55;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560;
 	BOOL UI_Visual_Res_1920;
@@ -135,6 +135,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Spoof_FakeRageBot = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 122));
 	int UI_Spoof_FakeRageBot_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 123));
 	int UI_Spoof_FakeRageBot_Target = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 124));
+	BOOL UI_Misc_QuickStop = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 125));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -262,7 +263,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Misc_AutoPeek_Key) + "\n" +
 			to_string(UI_Spoof_FakeRageBot) + "\n" +
 			to_string(UI_Spoof_FakeRageBot_Key) + "\n" +
-			to_string(UI_Spoof_FakeRageBot_Target) + "\n"
+			to_string(UI_Spoof_FakeRageBot_Target) + "\n" +
+			to_string(UI_Misc_QuickStop) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -385,6 +387,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Spoof_FakeRageBot = Variable::string_int_(URL_CONFIG.Read(122));
 			UI_Spoof_FakeRageBot_Key = Variable::string_int_(URL_CONFIG.Read(123));
 			UI_Spoof_FakeRageBot_Target = Variable::string_int_(URL_CONFIG.Read(124));
+			UI_Misc_QuickStop = Variable::string_int_(URL_CONFIG.Read(125));
 			URL_CONFIG.Release();
 		}
 	}
@@ -519,7 +522,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 2)//Misc
 			{
-				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 640, "Misc");
+				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 670, "Misc");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
@@ -540,10 +543,11 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Hide from OBS", UI_Misc_ByPassOBS);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Save performance", UI_Misc_SavePerformance);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Night mode", UI_Misc_NightMode);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>(Block_Misc, 18, "Alpha", 50, 150, UI_Misc_NightMode_Alpha);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>(Block_Misc, 18, "Alpha", 50, 180, UI_Misc_NightMode_Alpha);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Auto peek", UI_Misc_AutoPeek);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_40>(Block_Misc, 19, UI_Misc_AutoPeek_Key);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 20, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
+				GUI_VAR.GUI_Checkbox(Block_Misc, 20, "Quick stop", UI_Misc_QuickStop);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 21, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
 				const auto Block_Resolution = GUI_VAR.GUI_Block(580, 30, 160, "Screen resolution");
 				GUI_VAR.GUI_Button(Block_Resolution, 1, "2560 * 1440", UI_Visual_Res_2560, 78);
 				GUI_VAR.GUI_Button(Block_Resolution, 2, "1920 * 1080", UI_Visual_Res_1920, 78);
@@ -618,7 +622,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static string PlayerName = "";
 				GUI_VAR.GUI_Slider<int, class CLASS_Debug_PlayerID>(Block_PlayerList, 1, "Player ID", 0, 64, Debug_Control_Var::SelectPlayer);
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
-				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(3000)) { PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
+				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(5000)) { ReLoad(true); PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
 				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName);
 				if (PlayerName != "" && PlayerName != "None") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))Debug_Control_Var::SelectPlayer = i; }//人物名称搜索
 				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, Debug_Control_Var::SelectPlayer, 27);
@@ -756,6 +760,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			Window::Set_Topmost_Status(GetConsoleWindow(), true);//将控制台窗口改为最前端
 		}
 		else Window::Hide_ConsoleWindow();//隐藏控制台
+		//----------------------------------------------------------------------------------------------------------------------------------------
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);
@@ -783,20 +788,26 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			}
 		}
 		else Window_Watermark.Set_WindowPos(99999, 99999);
-		if (UI_Misc_NightMode && CS2_HWND && (Global_IsShowWindow || Menu_Open))//夜晚模式 (降低屏幕亮度)
+		//----------------------------------------------------------------------------------------------------------------------------------------
+		static auto NightMode_Alpha = 0; const auto NightMode_Alpha_Ani = Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(NightMode_Alpha, 8);//夜晚模式透明度动画
+		if (UI_Misc_NightMode && CS2_HWND && (Global_IsShowWindow || Menu_Open))
 		{
-			const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
-			MoveWindow(Window_NightMode.Get_HWND(), CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//对齐覆盖游戏窗口
-			if (System::Sleep_Tick<class CLASS_NightMode_Window_Sleep_>(500))//降低CPU占用
+			Variable::Vector4 BackGround_Color = { 0,0,0 };//原黑色背景
+			if (Menu_Open)BackGround_Color = GUI_IO.GUIColor / 10;//菜单外部背景色
+			Window_NightMode.BackGround_Color(Variable::Animation_Vec4<class CLASS_NIGHTMODE_BACKGROUNDCOLOR_ANI_>(BackGround_Color));//绘制颜色背景板
+			if (System::Sleep_Tick<class CLASS_NightMode_Window_Sleep_>(500))//降低CPU占用 (窗口标题,消息循环)
 			{
 				Window_NightMode.Set_WindowTitle(System::Rand_String(10));//随机夜晚模式窗口标题
-				Window_NightMode.UpdateRenderBlock();//绘制黑板
 				Window_NightMode.Fix_inWhile();//夜晚模式消息循环
 			}
-			Window_NightMode.Set_WindowAlpha(Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(UI_Misc_NightMode_Alpha, 5));//修改透明度
+			NightMode_Alpha = UI_Misc_NightMode_Alpha;
 		}
-		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//隐藏窗口
-		if (Global_IsShowWindow && Global_LocalPlayer.Health())//一些杂项功能
+		else NightMode_Alpha = 0;
+		if (NightMode_Alpha_Ani <= 0)MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//透明度等于0的时候隐藏窗口
+		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y, true);//放大窗口
+		Window_NightMode.Set_WindowAlpha(NightMode_Alpha_Ani);//夜晚模式修改透明度
+		//----------------------------------------------------------------------------------------------------------------------------------------
+		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health())//一些杂项功能
 		{
 			const auto Local_Pos = Global_LocalPlayer.Origin();//本地人物坐标
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
@@ -829,7 +840,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
 					const auto Player_Pos = PlayerPawn.Origin();//敌人坐标
 					const auto Angle = Variable::CalculateAngle(Local_Pos + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(3), Base::ViewAngles());
-					if (Variable::Coor_Dis_3D(Local_Pos, Player_Pos) <= 65 && hypot(Angle.x, Angle.y) <= 50)//判断距离(世界坐标, 本地人物视角)
+					if (Variable::Coor_Dis_3D(Local_Pos, Player_Pos) <= 70 && hypot(Angle.x, Angle.y) <= 40)//判断距离(世界坐标, 本地人物视角)
 					{
 						if ((PlayerPawn.Health() <= 55 && PlayerPawn.Health() > 30) || Variable::Dif_Value_Ran<float>(Base::ViewAngles().y, PlayerPawn.ViewAngles().y, 50))//血量判断重刀还是轻刀
 						{
@@ -857,7 +868,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);
 					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
 					const auto Player_Pos = PlayerPawn.Origin();//敌人坐标
-					if (Variable::Coor_Dis_3D(Local_Pos, Player_Pos) <= 180 && PlayerPawn.Pawn() == Global_LocalPlayer.IDEntIndex_Pawn().Pawn())//判断距离 && 瞄准
+					if (Variable::Coor_Dis_3D(Local_Pos, Player_Pos) <= 130 && PlayerPawn.Pawn() == Global_LocalPlayer.IDEntIndex_Pawn().Pawn())//判断距离 && 瞄准
 					{
 						ExecuteCommand("+attack");
 						Sleep(1);
@@ -867,6 +878,26 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
 			if (UI_Misc_AntiAFKKick && System::Sleep_Tick<class CLASS_MISC_ANTIAFKKICK_>(5000)) { System::Mouse_Move(1, 0); Sleep(1); System::Mouse_Move(-1, 0); }//防止挂机踢出游戏脚本
+			//----------------------------------------------------------------------------------------------------------------------------------------
+			if (UI_Misc_QuickStop)//自动快速急停
+			{
+				const auto Trigger_Value = 40;//急停终止速度
+				if (!(System::Get_Key(0x57) || System::Get_Key(0x41) || System::Get_Key(0x44) || System::Get_Key(0x53) || System::Get_Key(VK_SPACE)) && Global_LocalPlayer.MoveSpeed() > Trigger_Value && Global_LocalPlayer.Flags() & (1 << 0))
+				{
+					for (int i = 0; i <= 10; ++i)//遍历 (为了精准急停)
+					{
+						if (Global_LocalPlayer.MoveSpeed() <= Trigger_Value)continue;//每次遍历都检查速度
+						const auto LocalVel = Global_LocalPlayer.Velocity();
+						const auto LocalYaw = Base::ViewAngles().y;
+						const auto X = (LocalVel.x * cos(LocalYaw / 180 * 3.1415926) + LocalVel.y * sin(LocalYaw / 180 * 3.1415926));
+						const auto Y = (LocalVel.y * cos(LocalYaw / 180 * 3.1415926) - LocalVel.x * sin(LocalYaw / 180 * 3.1415926));
+						if (X > Trigger_Value) { ExecuteCommand("+back"); Sleep(1); ExecuteCommand("-back"); }
+						else if (X < -Trigger_Value) { ExecuteCommand("+forward"); Sleep(1); ExecuteCommand("-forward"); }
+						if (Y > Trigger_Value) { ExecuteCommand("+right"); Sleep(1); ExecuteCommand("-right"); }
+						else if (Y < -Trigger_Value) { ExecuteCommand("+left"); Sleep(1); ExecuteCommand("-left"); }
+					}
+				}
+			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
 			if (UI_Spoof_Spoof)//恶搞功能
 			{
@@ -911,7 +942,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					}
 					if (RecentPlayer.Dis < 1000)//超出范围则不执行 (因为跟不上)
 					{
-						//Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles(), 2);//学习玩家朝向角度
+						Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles(), 2);//学习玩家朝向角度
 						Advanced::Move_to_Pos(RecentPlayer.Pawn.Origin());//移动到玩家
 					}
 				}
@@ -1126,10 +1157,9 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 				const auto NewPunch = Variable::Vector3{ OldPunch.x - AimPunch.x * 2,OldPunch.y - AimPunch.y * 2,0 };
 				if (UI_Legit_RemoveRecoil_LateralRepair)System::Mouse_Move(-NewPunch.y * 40, 0);//只处理X坐标
 				else System::Mouse_Move(-NewPunch.y * 40, NewPunch.x * 28);//X,Y
-				OldPunch.x = AimPunch.x * 2;
-				OldPunch.y = AimPunch.y * 2;
+				OldPunch = AimPunch * 2;
 			}
-			else OldPunch.x = OldPunch.y = 0;
+			else OldPunch = { 0,0,0 };
 		}
 		else Sleep(20);
 	}
@@ -1310,7 +1340,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					if (DO_MOVE && Advanced::Move_to_Pos(Peek_Pos, Range))DO_MOVE = false;//判断结束移动
 					const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
 					Range += 5;//范围修正
-					for (short i = 0; i <= 10; ++i)//绘制Peek圆圈
+					for (short i = 0; i <= 20; ++i)//绘制Peek圆圈
 					{
 						srand(i + System::Tick());//随机种子
 						const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Peek_Pos, Player_Matrix);//起点坐标 (屏幕2D坐标)
@@ -1531,7 +1561,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (MenuWindowAlpha >= UI_Setting_Menu_MainColor.a)MenuWindowAlpha = UI_Setting_Menu_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
-		if (!System::Key_Toggle<class CLASS_Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { GUI_VAR.Window_Show(); Menu_Open = true; }
+		if (!System::Key_Toggle<class CLASS_Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { Window::Set_Topmost_Status(GUI_VAR.Window_HWND()); GUI_VAR.Window_Show(); Menu_Open = true; }//保证菜单窗口在最前端
 		else { if (MenuWindowAlpha == 0)GUI_VAR.Window_Hide(); Menu_Open = false; }
 		GUI_IO = GUI_VAR.Get_IO();//刷新GUI状态数据
 		if (!UI_Setting_Menu_CustomColor)GUI_IO.GUIColor = { GUI_IO.GUIColor_Rainbow[3],GUI_IO.GUIColor_Rainbow[4],GUI_IO.GUIColor_Rainbow[5] };//GUI主题颜色到功能函数
