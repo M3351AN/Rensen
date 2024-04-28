@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-27 10:30]";//程序发布日期
-const float Rensen_Version = 3.55;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-28 19:30]";//程序发布日期
+const float Rensen_Version = 3.56;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -522,7 +522,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 2)//Misc
 			{
-				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 670, "Misc");
+				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 670, "Miscellaneous");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
@@ -600,7 +600,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text(Block_About, 3, "Release date: " + Rensen_ReleaseDate, { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
 				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_Menu_OPENLINKAuthor);
-				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", { 150,255,150 });
+				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", GUI_VAR.Global_Get_EasyGUI_Color());
 				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 250, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
@@ -1074,13 +1074,13 @@ void Thread_Funtion_AdaptiveAimbot() noexcept//功能线程: 生物瞄准机器�
 			{
 				const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
 				if (!Advanced::Check_Enemy(PlayerPawn) || !PlayerPawn.Spotted())continue;//当没有被发现则重新来过
-				if (PlayerPawn.Health() < 60)Aim_Bone = 4;//低血时瞄准躯干 (降低爆头率)
+				if (PlayerPawn.Health() <= 60)Aim_Bone = 4;//低血时瞄准躯干 (降低爆头率)
 				const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(Aim_Bone), Base::ViewAngles() + PunchAngle * 2);//最终瞄准角度 (6: 头部)
 				const auto FovG = hypot(Angle.x, Angle.y);//圆圈范围计算
 				if (!Angle.IsZero() && FovG <= Aim_Range)//范围判断
 				{
 					Aim_Range = FovG;//防止锁住两个或多个人
-					if (Global_LocalPlayer.ShotsFired() > 1 && (System::Get_Key(VK_CONTROL) || FovG <= 1.8) && PlayerPawn.MoveSpeed() <= 180)System::Mouse_Move(-Angle.y * 30, Angle.x * 30);
+					if (Global_LocalPlayer.ShotsFired() > 1 && FovG <= Aim_Range / 2 && PlayerPawn.MoveSpeed() <= 150)System::Mouse_Move(-Angle.y * 30, Angle.x * 30);
 					else System::Mouse_Move(-Angle.y * (20 - UI_Legit_AdaptiveAimbot_InitialSmooth), Angle.x * (20 - UI_Legit_AdaptiveAimbot_InitialSmooth));
 				}
 			}
@@ -1561,7 +1561,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (MenuWindowAlpha >= UI_Setting_Menu_MainColor.a)MenuWindowAlpha = UI_Setting_Menu_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
-		if (!System::Key_Toggle<class CLASS_Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { Window::Set_Topmost_Status(GUI_VAR.Window_HWND()); GUI_VAR.Window_Show(); Menu_Open = true; }//保证菜单窗口在最前端
+		if (!System::Key_Toggle<class CLASS_Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { GUI_VAR.Window_Show(); Menu_Open = true; }//保证菜单窗口在最前端
 		else { if (MenuWindowAlpha == 0)GUI_VAR.Window_Hide(); Menu_Open = false; }
 		GUI_IO = GUI_VAR.Get_IO();//刷新GUI状态数据
 		if (!UI_Setting_Menu_CustomColor)GUI_IO.GUIColor = { GUI_IO.GUIColor_Rainbow[3],GUI_IO.GUIColor_Rainbow[4],GUI_IO.GUIColor_Rainbow[5] };//GUI主题颜色到功能函数

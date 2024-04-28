@@ -1,4 +1,4 @@
-﻿//2024-04-27 10:30
+﻿//2024-04-28 19:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -325,11 +325,11 @@ namespace Window//窗口
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
     template<class A>//防止同窗口冲突  不同的窗口改不同的类
-    Variable::Vector2 Get_PixelColor(int X, int Y, HWND Window_HWND = 0) noexcept//采取屏幕颜色
+    Variable::Vector3 Get_PixelColor(int X, int Y, HWND Window_HWND = 0) noexcept//采取屏幕颜色
     {//Window::Get_PixelColor<class Get_PixelColor>(100, 100).x;
         static auto Window_HDC = GetWindowDC(Window_HWND);
         const auto Pixel = GetPixel(Window_HDC, X, Y);
-        return { GetRValue(Pixel), GetGValue(Pixel), GetBValue(Pixel) };//[0]red  [1]green  [2]blue
+        return { GetRValue(Pixel), GetGValue(Pixel), GetBValue(Pixel) };
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -2012,10 +2012,19 @@ namespace System//Windows系统
     {//System::Anti_Debugger();
         if (IsDebuggerPresent())
         {
-            if (Log != "")printf((Log + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n").c_str());
+            if (Log != "")printf((Log + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n").c_str());
             ShowWindow(GetConsoleWindow(), false);//隐藏控制台窗口
             exit(0);//检测调试状态 (缺点是会被Hook绕过)
         }
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    void Lock_Cursor(BOOL Lock = true) noexcept//锁定鼠标光标
+    {//System::Lock_Cursor();
+        RECT rect = {};//不可以使用LPRECT定义
+        rect.bottom = 1; rect.right = 1;
+        if (Lock)ClipCursor(&rect);//锁定鼠标
+        else ClipCursor(NULL);//释放鼠标
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -2318,36 +2327,6 @@ namespace EasyGUI
             return Key_State;
         }
         //---------------------------------------------------------------------
-        template<class CreateClassName>//防止冲突
-        float In_Animation(float Value, float Speed = 1.3, Vector2 Limit = { 0,0 }) noexcept//快到慢动画
-        {
-            if (Speed == 1)return Value;//无动画
-            static float ReturnValue = Value;
-            if (Value > ReturnValue)ReturnValue += (Value - ReturnValue) / Speed;
-            else if (Value < ReturnValue)ReturnValue -= (ReturnValue - Value) / Speed;
-            if (Limit.x != 0 || Limit.y != 0)//限制动画输出值 (默认值(最小值,最大值)0,0为不限制)
-            {
-                if (Limit.x > ReturnValue)ReturnValue = Limit.x;
-                else if (Limit.y < ReturnValue)ReturnValue = Limit.y;
-            }
-            return ReturnValue;
-        }
-        template<class CreateClassName>
-        Vector4 In_Animation_Col(Vector4 To_VAlue, float Speed = 10) noexcept//快到慢颜色动画
-        {
-            if (Speed < 1)Speed = 1;//防止过量
-            static Vector4 ReturnValue = To_VAlue;
-            if (To_VAlue.r > ReturnValue.r)ReturnValue.r += (To_VAlue.r - ReturnValue.r) / Speed;
-            else if (To_VAlue.r < ReturnValue.r)ReturnValue.r -= (ReturnValue.r - To_VAlue.r) / Speed;
-            if (To_VAlue.g > ReturnValue.g)ReturnValue.g += (To_VAlue.g - ReturnValue.g) / Speed;
-            else if (To_VAlue.g < ReturnValue.g)ReturnValue.g -= (ReturnValue.g - To_VAlue.g) / Speed;
-            if (To_VAlue.b > ReturnValue.b)ReturnValue.b += (To_VAlue.b - ReturnValue.b) / Speed;
-            else if (To_VAlue.b < ReturnValue.b)ReturnValue.b -= (ReturnValue.b - To_VAlue.b) / Speed;
-            if (To_VAlue.a > ReturnValue.a)ReturnValue.a += (To_VAlue.a - ReturnValue.a) / Speed;
-            else if (To_VAlue.a < ReturnValue.a)ReturnValue.a -= (ReturnValue.a - To_VAlue.a) / Speed;
-            return ReturnValue;
-        }
-        //---------------------------------------------------------------------
         template<class CreateClassName>//防止同函数同步
         BOOL In_TickSleep(int Time_MS) noexcept//不受线程影响的Sleep函数
         {
@@ -2360,7 +2339,7 @@ namespace EasyGUI
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         void Global_Set_EasyGUI_Font(string Font) noexcept { Global_EasyGUIFont = Font; }//设置全局GUI字体
         void Global_Set_EasyGUI_FontSize(int Size) noexcept { Global_EasyGUIFontSize = Size; }//设置全局GUI字体大小
-        void Global_Set_EasyGUI_Color(Vector4 GlobalColor) noexcept { Global_EasyGUIColor = In_Animation_Col<class EasyGUI_MainColor_Animation_>(GlobalColor); }//设置全局主题颜色
+        void Global_Set_EasyGUI_Color(Vector4 GlobalColor) noexcept { Global_EasyGUIColor = GlobalColor; }//设置全局主题颜色
         string Global_Get_EasyGUI_Font() noexcept { return Global_EasyGUIFont; }//获取全局GUI字体
         int Global_Get_EasyGUI_FontSize() noexcept { return Global_EasyGUIFontSize; }//获取全局GUI字体大小
         Vector4 Global_Get_EasyGUI_Color() noexcept { return Global_EasyGUIColor; }//获取全局主题颜色
@@ -2568,12 +2547,12 @@ namespace EasyGUI
                         OldY = (EasyGUI_MousePos.y - EasyGUI_WindowPos.top);
                         保存鼠标坐标 = false;
                     }
-                    MoveWindow(EasyGUI_WindowHWND, EasyGUI_MousePos.x - OldX, EasyGUI_MousePos.y - OldY, EasyGUI_WindowPos.right - EasyGUI_WindowPos.left, EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top, TRUE);//移动窗口到鼠标坐标
+                    MoveWindow(EasyGUI_WindowHWND, EasyGUI_MousePos.x - OldX, EasyGUI_MousePos.y - OldY, EasyGUI_WindowPos.right - EasyGUI_WindowPos.left, EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top, true);//移动窗口到鼠标坐标
                     防止脱离 = true;
                 }
                 else if (防止脱离 && In_KeyEvent(VK_LBUTTON))
                 {
-                    MoveWindow(EasyGUI_WindowHWND, EasyGUI_MousePos.x - OldX, EasyGUI_MousePos.y - OldY, EasyGUI_WindowPos.right - EasyGUI_WindowPos.left, EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top, TRUE);//移动窗口到鼠标坐标
+                    MoveWindow(EasyGUI_WindowHWND, EasyGUI_MousePos.x - OldX, EasyGUI_MousePos.y - OldY, EasyGUI_WindowPos.right - EasyGUI_WindowPos.left, EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top, true);//移动窗口到鼠标坐标
                     Mouse_Block_ = true;
                     if (In_TickSleep<class CLASS_EasyGUI_WindowMove_FPS_Delay_>(100))return false;//定时返回false (用来刷新面板)
                     return true;
@@ -2824,7 +2803,7 @@ namespace EasyGUI
             In_DrawRect(BlockPos.x - 1 + 55, BlockPos.y - 1 + (6 + 30 * LineRow), 230 + 2, 7, { 0,0,0 });//黑色外边框
             if (DetectMousePos || OutSide)In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), 230, 5, { 30,30,30 }, Global_EasyGUIColor / 4, true);//滑条背景
             else In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), 230, 5, { 20,20,20 }, Global_EasyGUIColor / 5, true);
-            In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), In_Animation<CreateClassName>(SliderPos, 1.05, { 0,230 }), 5, Global_EasyGUIColor, Global_EasyGUIColor / 5, true);//滑条 (动画0.8果冻效果)
+            In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + (6 + 30 * LineRow), SliderPos, 5, Global_EasyGUIColor, Global_EasyGUIColor / 5, true);//滑条 (动画0.8果冻效果)
             In_DrawString(BlockPos.x + 55 + 1, BlockPos.y - 16 + (6 + 30 * LineRow) + 1, Text, { 0,0,0 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
             In_DrawString(BlockPos.x + 55, BlockPos.y - 16 + (6 + 30 * LineRow), Text, TextColor, Global_EasyGUIFont, Global_EasyGUIFontSize);
             In_DrawString_Simple(BlockPos.x + 230 + 10 + 55, BlockPos.y - 4 + (6 + 30 * LineRow), ss.str() + UnitString, { 150,150,150 });//返回值绘制
