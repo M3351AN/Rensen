@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-28 19:30]";//程序发布日期
-const float Rensen_Version = 3.56;//程序版本
+const string Rensen_ReleaseDate = "[2024-04-30 19:30]";//程序发布日期
+const float Rensen_Version = 3.57;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
@@ -469,8 +469,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Backtracking, 1, "Enabled", UI_Legit_Backtracking);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_17>(Block_Backtracking, 2, "Maximum time", 0, 500, UI_Legit_Backtracking_Time, "ms");
 				GUI_VAR.GUI_Tips(Block_Aimbot, 1, "Help you quickly aim at the target.");
-				GUI_VAR.GUI_Tips({ Block_Aimbot.x + 10,Block_Aimbot.y }, 5, "Prefer Ragebot.", { 255,150,150 });
-				GUI_VAR.GUI_Tips(Block_Aimbot, 9, "More biological than normal aimbot.", { 200,200,150 });
+				GUI_VAR.GUI_Tips({ Block_Aimbot.x + 10,Block_Aimbot.y }, 5, "Prefer Ragebot.", 0, { 255,150,150 });
+				GUI_VAR.GUI_Tips(Block_Aimbot, 9, "More biological than normal aimbot.", 0, { 200,200,150 });
 				GUI_VAR.GUI_Tips(Block_Triggerbot, 1, "Shoot when aiming at the enemy.");
 				GUI_VAR.GUI_Tips(Block_PreciseAim, 1, "Reduce the sensitivity of the reticle when aiming at the enemy.");
 				GUI_VAR.GUI_Tips({ Block_RemoveRecoil.x + 10,Block_RemoveRecoil.y }, 2, "Operations that only return landscape.");
@@ -600,7 +600,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text(Block_About, 3, "Release date: " + Rensen_ReleaseDate, { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
 				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_Menu_OPENLINKAuthor);
-				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", GUI_VAR.Global_Get_EasyGUI_Color());
+				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", 0, GUI_VAR.Global_Get_EasyGUI_Color());
 				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 250, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
@@ -764,16 +764,16 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);
-			if (System::Sleep_Tick<class CLASS_WaterMark_Window_Sleep_>(200))//降低CPU占用
+			if (System::Sleep_Tick<class CLASS_WaterMark_WindowReload_Delay_>(100))//降低CPU占用
 			{
 				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
 				static string WaterMark_String = "";
-				short WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 4.8;
+				short WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 4.85;
 				if (!CS2_HWND)WaterMark_String = "Rensen | CS not found | " + System::Get_UserName() + " | " + System::Time_String();
 				else { WaterMark_String = "Rensen | " + System::Get_UserName() + " | " + System::Time_String(); WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 5.2; }
 				const Variable::Vector2 Watermark_Pos = { Window::Get_Resolution().x - WaterMark_String_Size - 10,10 };
 				Window_Watermark_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });
-				Window_Watermark_Render.RenderA_SolidRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size, 14, { 1,1,1,150 });
+				Window_Watermark_Render.RenderA_SolidRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size, 15, { 1,1,1,130 });
 				if (UI_Setting_Menu_CustomColor)
 				{
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size / 2, 1, GUI_IO.GUIColor / 2, GUI_IO.GUIColor);
@@ -783,14 +783,14 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size / 2, 1, { GUI_IO.GUIColor_Rainbow[0], GUI_IO.GUIColor_Rainbow[1], GUI_IO.GUIColor_Rainbow[2],255 }, { GUI_IO.GUIColor_Rainbow[3], GUI_IO.GUIColor_Rainbow[4], GUI_IO.GUIColor_Rainbow[5],255 });
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x + WaterMark_String_Size / 2, Watermark_Pos.y, WaterMark_String_Size / 2, 1, { GUI_IO.GUIColor_Rainbow[3], GUI_IO.GUIColor_Rainbow[4], GUI_IO.GUIColor_Rainbow[5],255 }, { GUI_IO.GUIColor_Rainbow[6], GUI_IO.GUIColor_Rainbow[7], GUI_IO.GUIColor_Rainbow[8],255 });
 				}
-				Window_Watermark_Render.Render_String(Watermark_Pos.x + 3, Watermark_Pos.y + 1, WaterMark_String, "Small Fonts", 12, { 255,255,255 }, false);
+				Window_Watermark_Render.Render_String(Watermark_Pos.x + 4, Watermark_Pos.y + 2, WaterMark_String, "Small Fonts", 12, { 255,255,255 }, false);
 				Window_Watermark_Render.DrawPaint(true);
 			}
 		}
 		else Window_Watermark.Set_WindowPos(99999, 99999);
 		//----------------------------------------------------------------------------------------------------------------------------------------
 		static auto NightMode_Alpha = 0; const auto NightMode_Alpha_Ani = Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(NightMode_Alpha, 8);//夜晚模式透明度动画
-		if (UI_Misc_NightMode && CS2_HWND && (Global_IsShowWindow || Menu_Open))
+		if (UI_Misc_NightMode && (Global_IsShowWindow || Menu_Open))
 		{
 			Variable::Vector4 BackGround_Color = { 0,0,0 };//原黑色背景
 			if (Menu_Open)BackGround_Color = GUI_IO.GUIColor / 10;//菜单外部背景色

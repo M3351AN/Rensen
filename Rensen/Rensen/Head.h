@@ -1,4 +1,4 @@
-﻿//2024-04-28 19:30
+﻿//2024-04-30 19:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1767,7 +1767,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
     void Log(string Str = "", BOOL b_Error = false, ...) noexcept//带有时间标题的打印控制台
-    {//System::Log("Value: " + 1);
+    {//System::Log("Fuck you!!!!", true);
         SYSTEMTIME sys; GetLocalTime(&sys);
         string Hour = to_string(sys.wHour);
         string Minute = to_string(sys.wMinute);
@@ -1778,10 +1778,10 @@ namespace System//Windows系统
         if (sys.wSecond < 10)Second = "0" + Second;
         if (sys.wMilliseconds < 10)Millisecond = "00" + Millisecond;
         else if (sys.wMilliseconds < 100)Millisecond = "0" + Millisecond;
-        const auto Handle = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (b_Error)SetConsoleTextAttribute(Handle, 12);
-        else SetConsoleTextAttribute(Handle, 10);
+        if (b_Error)SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);//报错时修改红色文字
+        else SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);//默认修改绿色文字
         printf(("[" + Hour + ":" + Minute + ":" + Second + "." + Millisecond + "] " + Str + "\n").c_str());
+        Sleep(1); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);//修改回白色文字
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -2988,15 +2988,16 @@ namespace EasyGUI
             return 0;//激活读取时返回0
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
-        BOOL GUI_Tips(Vector2 BlockPos, short LineRow, string TipsString, Vector4 TextColor = { 255,255,255 }) noexcept//鼠标指针提示(只支持单行字符)   (代码写在最后为了不被覆盖绘制)
+        BOOL GUI_Tips(Vector2 BlockPos, short LineRow, string TipsString, int BackGround_Length = 0, Vector4 TextColor = { 255,255,255 }) noexcept//鼠标指针提示(只支持单行字符)   (代码写在最后为了不被覆盖绘制)
         {
             if (BlockPos.x == 0 && BlockPos.y == 0)return 0;//当无block则不进行绘制
             In_DrawString_Simple(BlockPos.x + 8, BlockPos.y + 27 + (30 * (LineRow - 1)), "[?]", { 100,100,100 });//GUI绘制
             if (GetForegroundWindow() == EasyGUI_WindowHWND && In_MouseEventJudgment(BlockPos.x + 8, BlockPos.y + 26 + (30 * (LineRow - 1)), 13, 13) && !Mouse_Slider_)//当鼠标移动到问号 且GUI窗口为最顶层
             {
-                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10, strlen(TipsString.c_str()) * 6, 20, { 0,0,0 });
-                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 1, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 1, strlen(TipsString.c_str()) * 6 - 2, 20 - 2, { 60,60,60 });
-                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 2, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 2, strlen(TipsString.c_str()) * 6 - 4, 20 - 4, { 15,15,15 });
+                int Rect_Length = strlen(TipsString.c_str()) * 6; if (BackGround_Length != 0)Rect_Length = BackGround_Length;//自定义背景方框长度
+                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10, Rect_Length, 20, { 0,0,0 });
+                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 1, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 1, Rect_Length - 2, 20 - 2, { 60,60,60 });
+                In_DrawRect(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 2, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 2, Rect_Length - 4, 20 - 4, { 15,15,15 });
                 In_DrawString_Simple(EasyGUI_MousePos.x - EasyGUI_WindowPos.left + 15 + 4, EasyGUI_MousePos.y - EasyGUI_WindowPos.top + 10 + 4, TipsString, TextColor);
                 return true;
             }
