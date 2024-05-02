@@ -1,10 +1,10 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-04-30 19:30]";//程序发布日期
-const float Rensen_Version = 3.57;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-02 22:00]";//程序发布日期
+const float Rensen_Version = 3.58;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
-	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//初始化变量
+	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
 	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n";//默认参数
 	//----------------------------------------------------------------------------------------------
@@ -410,9 +410,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
 		static int UI_Panel = 0;//大区块选择
-		static vector<int> UI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
-		if (!Menu_Open)UI_WindowSize = { 0,0 };//关闭窗体时
-		GUI_VAR.Window_SetSize({ (int)Variable::Animation<class CLASS_Menu_Open_Animation_X>(UI_WindowSize[0],UI_Setting_Menu_MenuAnimation),(int)Variable::Animation<class CLASS_Menu_Open_Animation_Y>(UI_WindowSize[1],UI_Setting_Menu_MenuAnimation) });//窗口大小动画
+		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
+		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
+		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_Open_Animation_>(GUI_WindowSize, UI_Setting_Menu_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
 		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
@@ -476,7 +476,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_RemoveRecoil.x + 10,Block_RemoveRecoil.y }, 2, "Operations that only return landscape.");
 				GUI_VAR.GUI_Tips(Block_MagnetAim, 1, "Slow aiming without triggering key conditions. (Hard to see)");
 				GUI_VAR.GUI_Tips(Block_Backtracking, 1, "Take advantage of network latency to have a bigger hitbox.");
-				UI_WindowSize = { 1010,790 };
+				GUI_WindowSize = { 1010,790 };
 			}
 			else if (UI_Panel == 1)//Visual
 			{
@@ -518,7 +518,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips(Block_ESP, 1, "Learn enemy coordinates through walls. (Full screen cannot be used)");
 				GUI_VAR.GUI_Tips(Block_Hitmark, 1, "Effect that triggers when hitting the player.");
 				GUI_VAR.GUI_Tips(Block_Radar, 1, "Exterior window radar. (Full screen cannot be used)");
-				UI_WindowSize = { 1010,580 };
+				GUI_WindowSize = { 1010,580 };
 			}
 			else if (UI_Panel == 2)//Misc
 			{
@@ -589,7 +589,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 8, "Drop the weapon when killing an enemy with a sniper rifle.");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 9, "Learn recent player actions.");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 10, "Mimic Ragebot silent aim.");
-				UI_WindowSize = { 1010,780 };
+				GUI_WindowSize = { 1010,780 };
 			}
 			else if (UI_Panel == 3)//Setting
 			{
@@ -614,7 +614,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button(Block_Menu, 6, "Restart menu", UI_Setting_Menu_RestartMenu, 75);
 				GUI_VAR.GUI_Button(Block_Menu, 7, "Unload", UI_Setting_Menu_Unload, 95);
 				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 4, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
-				UI_WindowSize = { 580,490 };
+				GUI_WindowSize = { 580,490 };
 			}
 			else if (UI_Panel == 4)//Debug
 			{
@@ -673,10 +673,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				if (Debug_Control_Var::ClearCommand)system("cls");//清除控制台
 				if (Debug_Control_Var::SendSystemCommand)//向系统发送指令
 				{
-					cout << Debug_Control_Var::SystemCommand << endl;//打印控制台
+					if (Debug_Control_Var::SystemCommand != "")cout << Debug_Control_Var::SystemCommand << endl;//打印控制台
 					if (Variable::String_Find(Debug_Control_Var::SystemCommand, "/"))//检测是否是命令
 					{
-						string Last_Send_STR = Debug_Control_Var::SystemCommand; Last_Send_STR.erase(0, 1);//擦除/
+						auto Last_Send_STR = Debug_Control_Var::SystemCommand; Last_Send_STR.erase(0, 1);//擦除/
 						system(Last_Send_STR.c_str());
 					}
 					else System::Log("Misc: Invalid command. Please add / in front of.", true);
@@ -688,7 +688,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					System::Log("Computername: " + System::Get_ComputerName());//打印用户电脑名
 					System::Log("IP V4: " + System::Get_IPv4Address());//打印用户IPV4
 				}
-				UI_WindowSize = { 870,850 };
+				GUI_WindowSize = { 870,850 };
 			}
 			GUI_VAR.Draw_GUI(Debug_Control_Var::Checkbox_2);//最终绘制GUI画板
 			if (UI_Misc_SavePerformance)Sleep(10);//节省电脑占用性能
@@ -763,7 +763,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		//----------------------------------------------------------------------------------------------------------------------------------------
 		if (UI_Misc_Watermark)//水印
 		{
-			Window_Watermark.Set_WindowPos(0, 0);
+			Window_Watermark.Set_WindowPos(0, 0);//水印窗口默认坐标
 			if (System::Sleep_Tick<class CLASS_WaterMark_WindowReload_Delay_>(100))//降低CPU占用
 			{
 				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
@@ -787,7 +787,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				Window_Watermark_Render.DrawPaint(true);
 			}
 		}
-		else Window_Watermark.Set_WindowPos(99999, 99999);
+		else Window_Watermark.Set_WindowPos(99999, 99999);//将窗口移至边界外来代替隐藏窗口
 		//----------------------------------------------------------------------------------------------------------------------------------------
 		static auto NightMode_Alpha = 0; const auto NightMode_Alpha_Ani = Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(NightMode_Alpha, 8);//夜晚模式透明度动画
 		if (UI_Misc_NightMode && (Global_IsShowWindow || Menu_Open))
@@ -1526,11 +1526,11 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
-		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单过滤 (作者)
-		for (short i = 0; i <= 1000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
+		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单过滤 (开发者)
+		if (!Attest)for (short i = 0; i <= 5000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
 		UserID_READ.Release();//释放缓存
 	}
-	if (Attest == false) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.", MB_ICONSTOP); exit(0); }//未被认证则直接退出
+	if (!Attest) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
 	//----------------------------------------------------------------------------------------------------------------------------------
 	Beep(100, 50);//开启音效
 	System::Anti_click();//控制台不被暂停
@@ -1554,6 +1554,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	thread Thread_Funtion_Sonar_ = thread(Thread_Funtion_Sonar);
 	while (true)//菜单动画和关闭快捷键
 	{
+		if (!Attest)exit(0);//过滤未认证用户 (防止被HOOK初始化函数)
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
 		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_Menu_MainColor.a / UI_Setting_Menu_MenuAnimation / 2;//窗体透明度动画

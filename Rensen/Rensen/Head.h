@@ -199,7 +199,17 @@ namespace Variable//变量转换
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     template<class CreateClassName>
-    Vector3 Animation_Vec3(Vector3 To_VAlue, float Speed = 10) noexcept//坐标动画
+    Vector2 Animation_Vec2(Vector2 To_VAlue, float Speed = 10) noexcept//Vector2坐标动画
+    {
+        static Vector2 ReturnValue = To_VAlue;
+        if (To_VAlue.x > ReturnValue.x)ReturnValue.x += (To_VAlue.x - ReturnValue.x) / Speed;
+        else if (To_VAlue.x < ReturnValue.x)ReturnValue.x -= (ReturnValue.x - To_VAlue.x) / Speed;
+        if (To_VAlue.y > ReturnValue.y)ReturnValue.y += (To_VAlue.y - ReturnValue.y) / Speed;
+        else if (To_VAlue.y < ReturnValue.y)ReturnValue.y -= (ReturnValue.y - To_VAlue.y) / Speed;
+        return ReturnValue;
+    }
+    template<class CreateClassName>
+    Vector3 Animation_Vec3(Vector3 To_VAlue, float Speed = 10) noexcept//Vector3坐标动画
     {
         static Vector3 ReturnValue = To_VAlue;
         if (To_VAlue.x > ReturnValue.x)ReturnValue.x += (To_VAlue.x - ReturnValue.x) / Speed;
@@ -211,7 +221,7 @@ namespace Variable//变量转换
         return ReturnValue;
     }
     template<class CreateClassName>
-    Vector4 Animation_Vec4(Vector4 To_VAlue, float Speed = 10) noexcept//颜色动画
+    Vector4 Animation_Vec4(Vector4 To_VAlue, float Speed = 10) noexcept//Vector4颜色动画
     {
         if (Speed < 1)Speed = 1;//防止过量
         static Vector4 ReturnValue = To_VAlue;
