@@ -1,24 +1,24 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-05 14:00]";//程序发布日期
-const float Rensen_Version = 3.60;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-05 18:50]";//程序发布日期
+const float Rensen_Version = 3.62;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n\n13\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560;
 	BOOL UI_Visual_Res_1920;
 	BOOL UI_Visual_Res_1280;
 	BOOL UI_Visual_Res_960;
 	BOOL UI_Misc_LoadCloudConfig;
-	BOOL UI_Setting_Menu_OPENLINKAuthor;
-	BOOL UI_Setting_Menu_SaveLocalConfig;
-	BOOL UI_Setting_Menu_StartCS;
-	BOOL UI_Setting_Menu_QuitCS;
-	BOOL UI_Setting_Menu_RestartMenu;
-	BOOL UI_Setting_Menu_Unload;
+	BOOL UI_Setting_OPENLINKAuthor;
+	BOOL UI_Setting_SaveLocalConfig;
+	BOOL UI_Setting_StartCS;
+	BOOL UI_Setting_QuitCS;
+	BOOL UI_Setting_RestartMenu;
+	BOOL UI_Setting_Unload;
 	//以上变量不需要纳入参数------------------------------------------------------------------------
 	BOOL UI_Legit_Aimbot = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 1));
 	int UI_Legit_Aimbot_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 2));
@@ -97,9 +97,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	int UI_Misc_Sonar_Range_Far = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 79));
 	int UI_Misc_Sonar_Range_Near = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 80));
 	int UI_Misc_SelectedConfig = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 81));
-	int UI_Setting_Menu_MenuKey = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 82));
-	BOOL UI_Setting_Menu_CustomColor = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 83));
-	Variable::Vector4 UI_Setting_Menu_MainColor = { Variable::string_int_(System::Get_File(UI_LocalConfigPath, 84)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 85)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 86)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 87)) };
+	int UI_Setting_MenuKey = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 82));
+	BOOL UI_Setting_CustomColor = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 83));
+	Variable::Vector4 UI_Setting_MainColor = { Variable::string_int_(System::Get_File(UI_LocalConfigPath, 84)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 85)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 86)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 87)) };
 	Variable::Vector4 UI_Visual_HitMark_Color = { Variable::string_int_(System::Get_File(UI_LocalConfigPath, 88)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 89)),Variable::string_int_(System::Get_File(UI_LocalConfigPath, 90)) };
 	int UI_Visual_HitMark_Thickness = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 91));
 	BOOL UI_Legit_Triggerbot_ShootWhenAccurate = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 92));
@@ -118,7 +118,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Spoof_FakeAntiAim = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 105));
 	int UI_Spoof_FakeAntiAim_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 106));
 	BOOL UI_Spoof_KillDropSniper = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 107));
-	float UI_Setting_Menu_MenuAnimation = Variable::string_float_(System::Get_File(UI_LocalConfigPath, 108));
+	float UI_Setting_MenuAnimation = Variable::string_float_(System::Get_File(UI_LocalConfigPath, 108));
 	BOOL UI_Visual_HitMark_KillEffect = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 109));
 	int UI_Visual_HitMark_KillEffect_Quantity = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 110));
 	int UI_Visual_HitMark_KillEffect_Range = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 111));
@@ -136,6 +136,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	int UI_Spoof_FakeRageBot_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 123));
 	int UI_Spoof_FakeRageBot_Target = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 124));
 	BOOL UI_Misc_QuickStop = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 125));
+	string UI_Setting_MenuFont = System::Get_File(UI_LocalConfigPath, 126);
+	int UI_Setting_MenuFontSize = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 127));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -221,12 +223,12 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Misc_Sonar_Range_Far) + "\n" +
 			to_string(UI_Misc_Sonar_Range_Near) + "\n" +
 			to_string(UI_Misc_SelectedConfig) + "\n" +
-			to_string(UI_Setting_Menu_MenuKey) + "\n" +
-			to_string(UI_Setting_Menu_CustomColor) + "\n" +
-			to_string(UI_Setting_Menu_MainColor.r) + "\n" +
-			to_string(UI_Setting_Menu_MainColor.g) + "\n" +
-			to_string(UI_Setting_Menu_MainColor.b) + "\n" +
-			to_string(UI_Setting_Menu_MainColor.a) + "\n" +
+			to_string(UI_Setting_MenuKey) + "\n" +
+			to_string(UI_Setting_CustomColor) + "\n" +
+			to_string(UI_Setting_MainColor.r) + "\n" +
+			to_string(UI_Setting_MainColor.g) + "\n" +
+			to_string(UI_Setting_MainColor.b) + "\n" +
+			to_string(UI_Setting_MainColor.a) + "\n" +
 			to_string(UI_Visual_HitMark_Color.r) + "\n" +
 			to_string(UI_Visual_HitMark_Color.g) + "\n" +
 			to_string(UI_Visual_HitMark_Color.b) + "\n" +
@@ -247,7 +249,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Spoof_FakeAntiAim) + "\n" +
 			to_string(UI_Spoof_FakeAntiAim_Key) + "\n" +
 			to_string(UI_Spoof_KillDropSniper) + "\n" +
-			to_string(UI_Setting_Menu_MenuAnimation) + "\n" +
+			to_string(UI_Setting_MenuAnimation) + "\n" +
 			to_string(UI_Visual_HitMark_KillEffect) + "\n" +
 			to_string(UI_Visual_HitMark_KillEffect_Quantity) + "\n" +
 			to_string(UI_Visual_HitMark_KillEffect_Range) + "\n" +
@@ -264,7 +266,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Spoof_FakeRageBot) + "\n" +
 			to_string(UI_Spoof_FakeRageBot_Key) + "\n" +
 			to_string(UI_Spoof_FakeRageBot_Target) + "\n" +
-			to_string(UI_Misc_QuickStop) + "\n"
+			to_string(UI_Misc_QuickStop) + "\n" +
+			UI_Setting_MenuFont + "\n" +
+			to_string(UI_Setting_MenuFontSize) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -349,9 +353,9 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Misc_Sonar_Range_Far = Variable::string_int_(URL_CONFIG.Read(79));
 			UI_Misc_Sonar_Range_Near = Variable::string_int_(URL_CONFIG.Read(80));
 			UI_Misc_SelectedConfig = Variable::string_int_(URL_CONFIG.Read(81));
-			UI_Setting_Menu_MenuKey = Variable::string_int_(URL_CONFIG.Read(82));
-			UI_Setting_Menu_CustomColor = Variable::string_int_(URL_CONFIG.Read(83));
-			UI_Setting_Menu_MainColor = { Variable::string_int_(URL_CONFIG.Read(84)),Variable::string_int_(URL_CONFIG.Read(85)),Variable::string_int_(URL_CONFIG.Read(86)),Variable::string_int_(URL_CONFIG.Read(87)) };
+			UI_Setting_MenuKey = Variable::string_int_(URL_CONFIG.Read(82));
+			UI_Setting_CustomColor = Variable::string_int_(URL_CONFIG.Read(83));
+			UI_Setting_MainColor = { Variable::string_int_(URL_CONFIG.Read(84)),Variable::string_int_(URL_CONFIG.Read(85)),Variable::string_int_(URL_CONFIG.Read(86)),Variable::string_int_(URL_CONFIG.Read(87)) };
 			UI_Visual_HitMark_Color = { Variable::string_int_(URL_CONFIG.Read(88)) ,Variable::string_int_(URL_CONFIG.Read(89)) ,Variable::string_int_(URL_CONFIG.Read(90)) };
 			UI_Visual_HitMark_Thickness = Variable::string_int_(URL_CONFIG.Read(91));
 			UI_Legit_Triggerbot_ShootWhenAccurate = Variable::string_int_(URL_CONFIG.Read(92));
@@ -370,7 +374,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Spoof_FakeAntiAim = Variable::string_int_(URL_CONFIG.Read(105));
 			UI_Spoof_FakeAntiAim_Key = Variable::string_int_(URL_CONFIG.Read(106));
 			UI_Spoof_KillDropSniper = Variable::string_int_(URL_CONFIG.Read(107));
-			UI_Setting_Menu_MenuAnimation = Variable::string_float_(URL_CONFIG.Read(108));
+			UI_Setting_MenuAnimation = Variable::string_float_(URL_CONFIG.Read(108));
 			UI_Visual_HitMark_KillEffect = Variable::string_int_(URL_CONFIG.Read(109));
 			UI_Visual_HitMark_KillEffect_Quantity = Variable::string_int_(URL_CONFIG.Read(110));
 			UI_Visual_HitMark_KillEffect_Range = Variable::string_int_(URL_CONFIG.Read(111));
@@ -388,6 +392,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Spoof_FakeRageBot_Key = Variable::string_int_(URL_CONFIG.Read(123));
 			UI_Spoof_FakeRageBot_Target = Variable::string_int_(URL_CONFIG.Read(124));
 			UI_Misc_QuickStop = Variable::string_int_(URL_CONFIG.Read(125));
+			UI_Setting_MenuFont = URL_CONFIG.Read(126);
+			UI_Setting_MenuFontSize = Variable::string_int_(URL_CONFIG.Read(127));
 			URL_CONFIG.Release();
 		}
 	}
@@ -412,12 +418,12 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 		static int UI_Panel = 0;//大区块选择
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
-		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_Open_Animation_>(GUI_WindowSize, UI_Setting_Menu_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
+		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_Open_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
 		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
 		{
-			if (UI_Setting_Menu_CustomColor)//自定义颜色(单色)
+			if (UI_Setting_CustomColor)//自定义颜色(单色)
 			{
-				GUI_VAR.Global_Set_EasyGUI_Color(UI_Setting_Menu_MainColor);//设置主题颜色
+				GUI_VAR.Global_Set_EasyGUI_Color(UI_Setting_MainColor);//设置主题颜色
 				GUI_VAR.GUI_BackGround(4);//自定义颜色背景主题
 			}
 			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
@@ -599,22 +605,24 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text(Block_About, 2, "Version: " + Variable::Float_Precision(Rensen_Version), { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 3, "Release date: " + Rensen_ReleaseDate, { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
-				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_Menu_OPENLINKAuthor);
+				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_OPENLINKAuthor);
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", 0, GUI_VAR.Global_Get_EasyGUI_Color());
-				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 250, "Menu");
+				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 310, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Menu, 1, UI_Setting_Menu_MenuKey);
-				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_Menu_CustomColor);
-				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_Menu_MainColor);
-				if (UI_Setting_Menu_MainColor.a < 100)UI_Setting_Menu_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_49>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_Menu_MenuAnimation);
-				GUI_VAR.GUI_Button(Block_Menu, 4, "Save local config", UI_Setting_Menu_SaveLocalConfig, 65);
-				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 5, "Quit CS", UI_Setting_Menu_QuitCS, 90);
-				else GUI_VAR.GUI_Button(Block_Menu, 5, "Start CS", UI_Setting_Menu_StartCS, 85);
-				GUI_VAR.GUI_Button(Block_Menu, 6, "Restart menu", UI_Setting_Menu_RestartMenu, 75);
-				GUI_VAR.GUI_Button(Block_Menu, 7, "Unload", UI_Setting_Menu_Unload, 95);
-				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 4, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
-				GUI_WindowSize = { 580,490 };
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Menu, 1, UI_Setting_MenuKey);
+				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_CustomColor);
+				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_MainColor);
+				if (UI_Setting_MainColor.a < 100)UI_Setting_MainColor.a = 100;//限制透明度
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_49>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_MenuAnimation);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_50>(Block_Menu, 4, "Menu font size", 0, 30, UI_Setting_MenuFontSize, "px");
+				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_51>(Block_Menu, 5, UI_Setting_MenuFont, "Custom menu font");
+				GUI_VAR.GUI_Button(Block_Menu, 6, "Save local config", UI_Setting_SaveLocalConfig, 65);
+				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 7, "Quit CS", UI_Setting_QuitCS, 90);
+				else GUI_VAR.GUI_Button(Block_Menu, 7, "Start CS", UI_Setting_StartCS, 85);
+				GUI_VAR.GUI_Button(Block_Menu, 8, "Restart menu", UI_Setting_RestartMenu, 75);
+				GUI_VAR.GUI_Button(Block_Menu, 9, "Unload", UI_Setting_Unload, 95);
+				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 6, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
+				GUI_WindowSize = { 580,550 };
 			}
 			else if (UI_Panel == 4)//Debug
 			{
@@ -623,7 +631,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Slider<int, class CLASS_Debug_PlayerID>(Block_PlayerList, 1, "Player ID", 0, 64, Debug_Control_Var::SelectPlayer);
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(5000)) { ReLoad(true); PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
-				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName);
+				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName, "Search player name");
 				if (PlayerName != "" && PlayerName != "None") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))Debug_Control_Var::SelectPlayer = i; }//人物名称搜索
 				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, Debug_Control_Var::SelectPlayer, 27);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
@@ -657,7 +665,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_DebugControl = GUI_VAR.GUI_Block(510, 540, 280, "Debug control", 330);
 				GUI_VAR.GUI_Checkbox(Block_DebugControl, 1, "Show console window", UI_Debug_ShowDebugWindow);
 				GUI_VAR.GUI_Button_Small({ Block_DebugControl.x - 2,Block_DebugControl.y }, 1, Debug_Control_Var::ClearCommand);
-				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_36>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 2, Debug_Control_Var::SystemCommand);
+				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_36>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 2, Debug_Control_Var::SystemCommand, "Command");
 				GUI_VAR.GUI_Button_Small({ Block_DebugControl.x - 2,Block_DebugControl.y }, 2, Debug_Control_Var::SendSystemCommand);
 				GUI_VAR.GUI_Checkbox(Block_DebugControl, 3, "Checkbox 1", Debug_Control_Var::Checkbox_1);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_DebugControl_1>({ Block_DebugControl.x - 70,Block_DebugControl.y }, 3, Debug_Control_Var::KeySelector_1);
@@ -706,32 +714,32 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					else if (UI_Misc_SelectedConfig == 2)LoadCloudConfig("Legit No Visual");
 					System::Log("Misc: LoadCloudConfig [" + to_string(Config_ID) + "]");
 				}
-				if (UI_Setting_Menu_OPENLINKAuthor)//打开作者Github主题页面
+				if (UI_Setting_OPENLINKAuthor)//打开作者Github主题页面
 				{
 					System::Open_Website("https://github.com/Coslly");
 					System::Log("Setting: OpenGithubURL");
 				}
-				if (UI_Setting_Menu_SaveLocalConfig)//保存当前所设置的参数
+				if (UI_Setting_SaveLocalConfig)//保存当前所设置的参数
 				{
 					SaveLocalConfig();
 					System::Log("Setting: SaveConfig");
 				}
-				if (UI_Setting_Menu_StartCS)//启动CS
+				if (UI_Setting_StartCS)//启动CS
 				{
 					if (CS2_MEM.Get_ProcessHWND() == 0)System::Open_Website("steam://rungameid/730");
 					System::Log("Setting: StartCS");
 				}
-				if (UI_Setting_Menu_QuitCS)//关闭CS
+				if (UI_Setting_QuitCS)//关闭CS
 				{
 					if (CS2_MEM.Get_ProcessHWND() != 0)Window::Kill_Window(CS2_MEM.Get_ProcessHWND());
 					System::Log("Setting: QuitCS");
 				}
-				if (UI_Setting_Menu_RestartMenu)//重启菜单
+				if (UI_Setting_RestartMenu)//重启菜单
 				{
 					System::Self_Restart();
 					System::Log("Setting: RestartMenu");
 				}
-				if (UI_Setting_Menu_Unload)//关闭菜单
+				if (UI_Setting_Unload)//关闭菜单
 				{
 					Window::NVIDIA_Overlay();
 					System::Log("Setting: Unload");
@@ -774,10 +782,10 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				const Variable::Vector2 Watermark_Pos = { Window::Get_Resolution().x - WaterMark_String_Size - 10,10 };
 				Window_Watermark_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });
 				Window_Watermark_Render.RenderA_SolidRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size, 15, { 1,1,1,130 });
-				if (UI_Setting_Menu_CustomColor)
+				if (UI_Setting_CustomColor)
 				{
-					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size / 2, 1, GUI_IO.GUIColor / 2, GUI_IO.GUIColor);
-					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x + WaterMark_String_Size / 2, Watermark_Pos.y, WaterMark_String_Size / 2, 1, GUI_IO.GUIColor, GUI_IO.GUIColor / 2);
+					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size / 2, 1, GUI_IO.GUIColor.D_Alpha(255) / 2, GUI_IO.GUIColor.D_Alpha(255));
+					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x + WaterMark_String_Size / 2, Watermark_Pos.y, WaterMark_String_Size / 2, 1, GUI_IO.GUIColor.D_Alpha(255), GUI_IO.GUIColor.D_Alpha(255) / 2);
 				}
 				else {
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size / 2, 1, { GUI_IO.GUIColor_Rainbow[0], GUI_IO.GUIColor_Rainbow[1], GUI_IO.GUIColor_Rainbow[2],255 }, { GUI_IO.GUIColor_Rainbow[3], GUI_IO.GUIColor_Rainbow[4], GUI_IO.GUIColor_Rainbow[5],255 });
@@ -1199,7 +1207,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 			if (UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)))//ESP 透视
 			{
 				auto Draw_Color = GUI_IO.GUIColor;
-				if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
+				if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;//自定义透视ESP颜色
 				const auto Local_Matrix = Base::ViewMatrix(); const auto Local_Angles = Base::ViewAngles(); const auto Local_Position = Global_LocalPlayer.Origin();
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)
 				{
@@ -1557,15 +1565,18 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (!Attest)exit(0);//过滤未认证用户 (防止被HOOK初始化函数)
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
-		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_Menu_MainColor.a / UI_Setting_Menu_MenuAnimation / 2;//窗体透明度动画
-		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_Menu_MainColor.a / UI_Setting_Menu_MenuAnimation / 2;
-		if (MenuWindowAlpha >= UI_Setting_Menu_MainColor.a)MenuWindowAlpha = UI_Setting_Menu_MainColor.a;
+		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 2;//窗体透明度动画
+		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 2;
+		if (MenuWindowAlpha >= UI_Setting_MainColor.a)MenuWindowAlpha = UI_Setting_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
-		if (!System::Key_Toggle<class CLASS_Main_Rensen_MenuKey>(UI_Setting_Menu_MenuKey)) { GUI_VAR.Window_Show(); Menu_Open = true; }//保证菜单窗口在最前端
+		if (!System::Key_Toggle<class CLASS_Main_Rensen_MenuKey>(UI_Setting_MenuKey)) { GUI_VAR.Window_Show(); Menu_Open = true; }//保证菜单窗口在最前端
 		else { if (MenuWindowAlpha == 0)GUI_VAR.Window_Hide(); Menu_Open = false; }
 		GUI_IO = GUI_VAR.Get_IO();//刷新GUI状态数据
-		if (!UI_Setting_Menu_CustomColor)GUI_IO.GUIColor = { GUI_IO.GUIColor_Rainbow[3],GUI_IO.GUIColor_Rainbow[4],GUI_IO.GUIColor_Rainbow[5] };//GUI主题颜色到功能函数
+		if (!UI_Setting_CustomColor)GUI_IO.GUIColor = { GUI_IO.GUIColor_Rainbow[3],GUI_IO.GUIColor_Rainbow[4],GUI_IO.GUIColor_Rainbow[5] };//GUI主题颜色到功能函数
+		if (UI_Setting_MenuFont == "")GUI_VAR.Global_Set_EasyGUI_Font("Verdana");//自定义GUI字体
+		else GUI_VAR.Global_Set_EasyGUI_Font(UI_Setting_MenuFont);
+		GUI_VAR.Global_Set_EasyGUI_FontSize(UI_Setting_MenuFontSize);//自定义GUI字体大小
 		Sleep(1);
 	}
 }

@@ -1,4 +1,4 @@
-﻿//2024-05-05 14:00
+﻿//2024-05-05 18:50
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -2337,9 +2337,9 @@ namespace EasyGUI
         //---------------------------------------------------------------------
     public:
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
-        void Global_Set_EasyGUI_Font(string Font) noexcept { Global_EasyGUIFont = Font; }//设置全局GUI字体
-        void Global_Set_EasyGUI_FontSize(int Size) noexcept { Global_EasyGUIFontSize = Size; }//设置全局GUI字体大小
-        void Global_Set_EasyGUI_Color(Vector4 GlobalColor) noexcept { Global_EasyGUIColor = GlobalColor;}//设置全局主题颜色
+        void Global_Set_EasyGUI_Font(string FontName) noexcept { Global_EasyGUIFont = FontName; }//设置全局GUI字体
+        void Global_Set_EasyGUI_FontSize(int FontSize) noexcept { Global_EasyGUIFontSize = FontSize; }//设置全局GUI字体大小
+        void Global_Set_EasyGUI_Color(Vector4 MainColor) noexcept { Global_EasyGUIColor = MainColor;}//设置全局主题颜色
         string Global_Get_EasyGUI_Font() noexcept { return Global_EasyGUIFont; }//获取全局GUI字体
         int Global_Get_EasyGUI_FontSize() noexcept { return Global_EasyGUIFontSize; }//获取全局GUI字体大小
         Vector4 Global_Get_EasyGUI_Color() noexcept { return Global_EasyGUIColor; }//获取全局主题颜色
@@ -2610,8 +2610,8 @@ namespace EasyGUI
                     In_DrawGradientRect(X + 2, Y + 16 + 30 * i, Width - 4, 23, Global_EasyGUIColor / 5, { 20,20,20 });
                     if (GetForegroundWindow() == EasyGUI_WindowHWND && !Mouse_Slider_ && In_KeyEvent(VK_LBUTTON, true))m_In_Block = i;
                 }
-                In_DrawString(X + 21, Y + 21 + 30 * i, BlockText_[i], { 0,0,0 }, Global_EasyGUIFont, 15);
-                In_DrawString(X + 20, Y + 20 + 30 * i, BlockText_[i], { 220,220,220 }, Global_EasyGUIFont, 15);
+                In_DrawString(X + 21, Y + 21 + 30 * i, BlockText_[i], { 0,0,0 }, Global_EasyGUIFont, Global_EasyGUIFontSize + 2);
+                In_DrawString(X + 20, Y + 20 + 30 * i, BlockText_[i], { 220,220,220 }, Global_EasyGUIFont, Global_EasyGUIFontSize + 2);
             }
             if ((EasyGUI_MousePos.x - EasyGUI_WindowPos.left >= X && EasyGUI_MousePos.x - EasyGUI_WindowPos.left <= X + Width && EasyGUI_MousePos.y - EasyGUI_WindowPos.top >= Y && EasyGUI_MousePos.y - EasyGUI_WindowPos.top <= Y + Length) || !(EasyGUI_MousePos.x >= EasyGUI_WindowPos.left && EasyGUI_MousePos.x <= EasyGUI_WindowPos.right && EasyGUI_MousePos.y >= EasyGUI_WindowPos.top && EasyGUI_MousePos.y <= EasyGUI_WindowPos.bottom))Mouse_Block_ = true;
             return m_In_Block;
@@ -3044,7 +3044,7 @@ namespace EasyGUI
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         template<class CreateClassName>
-        string GUI_InputText(Vector2 BlockPos, short LineRow, string& m_String) noexcept//字符串输入框 (英文数字 不支持UTF-8 最多30个字符)
+        string GUI_InputText(Vector2 BlockPos, short LineRow, string& m_String, string NormalText = "") noexcept//字符串输入框 (英文数字 不支持UTF-8 最多30个字符)
         {
             if (BlockPos.x == 0 && BlockPos.y == 0)return false;//当无block则不进行绘制
             const BOOL DetectMousePos = In_MouseEventJudgment(BlockPos.x + 55, BlockPos.y + 30 * LineRow - 9, 230, 25);//窗口检测机制
@@ -3161,8 +3161,11 @@ namespace EasyGUI
             In_DrawRect(BlockPos.x + 54, BlockPos.y - 8 + 30 * LineRow, 232, 25, { 60,60,60 });
             if (DetectMousePos || IsInput)In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + 30 * LineRow - 7, 230, 23, { 15,15,15 }, Global_EasyGUIColor / 6, true);
             else In_DrawGradientRect(BlockPos.x + 55, BlockPos.y + 30 * LineRow - 7, 230, 23, { 15,15,15 }, Global_EasyGUIColor / 8, true);
-            In_DrawString(BlockPos.x + 64, BlockPos.y - 1 + 30 * LineRow, DrawString, { 0,0,0 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
-            In_DrawString(BlockPos.x + 63, BlockPos.y - 2 + 30 * LineRow, DrawString, { 200,200,200 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
+            if (DrawString == "")In_DrawString(BlockPos.x + 64, BlockPos.y - 1 + 30 * LineRow, NormalText, { 50,50,50 }, Global_EasyGUIFont, Global_EasyGUIFontSize);//默认显示文字
+            else {//已输入的文字
+                In_DrawString(BlockPos.x + 64, BlockPos.y - 1 + 30 * LineRow, DrawString, { 0,0,0 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
+                In_DrawString(BlockPos.x + 63, BlockPos.y - 2 + 30 * LineRow, DrawString, { 200,200,200 }, Global_EasyGUIFont, Global_EasyGUIFontSize);
+            }
             return m_String;
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
