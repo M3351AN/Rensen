@@ -1,4 +1,4 @@
-﻿//2024-05-05 18:50
+﻿//2024-05-06 13:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -180,6 +180,10 @@ namespace Variable//变量转换
         }
         int r, g, b, a;
     };
+    Vector4 BW_COLOR(int Color = 255, int Alpha = 255) noexcept
+    {
+        return { Color ,Color ,Color ,Alpha };
+    }
     Vector3 CalculateAngle(Vector3 localPosition, Vector3 enemyPosition, Vector3 viewAngles = { 0,0,0 }) noexcept
     {
         return ((enemyPosition - localPosition).ToAngle() - viewAngles);
@@ -919,7 +923,7 @@ namespace Window//窗口
             delete[] wide_text;//释放
         }
         //------------------------------------------------------------------------------------------------
-        void RenderA_GradientString(int X, int Y, string String, string Font, int FontSize, Variable::Vector4 Color_1, Variable::Vector4 Color_2, BOOL AntiAlias = true) noexcept//渐变文字绘制(包含Alpha)
+        void RenderA_GradientString(int X, int Y, string String, string Font, int FontSize, Variable::Vector4 Color_1, Variable::Vector4 Color_2, int GradientOffset = 0, BOOL AntiAlias = true) noexcept//渐变文字绘制(包含Alpha)
         {
             if (Font == "0" || Font == "NONE")Font = "Lucida Console";//默认字体
             Gdiplus::Graphics HDCwind(hMenDC);//HDC
@@ -932,7 +936,7 @@ namespace Window//窗口
             MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);//转码 UTF-8 (为了显示中文)
             Gdiplus::SolidBrush Brush_Shadow(Gdiplus::Color(Color_1.a / 1.5, 0, 0, 0));//阴影颜色
             HDCwind.DrawString(wide_text, -1, &font, Gdiplus::PointF(X + 1, Y + 1), &Brush_Shadow);
-            Gdiplus::LinearGradientBrush Brush_Text(Gdiplus::Point(X, 0), Gdiplus::Point(X + String.size() * FontSize/1.7, 0), Gdiplus::Color(Color_1.a, Color_1.r, Color_1.g, Color_1.b), Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b));
+            Gdiplus::LinearGradientBrush Brush_Text(Gdiplus::Point(X, 0), Gdiplus::Point(X + String.size() * FontSize / 1.7 + GradientOffset, 0), Gdiplus::Color(Color_1.a, Color_1.r, Color_1.g, Color_1.b), Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b));
             HDCwind.DrawString(wide_text, -1, &font, Gdiplus::PointF(X, Y), &Brush_Text);
             delete[] wide_text;//释放
         }
@@ -1543,7 +1547,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
     int Rand_Number(int 以上, int 以下, int Srand_ = 0) noexcept//随机数（每次都不同）
-    {//System::Rand_Number(0, 1000);//返回0~1000整数
+    {//System::Rand_Number(0, 1000);//返回0~1000随机整数
         srand(GetTickCount64() + time(0) * GetTickCount64() + Srand_);//防止一样的函数同步
         return rand() % (以下 - 以上 + 1) + 以上;
     }
@@ -2266,7 +2270,8 @@ namespace EasyGUI
         //---------------------------------------------------------------------
         void In_DrawString(int X, int Y, string String, Vector4 TextColor, string Fount_Name, short Fount_Size, short Font_Width = FW_NORMAL, BOOL AntiAlias = true) noexcept//绘制文字
         {
-            if (String == "")return;
+            if (String == "" || Fount_Size == 0)return;
+            if (Fount_Size > 15)Y -= Fount_Size / 3;//平衡上下坐标
             HGDIOBJ FontPen;
             if (AntiAlias)FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
             else FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
