@@ -1,4 +1,4 @@
-﻿//2024-05-06 13:30
+﻿//2024-05-07 20:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1418,6 +1418,10 @@ namespace System//Windows系统
         POINT XY; GetCursorPos(&XY);
         return { XY.x, XY.y };
     }
+    void Set_MousePos(Variable::Vector2 Pos = { 0,0 }) noexcept//修改鼠标坐标
+    {//System::Set_MousePos({100, 100});
+        SetCursorPos(Pos.x, Pos.y);
+    }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
     void Play_Sound_WAV(string Str_WAV) noexcept//播放WAV文件（声音）（同时播放2个文件会中断）
@@ -1531,7 +1535,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     void Copy_Stickup(string String) noexcept//复制粘贴 (汉子会乱码 解决方法：输入法调成中文)
     {//System::Copy_Stickup("汉子 中 !@# abc");
-        OpenClipboard(NULL);//打开剪切板
+        OpenClipboard(0);//打开剪切板
         EmptyClipboard();//清空剪切板
         const HANDLE hHandle = GlobalAlloc(GMEM_FIXED, strlen(String.c_str()) + 1);//分配内存
         char* pData = (char*)GlobalLock(hHandle);//锁定内存，返回申请内存的首地址
@@ -1589,23 +1593,19 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     void Self_Delete(string SelfName = "*.exe") noexcept//程序自删除 输入自身程序名即可删除掉自身
     {//System::Self_Delete();
-        FILE* DeleteBatFile = NULL;
-        DeleteBatFile = fopen("...bat", "w");
+        const auto DeleteBatFile = fopen("...bat", "w");
         fputs(("del " + SelfName + "\ndel ...bat\n").c_str(), DeleteBatFile);
         system("start ...bat\n");
         exit(0);//结束进程
     }
     void Self_Restart() noexcept//重启自身程序
     {//System::Self_Restart();
-        TCHAR szPath[MAX_PATH];
-        GetModuleFileName(NULL, szPath, MAX_PATH);
-        STARTUPINFO StartInfo;
-        PROCESS_INFORMATION procStruct;
+        TCHAR szPath[MAX_PATH]; GetModuleFileName(0, szPath, MAX_PATH);
+        STARTUPINFO StartInfo; PROCESS_INFORMATION procStruct;
         memset(&StartInfo, 0, sizeof(STARTUPINFO));
         StartInfo.cb = sizeof(STARTUPINFO);
-        if (!CreateProcess((LPCTSTR)szPath, NULL, NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &StartInfo, &procStruct));//创建自身克隆体
-        CloseHandle(procStruct.hProcess);
-        CloseHandle(procStruct.hThread);
+        if (!CreateProcess((LPCTSTR)szPath, 0, 0, 0, 0, NORMAL_PRIORITY_CLASS, 0, 0, &StartInfo, &procStruct));//创建自身克隆体
+        CloseHandle(procStruct.hProcess); CloseHandle(procStruct.hThread);
         exit(0);//关闭自身
     }
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1634,13 +1634,13 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     void DownloadToPath(string Str_URL, string Str_DownloadPath) noexcept//下载文件到目录 当返回true则下载成功 如果要下载的文件大于300kb那么下载的几率会很低
     {//System::DownloadToPath("https://codeload.github.com/cazzwastaken/internal-bhop/zip/refs/heads/main", "C:\\TestFile.zip")
-        byte Temp[1024]; ULONG Number = 1; FILE* stream; HINTERNET hSession = InternetOpen(L"RookIE/1.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+        byte Temp[1024]; ULONG Number = 1; FILE* stream; HINTERNET hSession = InternetOpen(L"RookIE/1.0", INTERNET_OPEN_TYPE_PRECONFIG, 0, 0, 0);
         if (hSession)
         {
-            HINTERNET handle2 = InternetOpenUrl(hSession, wstring(Str_URL.begin(), Str_URL.end()).c_str(), NULL, 0, INTERNET_FLAG_DONT_CACHE, 0);
+            HINTERNET handle2 = InternetOpenUrl(hSession, wstring(Str_URL.begin(), Str_URL.end()).c_str(), 0, 0, INTERNET_FLAG_DONT_CACHE, 0);
             if (handle2)
             {
-                if ((stream = fopen(Str_DownloadPath.c_str(), "wb")) != NULL)
+                if ((stream = fopen(Str_DownloadPath.c_str(), "wb")) != 0)
                 {
                     while (Number > 0)
                     {
@@ -1687,27 +1687,27 @@ namespace System//Windows系统
             WCHAR wszClassName[1024];//转换
             memset(wszClassName, 0, sizeof(wszClassName));
             MultiByteToWideChar(CP_ACP, 0, ("open " + File + " alias SoundP").c_str(), strlen(("open " + File + " alias SoundP").c_str()) + 1, wszClassName, sizeof(wszClassName) / sizeof(wszClassName[0]));
-            mciSendString(wszClassName, NULL, NULL, NULL);//https://stackoverflow.com/questions/38154985/string-to-lpcwstr-in-c
+            mciSendString(wszClassName, 0, 0, 0);//https://stackoverflow.com/questions/38154985/string-to-lpcwstr-in-c
         }
         //-------------------------------------------------------
         void Play() noexcept//播放打开的音频文件
         {
-            mciSendString(L"play SoundP", NULL, NULL, NULL);
+            mciSendString(L"play SoundP", 0, 0, 0);
         }
         //-------------------------------------------------------
         void Play_Repeat() noexcept//循环播放打开的音频文件
         {
-            mciSendString(L"play SoundP repeat", NULL, NULL, NULL);
+            mciSendString(L"play SoundP repeat", 0, 0, 0);
         }
         //-------------------------------------------------------
         void Stop() noexcept//暂停播放
         {
-            mciSendString(L"pause SoundP", NULL, NULL, NULL);
+            mciSendString(L"pause SoundP", 0, 0, 0);
         }
         //-------------------------------------------------------
         void Resume() noexcept//继续播放
         {
-            mciSendString(L"resume SoundP", NULL, NULL, NULL);
+            mciSendString(L"resume SoundP", 0, 0, 0);
         }
         //-------------------------------------------------------
         void Seek(int Ms) noexcept//快进快退
@@ -1715,8 +1715,8 @@ namespace System//Windows系统
             WCHAR wszClassName[1024];//转换
             memset(wszClassName, 0, sizeof(wszClassName));
             MultiByteToWideChar(CP_ACP, 0, ("seek SoundP to " + to_string(Ms)).c_str(), strlen(("seek SoundP to " + to_string(Ms)).c_str()) + 1, wszClassName, sizeof(wszClassName) / sizeof(wszClassName[0]));
-            mciSendString(wszClassName, NULL, NULL, NULL);
-            mciSendString(L"play SoundP", NULL, NULL, NULL);
+            mciSendString(wszClassName, 0, 0, 0);
+            mciSendString(L"play SoundP", 0, 0, 0);
         }
         //-------------------------------------------------------
         void Volume(int Ints) noexcept//设置音量(百分比)
@@ -1724,12 +1724,12 @@ namespace System//Windows系统
             WCHAR wszClassName[1024];//转换
             memset(wszClassName, 0, sizeof(wszClassName));
             MultiByteToWideChar(CP_ACP, 0, ("setaudio SoundP volume to " + to_string(Ints) + "0").c_str(), strlen(("setaudio SoundP volume to " + to_string(Ints) + "0").c_str()) + 1, wszClassName, sizeof(wszClassName) / sizeof(wszClassName[0]));
-            mciSendString(wszClassName, NULL, NULL, NULL);
+            mciSendString(wszClassName, 0, 0, 0);
         }
         //-------------------------------------------------------
         void Close() noexcept//释放音频文件(终止播放)
         {
-            mciSendString(L"close SoundP", NULL, NULL, NULL);
+            mciSendString(L"close SoundP", 0, 0, 0);
         }
         //-------------------------------------------------------
     };
@@ -1761,21 +1761,21 @@ namespace System//Windows系统
     void Read_String(string Str, Variable::Vector2 Volume_Rate = { 100, 0 }) noexcept//字符串通过语音播放 问题: 会内存泄漏导致程序暂停
     {//System::Read_String("Hello", {100, 0});
         wstring wszStr;
-        const int nLength = MultiByteToWideChar(CP_ACP, 0, Str.c_str(), -1, NULL, NULL);
+        const int nLength = MultiByteToWideChar(CP_ACP, 0, Str.c_str(), -1, 0, 0);
         wszStr.resize(nLength);
         LPWSTR lpwszStr = new wchar_t[nLength];
         MultiByteToWideChar(CP_ACP, 0, Str.c_str(), -1, lpwszStr, nLength);
         wszStr = lpwszStr;
         delete[] lpwszStr;
         //------------------转换
-        ISpVoice* pVoice = NULL;
-        CoInitialize(NULL);
+        ISpVoice* pVoice = 0;
+        CoInitialize(0);
         CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void**)&pVoice);//获取SpVoice接口
         pVoice->SetVolume((USHORT)Volume_Rate.x);//范围: 0~100
         pVoice->SetRate(Volume_Rate.y);//范围: -10~10
-        pVoice->Speak(wszStr.c_str(), 0, NULL);
+        pVoice->Speak(wszStr.c_str(), 0, 0);
         pVoice->Release();
-        pVoice = NULL;
+        pVoice = 0;
         CoUninitialize();//释放com资源
     }
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1852,7 +1852,7 @@ namespace System//Windows系统
                 if (wcscmp(entry.szExeFile, wstring(ProcessName.begin(), ProcessName.end()).c_str()) == 0)//判断字符串是否相等
                 {
                     ProcessID = entry.th32ProcessID;
-                    HProcessID = OpenProcess(PROCESS_ALL_ACCESS, FALSE, ProcessID);
+                    HProcessID = OpenProcess(PROCESS_ALL_ACCESS, 0, ProcessID);
                     break;
                 }
             }
@@ -1880,7 +1880,7 @@ namespace System//Windows系统
         template<class T>
         T Write(uintptr_t Address, T value) noexcept//写入内存
         {
-            WriteProcessMemory(HProcessID, (LPVOID)(Address), &value, sizeof(T), NULL);
+            WriteProcessMemory(HProcessID, (LPVOID)(Address), &value, sizeof(T), 0);
             return value;
         }
         //-----------------------------------------------------------------------------------------
@@ -1888,7 +1888,7 @@ namespace System//Windows系统
         T Read(uintptr_t Address) noexcept//读取内存
         {
             T Value = { };
-            ReadProcessMemory(HProcessID, (LPVOID)(Address), &Value, sizeof(T), NULL);
+            ReadProcessMemory(HProcessID, (LPVOID)(Address), &Value, sizeof(T), 0);
             return Value;
         }
         //-----------------------------------------------------------------------------------------
@@ -1896,9 +1896,9 @@ namespace System//Windows系统
         T Write_Level(uintptr_t Address, vector<uintptr_t>Offsets, T value) noexcept//修改地址的内存(等级地址版本)
         {
             uintptr_t F = { };
-            ReadProcessMemory(HProcessID, (LPVOID)(Address), &F, sizeof(uintptr_t), NULL);
-            for (short i = 0; i <= Offsets.size() - 1; ++i)ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[i - 1]), &F, sizeof(uintptr_t), NULL);//计算等级
-            WriteProcessMemory(HProcessID, (LPVOID)(F + Offsets[Offsets.size() - 1]), &value, sizeof(T), NULL);
+            ReadProcessMemory(HProcessID, (LPVOID)(Address), &F, sizeof(uintptr_t), 0);
+            for (short i = 0; i <= Offsets.size() - 1; ++i)ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[i - 1]), &F, sizeof(uintptr_t), 0);//计算等级
+            WriteProcessMemory(HProcessID, (LPVOID)(F + Offsets[Offsets.size() - 1]), &value, sizeof(T), 0);
             return value;
         }
         //-----------------------------------------------------------------------------------------
@@ -1907,29 +1907,28 @@ namespace System//Windows系统
         {
             uintptr_t F = { };
             T Returnvalue = { };
-            ReadProcessMemory(HProcessID, (LPVOID)(Address), &F, sizeof(uintptr_t), NULL);
-            for (short i = 0; i <= Offsets.size() - 1; ++i)ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[i - 1]), &F, sizeof(uintptr_t), NULL);//计算等级
-            ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[Offsets.size() - 1]), &Returnvalue, sizeof(T), NULL);
+            ReadProcessMemory(HProcessID, (LPVOID)(Address), &F, sizeof(uintptr_t), 0);
+            for (short i = 0; i <= Offsets.size() - 1; ++i)ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[i - 1]), &F, sizeof(uintptr_t), 0);//计算等级
+            ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[Offsets.size() - 1]), &Returnvalue, sizeof(T), 0);
             return Returnvalue;
         }
         //-----------------------------------------------------------------------------------------
         string Read_str(uintptr_t Address) noexcept//读取内存(字符串)
         {
             char Buffer[MAX_PATH]{};
-            ReadProcessMemory(HProcessID, (LPVOID)(Address), &Buffer, MAX_PATH, NULL);
+            ReadProcessMemory(HProcessID, (LPVOID)(Address), &Buffer, MAX_PATH, 0);
             return Buffer;
         }
         //-----------------------------------------------------------------------------------------
         uintptr_t Get_ProcessID() noexcept { return ProcessID; }//获取进程ID
         HWND Get_ProcessHWND() noexcept//获取进程HWND
         {
-            HWND h = GetTopWindow(0);
-            HWND retHwnd = NULL;
+            HWND h = GetTopWindow(0); HWND retHwnd = 0;
             while (h)
             {
                 DWORD pid = 0;
                 uintptr_t dwTheardId = GetWindowThreadProcessId(h, &pid);
-                if (dwTheardId != 0 && pid == ProcessID && GetParent(h) == NULL && IsWindowVisible(h))retHwnd = h;
+                if (dwTheardId != 0 && pid == ProcessID && GetParent(h) == 0 && IsWindowVisible(h))retHwnd = h;
                 h = GetNextWindow(h, GW_HWNDNEXT);
             }
             return retHwnd;
@@ -2016,8 +2015,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     BOOL Is_MousePos_InMid(HWND Window_Hwnd = 0) noexcept//检测光标是否在窗口最中间
     {//System::Is_MousePos_InMid();
-        RECT Window_Pos; POINT Mouse_Pos;
-        GetWindowRect(Window_Hwnd, &Window_Pos); GetCursorPos(&Mouse_Pos);
+        RECT Window_Pos; POINT Mouse_Pos; GetWindowRect(Window_Hwnd, &Window_Pos); GetCursorPos(&Mouse_Pos);
         return (Mouse_Pos.x == Window_Pos.left + (Window_Pos.right - Window_Pos.left) / 2 && Mouse_Pos.y == Window_Pos.top + (Window_Pos.bottom - Window_Pos.top) / 2);
     }
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -2038,7 +2036,7 @@ namespace System//Windows系统
         RECT rect = {};//不可以使用LPRECT定义
         rect.bottom = 1; rect.right = 1;
         if (Lock)ClipCursor(&rect);//锁定鼠标
-        else ClipCursor(NULL);//释放鼠标
+        else ClipCursor(0);//释放鼠标
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------

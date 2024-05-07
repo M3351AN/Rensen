@@ -220,7 +220,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (!PlayerController)return "None";
 			else return CS2_MEM.Read_str(PlayerController + CS2_Offsets::m_iszPlayerName);
 		}
-		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber())); }//判断人物是否是敌人
+		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber()) && PlayerPawn.TeamNumber() != 1); }//判断人物是否是敌人
 		BOOL Stop_Move(short TriggerValue = 50, BOOL Movement = true) noexcept//急停
 		{
 			const auto LocalVel = Global_LocalPlayer.Velocity();
@@ -245,14 +245,14 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (Return_Kill)return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_iNumRoundKills);
 			else return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_unTotalRoundDamageDealt);
 		}
-		void Move_to_Angle(Variable::Vector3 Target_Angles = { 0,0,0 }, float Smooth = 40) noexcept//本地人物将视角移动到指定坐标
+		void Move_to_Angle(Variable::Vector3 Target_Angles = { 0,0,0 }, float Smooth = 40, float Offset = 0.3) noexcept//本地人物将视角移动到指定坐标
 		{
-			for (int i = 0; i <= 30; ++i)
+			for (int i = 0; i <= 50; ++i)
 			{
 				const auto LocalPlayer_Angle = Base::ViewAngles();//本地人物朝向
-				if (abs(Target_Angles.x - LocalPlayer_Angle.x) <= 0.25 && abs(Target_Angles.y - LocalPlayer_Angle.y) <= 0.25)return;
+				if (hypot(LocalPlayer_Angle.x - Target_Angles.x, LocalPlayer_Angle.y - Target_Angles.y) <= Offset)return;
 				System::Mouse_Move((-Target_Angles.y + LocalPlayer_Angle.y) * Smooth, (Target_Angles.x - LocalPlayer_Angle.x) * Smooth);
-				System::Sleep_ns(1000);
+				System::Sleep_ns(500);
 			}
 		}
 		BOOL Move_to_Pos(Variable::Vector3 Target_Pos = { 0,0,0 }, float Edge = 5) noexcept//本地人物移动到指定世界坐标
