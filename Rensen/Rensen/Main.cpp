@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-07 20:00]";//程序发布日期
-const float Rensen_Version = 3.65;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-11 01:00]";//程序发布日期
+const float Rensen_Version = 3.68;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n\n13\n0\n1\n9\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n250\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n3\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n\n13\n0\n1\n9\n1\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560;
 	BOOL UI_Visual_Res_1920;
@@ -141,6 +141,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Misc_AutoKillCeasefire = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 128));
 	BOOL UI_Misc_CursorESP = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 129));
 	int UI_Misc_CursorESP_Key = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 130));
+	BOOL UI_Legit_Armory_HitSiteParser = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 131));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -274,7 +275,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Setting_MenuFontSize) + "\n" +
 			to_string(UI_Misc_AutoKillCeasefire) + "\n" +
 			to_string(UI_Misc_CursorESP) + "\n" +
-			to_string(UI_Misc_CursorESP_Key) + "\n"
+			to_string(UI_Misc_CursorESP_Key) + "\n" +
+			to_string(UI_Legit_Armory_HitSiteParser) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -403,6 +405,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Misc_AutoKillCeasefire = Variable::string_int_(URL_CONFIG.Read(128));
 			UI_Misc_CursorESP = Variable::string_int_(URL_CONFIG.Read(129));
 			UI_Misc_CursorESP_Key = Variable::string_int_(URL_CONFIG.Read(130));
+			UI_Legit_Armory_HitSiteParser = Variable::string_int_(URL_CONFIG.Read(131));
 			URL_CONFIG.Release();
 		}
 	}
@@ -453,15 +456,16 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_3>(Block_Aimbot, 10, "Initial smooth", 0, 20, UI_Legit_AdaptiveAimbot_InitialSmooth, "", { 200,200,150 });
 				const auto Block_Armory = GUI_VAR.GUI_Block(150, 390, 370, "Armory");
 				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 1, "Show range", UI_Legit_Armory_ShowAimbotRange);
-				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 2, "PISTOL Body aim (else head)", UI_Legit_Armory_BodyAim_PISTOL);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_4>({ Block_Armory.x - 10,Block_Armory.y }, 3, "PISTOL range", 0, 100, UI_Legit_Armory_Range_PISTOL, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_5>({ Block_Armory.x - 10,Block_Armory.y }, 4, "PISTOL smooth", 0, 40, UI_Legit_Armory_Smooth_PISTOL);
-				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 5, "RIFLE Body aim (else head)", UI_Legit_Armory_BodyAim_RIFLE);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_6>({ Block_Armory.x - 10,Block_Armory.y }, 6, "RIFLE range", 0, 100, UI_Legit_Armory_Range_RIFLE, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_7>({ Block_Armory.x - 10,Block_Armory.y }, 7, "RIFLE smooth", 0, 40, UI_Legit_Armory_Smooth_RIFLE);
-				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 8, "SNIPER Body aim (else head)", UI_Legit_Armory_BodyAim_SNIPER);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_8>({ Block_Armory.x - 10,Block_Armory.y }, 9, "SNIPER range", 0, 100, UI_Legit_Armory_Range_SNIPER, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_9>({ Block_Armory.x - 10,Block_Armory.y }, 10, "SNIPER smooth", 0, 40, UI_Legit_Armory_Smooth_SNIPER);
+				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 2, "Hit site parser", UI_Legit_Armory_HitSiteParser);
+				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 3, "PISTOL Body aim (else head)", UI_Legit_Armory_BodyAim_PISTOL);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_4>({ Block_Armory.x - 10,Block_Armory.y }, 4, "PISTOL range", 0, 100, UI_Legit_Armory_Range_PISTOL, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_5>({ Block_Armory.x - 10,Block_Armory.y }, 5, "PISTOL smooth", 0, 40, UI_Legit_Armory_Smooth_PISTOL);
+				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 6, "RIFLE Body aim (else head)", UI_Legit_Armory_BodyAim_RIFLE);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_6>({ Block_Armory.x - 10,Block_Armory.y }, 7, "RIFLE range", 0, 100, UI_Legit_Armory_Range_RIFLE, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_7>({ Block_Armory.x - 10,Block_Armory.y }, 8, "RIFLE smooth", 0, 40, UI_Legit_Armory_Smooth_RIFLE);
+				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 9, "SNIPER Body aim (else head)", UI_Legit_Armory_BodyAim_SNIPER);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_8>({ Block_Armory.x - 10,Block_Armory.y }, 10, "SNIPER range", 0, 100, UI_Legit_Armory_Range_SNIPER, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_9>({ Block_Armory.x - 10,Block_Armory.y }, 11, "SNIPER smooth", 0, 40, UI_Legit_Armory_Smooth_SNIPER);
 				const auto Block_Triggerbot = GUI_VAR.GUI_Block(580, 30, 190, "Trigger bot");
 				GUI_VAR.GUI_Checkbox(Block_Triggerbot, 1, "Enabled", UI_Legit_Triggerbot);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_10>(Block_Triggerbot, 1, UI_Legit_Triggerbot_Key);
@@ -552,7 +556,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_37>(Block_Misc, 9, UI_Misc_AutoTaser_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 10, "Water mark", UI_Misc_Watermark);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 11, "Sniper crosshair", UI_Misc_SniperCrosshair);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Misc, 12, "Size", 10, 40, UI_Misc_SniperCrosshair_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Misc, 12, "Size", 10, 60, UI_Misc_SniperCrosshair_Size, "px");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Anti AFK kick", UI_Misc_AntiAFKKick);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Hide from OBS", UI_Misc_ByPassOBS);
@@ -589,8 +593,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_46>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 10, "Fake ragebot", UI_Spoof_FakeRageBot);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_47>(Block_Spoof, 10, UI_Spoof_FakeRageBot_Key);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_48>({ Block_Spoof.x + 20,Block_Spoof.y }, 11, "Target: " + Advanced::Player_Name(UI_Spoof_FakeRageBot_Target), 0, 64, UI_Spoof_FakeRageBot_Target);
-				if (!UI_Spoof_FakeRageBot_Target)GUI_VAR.GUI_Text({ Block_Spoof.x + 70,Block_Spoof.y - 7 }, 11, "Any target", { 255,150,150 });
+				auto FakeRageBot_SliderString = "Target: " + Advanced::Player_Name(UI_Spoof_FakeRageBot_Target);
+				if (!UI_Spoof_FakeRageBot_Target)FakeRageBot_SliderString = "Target: Any target";
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_48>({ Block_Spoof.x + 20,Block_Spoof.y }, 11, FakeRageBot_SliderString, 0, 64, UI_Spoof_FakeRageBot_Target);
 				GUI_VAR.GUI_Tips(Block_Misc, 2, "Play Beep when hitting player.");
 				GUI_VAR.GUI_Tips(Block_Misc, 5, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
@@ -848,7 +853,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				const auto Kill = Advanced::Local_RoundDamage(true);//击杀
 				if (Damage != OldDamage)//当伤害或是击杀值变化则返回
 				{
-					if (Kill > OldKill)Beep(UI_Misc_HitSound_Tone * 2, UI_Misc_HitSound_Length * 2);//Kill
+					if (Kill > OldKill)Beep(UI_Misc_HitSound_Tone * 2, UI_Misc_HitSound_Length);//Kill
 					else if (Damage > OldDamage)Beep(UI_Misc_HitSound_Tone, UI_Misc_HitSound_Length);//Hit
 					OldDamage = Damage; OldKill = Kill;
 				}
@@ -935,10 +940,10 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
 					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
-					const auto PlayerPos_Scr = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6), Local_ViewMatrix);
-					if (PlayerPos_Scr.x < 0 || PlayerPos_Scr.x > CS_Scr_Res.r)continue;//检测是否在屏幕内
-					System::Set_MousePos({ (int)PlayerPos_Scr.x,(int)PlayerPos_Scr.y });//最终修改光标坐标鼠标坐标
-					Sleep(1);//停留更久
+					const auto PlayerPos_Scr = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(4), Local_ViewMatrix);//躯干屏幕坐标
+					if (PlayerPos_Scr.x < 0 || PlayerPos_Scr.x > CS_Scr_Res.r)continue;//检测指定坐标是否在屏幕内
+					System::Set_MousePos({ (int)PlayerPos_Scr.x + CS_Scr_Res.b,(int)PlayerPos_Scr.y + CS_Scr_Res.a });//最终修改光标坐标鼠标坐标
+					Sleep(5);//光标停留更久
 				}
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
@@ -983,7 +988,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 						const auto For_Dis = Variable::Coor_Dis_3D(Global_LocalPlayer.Origin(), PlayerPawn.Origin());
 						if (RecentPlayer.Dis > For_Dis) { RecentPlayer.Dis = For_Dis; RecentPlayer.Pawn = PlayerPawn; }
 					}
-					if (RecentPlayer.Dis < 1000)//超出范围则不执行 (因为跟不上)
+					if (RecentPlayer.Dis <= 1000)//超出范围则不执行 (因为跟不上)
 					{
 						Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles(), 2);//学习玩家朝向角度
 						Advanced::Move_to_Pos(RecentPlayer.Pawn.Origin());//移动到玩家
@@ -1080,6 +1085,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 			{
 				const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
 				if (!Advanced::Check_Enemy(PlayerPawn) || (UI_Legit_Aimbot_TriggerOnAim && !CrosshairId) || ((UI_Legit_Aimbot_JudgingWall || SpottedPlayer_Quantity) && !PlayerPawn.Spotted()))continue;
+				if (UI_Legit_Armory_HitSiteParser && PlayerPawn.Health() <= 20)Aim_Parts = 4;//部位解析器
 				const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(Aim_Parts), Recoil_Angle);//最终瞄准角度
 				const auto FovG = hypot(Angle.x, Angle.y);//圆圈范围计算
 				if (!Angle.IsZero() && FovG <= Aim_Range)//范围判断
@@ -1097,7 +1103,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 							ExecuteCommand("-attack2");
 						}
 						ExecuteCommand("+attack");
-						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8无法开枪修复
+						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8左轮无法开枪修复
 						else Sleep(1);
 						ExecuteCommand("-attack");
 						if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1) { System::Mouse_Con(2, false); Sleep(1); System::Key_Con(2, true); }//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
@@ -1254,8 +1260,11 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);
 					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
+					static uintptr_t C4_CachePlayer = 0; if (PlayerPawn.ActiveWeaponName() == "C4")C4_CachePlayer = PlayerPawn.Pawn();//更新C4缓存人物ID (可能会有刷新偏差Bug)
 					const auto Top_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6) + Variable::Vector3{ 0, 0, 8 }, Local_Matrix);
 					const auto Entity_Position = PlayerPawn.Origin();
+					const auto Player_Distance = Variable::Coor_Dis_3D(Local_Position, Entity_Position);
+					if (Player_Distance >= 10000)continue;//距离太远则不绘制ESP
 					if (Top_Pos.x < -100 || Top_Pos.x > CS_Scr_Res.r + 100)//检测是否在屏幕内
 					{
 						if (UI_Visual_ESP_OutFOV && Global_LocalPlayer.Health())//方向指示器
@@ -1264,7 +1273,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 							Screen_Pos = { CS_Scr_Res.r / 2 - Screen_Pos[0] * ((float)CS_Scr_Res.r / (float)CS_Scr_Res.g),CS_Scr_Res.g / 2 + Screen_Pos[1] };
 							ESP_Paint.RenderA_GradientCircle(Screen_Pos[0], Screen_Pos[1], UI_Visual_ESP_OutFOV_Size, { 0,0,0,100 }, { 0,0,0,0 });
 							ESP_Paint.RenderA_GradientCircle(Screen_Pos[0], Screen_Pos[1], UI_Visual_ESP_OutFOV_Size, Draw_Color.D_Alpha(System::RainbowColor(3).r), { 0,0,0,0 });
-							if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_String(Screen_Pos[0] - 8, Screen_Pos[1] - 4, PlayerPawn.ActiveWeaponName(), "Small Fonts", 9, { 100,100,100 });
+							if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_String(Screen_Pos[0] - 8, Screen_Pos[1] - 4, PlayerPawn.ActiveWeaponName(), "Small Fonts", 9, { 100,100,100 });//绘制手持武器
 						}
 						continue;//不绘制ESP 重来
 					}
@@ -1273,7 +1282,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					const auto Width = Hight * 0.25;
 					const auto Left = Top_Pos.x - Width;
 					const auto Right = Top_Pos.x + Width;
-					if (Variable::Coor_Dis_3D(Local_Position, Entity_Position) <= 4000)//距离检测 降低CPU占用
+					if (Player_Distance <= 3000)//距离检测 降低CPU占用
 					{
 						if (UI_Visual_ESP_Line)ESP_Paint.RenderA_GradientLine(CS_Scr_Res.r / 2, CS_Scr_Res.g, Left + (Right - Left) / 2, Bottom_Pos.y, { 0,0,0,0 }, Draw_Color.D_Alpha(200));//射线
 						if (UI_Visual_ESP_Skeleton)//骨骼
@@ -1286,11 +1295,11 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 								ESP_Paint.Render_Line(Bone_ScreenPos.x, Bone_ScreenPos.y, Bone_ScreenPos_.x, Bone_ScreenPos_.y, Draw_Color / 2, UI_Visual_ESP_Skeleton_Thickness);
 							}
 						}
-					}
-					if (UI_Visual_ESP_HeadDot)//头点
-					{
-						const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6), Local_Matrix);
-						ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 15, Draw_Color.D_Alpha(150), { 0,0,0,0 }, 0.2);
+						if (UI_Visual_ESP_HeadDot)//头点
+						{
+							const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6), Local_Matrix);
+							ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 15, Draw_Color.D_Alpha(150), { 0,0,0,0 }, 0.2);
+						}
 					}
 					if (UI_Visual_ESP_Box)//方框
 					{
@@ -1308,110 +1317,112 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						else ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, { (int)(1 - Health_Ma * 255),(int)(255 * Health_Ma),0,200 }, { 255,0,0,200 }, true);
 						if (PlayerHealth < 100 && PlayerHealth > 0)ESP_Paint.Render_SmpStr(Left - 8, Bottom_Pos.y - Hight * Health_Ma - 6, to_string(PlayerHealth), { 150,150,150 }, { 0 }, false);
 					}
-					const auto Player_ClippingWeapon_Name = PlayerPawn.ActiveWeaponName();//人物手持武器名称
 					if (UI_Visual_ESP_State)//人物状态
 					{
 						auto i = 0;//Line pos
 						if (PlayerPawn.Armor()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "HK", { 200,200,200 }, { 0 }, false); ++i; }
-						if (Player_ClippingWeapon_Name == "C4") { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "C4", { 255,0,0 }, { 0 }, 0); ++i; }
-						if (PlayerPawn.Scoped() && (Player_ClippingWeapon_Name == "AWP" || Player_ClippingWeapon_Name == "SSG08")) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "ZOOM", { 0,120,255 }, { 0 }, false); ++i; }
+						if (C4_CachePlayer == PlayerPawn.Pawn()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "C4", { 255,0,0 }, { 0 }, false); ++i; }
+						if (PlayerPawn.Scoped() && PlayerPawn.ActiveWeapon(true) == 3) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "ZOOM", { 0,120,255 }, { 0 }, false); ++i; }
 						if (PlayerPawn.Spotted()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "HIT", { 200,200,200 }, { 0 }, false); ++i; }
 						if (PlayerPawn.ShotsFired() > 0) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "SHOT", { 200,200,200 }, { 0 }, false); ++i; }
 						if (!(PlayerPawn.Flags() & (1 << 0))) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "AIR", { 200,200,200 }, { 0 }, false); ++i; }
-						if (Variable::Coor_Dis_3D(Local_Position, Entity_Position) >= 2500) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "INV", { 100,0,255 }, { 0 }, false); ++i; }
+						if (Player_Distance >= 2500) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "INV", { 100,0,255 }, { 0 }, false); ++i; }
 					}
-					if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_SmpStr(Left, Bottom_Pos.y, Player_ClippingWeapon_Name, { 200,200,200 }, { 0 }, false);//手持武器
-					if (UI_Visual_ESP_Name)ESP_Paint.RenderA_String(Left - 2, Top_Pos.y - 15, Advanced::Player_Name(Global_ValidClassID[i]), "Segoe UI", 11, { 255,255,255,255 });//名称
+					if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_SmpStr(Left, Bottom_Pos.y, PlayerPawn.ActiveWeaponName(), { 200,200,200 }, { 0 }, false);//手持武器名称
+					if (UI_Visual_ESP_Name)ESP_Paint.RenderA_String(Left - 2, Top_Pos.y - 15, Advanced::Player_Name(Global_ValidClassID[i]), "Segoe UI", 11, { 255,255,255,255 });//人物名称
 				}
 			}
-			if (UI_Legit_Aimbot && UI_Legit_Armory_ShowAimbotRange && Global_LocalPlayer.Health())//Aimbot Range 自瞄范围绘制
+			if (Global_LocalPlayer.Health())//当本地人物活着时执行的功能
 			{
-				auto Circle_Range = 0;
-				const auto Local_ActiveWeaponType = Global_LocalPlayer.ActiveWeapon(true);//本地人物手持武器类型
-				if (Local_ActiveWeaponType == 1)Circle_Range = UI_Legit_Armory_Range_PISTOL * 5;
-				else if (Local_ActiveWeaponType == 2)Circle_Range = UI_Legit_Armory_Range_RIFLE * 5;
-				else if (Local_ActiveWeaponType == 3) { if (Global_LocalPlayer.Scoped())Circle_Range = UI_Legit_Armory_Range_SNIPER * 14; else Circle_Range = UI_Legit_Armory_Range_SNIPER * 5; }
-				Circle_Range += abs(Global_LocalPlayer.AimPunchAngle().x * 25);//后坐力反馈
-				if (Circle_Range > 300)ESP_Paint.Render_HollowCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), GUI_IO.GUIColor / 3);
-				else ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), { 0,0,0,0 }, GUI_IO.GUIColor.D_Alpha(80), 0.95);
-			}
-			if (UI_Visual_HitMark && Global_LocalPlayer.Health())//命中标记
-			{
-				static short Mark_DMG = 0;//造成的伤害
-				static Variable::Vector4 Mark_Color, EffectColor;//绘制颜色
-				Mark_Color = Mark_Color - Variable::Vector4{ 10, 10, 10 }; Mark_Color = Mark_Color.Re_Col();//准星透明化动画
-				EffectColor = EffectColor - Variable::Vector4{ 8, 8, 8 }; EffectColor = EffectColor.Re_Col();//特效透明化动画
-				static auto OldDamage = 0; static auto OldKill = 0;
-				const auto Damage = Advanced::Local_RoundDamage();//伤害
-				const auto Kill = Advanced::Local_RoundDamage(true);//击杀
-				const auto IDEnt_Pos = Global_LocalPlayer.IDEntIndex_Pawn().BonePos(5); static auto Target_Pos = IDEnt_Pos;//特效目标坐标
-				if (Damage > OldDamage || Damage < OldDamage)//当伤害变化
+				if (UI_Visual_HitMark)//命中标记
 				{
-					if (Kill > OldKill && Global_LocalPlayer.ShotsFired()) { EffectColor = UI_Visual_HitMark_Color; }//Kill
-					if (Damage > OldDamage) { Mark_Color = UI_Visual_HitMark_Color; Mark_DMG = Damage - OldDamage; }//Hit
-					OldDamage = Damage; OldKill = Kill;//刷新
-				}
-				if (UI_Visual_HitMark_KillEffect)//闪电击杀效果
-				{
-					if (EffectColor.r != 0 || EffectColor.g != 0 || EffectColor.b != 0)//3D特效
+					static short Mark_DMG = 0;//造成的伤害
+					static Variable::Vector4 Mark_Color, EffectColor;//绘制颜色
+					Mark_Color = Mark_Color - Variable::Vector4{ 10, 10, 10 }; Mark_Color = Mark_Color.Re_Col();//准星透明化动画
+					EffectColor = EffectColor - Variable::Vector4{ 8, 8, 8 }; EffectColor = EffectColor.Re_Col();//特效透明化动画
+					static auto OldDamage = 0; static auto OldKill = 0;
+					const auto Damage = Advanced::Local_RoundDamage();//伤害
+					const auto Kill = Advanced::Local_RoundDamage(true);//击杀
+					const auto IDEnt_Pos = Global_LocalPlayer.IDEntIndex_Pawn().BonePos(5); static auto Target_Pos = IDEnt_Pos;//特效目标坐标
+					if (Damage > OldDamage || Damage < OldDamage)//当伤害变化
 					{
-						const auto Range = UI_Visual_HitMark_KillEffect_Range;//爆炸半径 范围
-						const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
-						for (short i = 0; i <= UI_Visual_HitMark_KillEffect_Quantity; ++i)//绘制粒子线条
+						if (Kill > OldKill && Global_LocalPlayer.ShotsFired()) { EffectColor = UI_Visual_HitMark_Color; }//Kill
+						if (Damage > OldDamage) { Mark_Color = UI_Visual_HitMark_Color; Mark_DMG = Damage - OldDamage; }//Hit
+						OldDamage = Damage; OldKill = Kill;//刷新
+					}
+					if (UI_Visual_HitMark_KillEffect)//闪电击杀效果
+					{
+						if (EffectColor.r != 0 || EffectColor.g != 0 || EffectColor.b != 0)//3D特效
 						{
-							srand(i * Kill);//随机种子
-							const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Target_Pos, Player_Matrix);//起点坐标
-							const auto Effect_Pos_To = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Target_Pos.x + rand() % Range - Range / 2,Target_Pos.y + rand() % Range - Range / 2,Target_Pos.z + rand() % Range - Range / 2 }, Player_Matrix);
-							ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, EffectColor);
+							const auto Range = UI_Visual_HitMark_KillEffect_Range;//爆炸半径 范围
+							const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
+							for (short i = 0; i <= UI_Visual_HitMark_KillEffect_Quantity; ++i)//绘制粒子线条
+							{
+								srand(i * Kill);//随机种子
+								const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Target_Pos, Player_Matrix);//起点坐标
+								const auto Effect_Pos_To = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Target_Pos.x + rand() % Range - Range / 2,Target_Pos.y + rand() % Range - Range / 2,Target_Pos.z + rand() % Range - Range / 2 }, Player_Matrix);
+								ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, EffectColor);
+							}
+						}
+						else if (IDEnt_Pos.x != 0)Target_Pos = IDEnt_Pos;
+					}
+					if (Mark_Color.r != 0 || Mark_Color.g != 0 || Mark_Color.b != 0)//2D准星
+					{
+						const short Range = UI_Visual_HitMark_Range, Length = UI_Visual_HitMark_Length, Width = UI_Visual_HitMark_Thickness;//绘制设置(距离,长度,粗细)
+						ESP_Paint.Render_Line(CS_Scr_Res.r / 2 - Range, CS_Scr_Res.g / 2 - Range, CS_Scr_Res.r / 2 - Range - Length, CS_Scr_Res.g / 2 - Range - Length, Mark_Color, Width);
+						ESP_Paint.Render_Line(CS_Scr_Res.r / 2 + Range, CS_Scr_Res.g / 2 + Range, CS_Scr_Res.r / 2 + Range + Length, CS_Scr_Res.g / 2 + Range + Length, Mark_Color, Width);
+						ESP_Paint.Render_Line(CS_Scr_Res.r / 2 + Range, CS_Scr_Res.g / 2 - Range, CS_Scr_Res.r / 2 + Range + Length, CS_Scr_Res.g / 2 - Range - Length, Mark_Color, Width);
+						ESP_Paint.Render_Line(CS_Scr_Res.r / 2 - Range, CS_Scr_Res.g / 2 + Range, CS_Scr_Res.r / 2 - Range - Length, CS_Scr_Res.g / 2 + Range + Length, Mark_Color, Width);
+						if (UI_Visual_HitMark_Damage)ESP_Paint.Render_String(CS_Scr_Res.r / 2 - 5, CS_Scr_Res.g / 2 + Range + 10, to_string(Mark_DMG), "Small Fonts", 11, Mark_Color, false);
+					}
+				}
+				if (UI_Misc_AutoPeek)//AutoPeek
+				{
+					auto Range = 30;//范围变量
+					const auto LocalPlayer_Pos = Global_LocalPlayer.Origin(); static BOOL IS_SAVED_POS = false; static auto Peek_Pos = LocalPlayer_Pos;//缓存要移动的坐标
+					static BOOL DO_MOVE = false;//判断是否要移动到目标坐标
+					if (System::Get_Key(UI_Misc_AutoPeek_Key))
+					{
+						if (!IS_SAVED_POS) { Peek_Pos = LocalPlayer_Pos; IS_SAVED_POS = true; }//刷新缓存坐标
+						if (Variable::Coor_Dis_3D(LocalPlayer_Pos, Peek_Pos) >= 250)Peek_Pos = LocalPlayer_Pos;//如果距离太远那么再次刷新
+						if (Global_LocalPlayer.ShotsFired() != 0)DO_MOVE = true;//开枪后移动
+						if (DO_MOVE && Advanced::Move_to_Pos(Peek_Pos, Range))DO_MOVE = false;//判断结束移动
+						const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
+						Range += 5;//范围修正
+						for (short i = 0; i <= 20; ++i)//绘制Peek圆圈
+						{
+							srand(i + System::Tick());//随机种子
+							const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Peek_Pos, Player_Matrix);//起点坐标 (屏幕2D坐标)
+							const auto Effect_Pos_To = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Peek_Pos.x + rand() % Range - Range / 2,Peek_Pos.y + rand() % Range - Range / 2,Peek_Pos.z }, Player_Matrix);
+							if (DO_MOVE)ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor, 2);
+							else ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor / 2);
 						}
 					}
-					else if (IDEnt_Pos.x != 0)Target_Pos = IDEnt_Pos;
-				}
-				if (Mark_Color.r != 0 || Mark_Color.g != 0 || Mark_Color.b != 0)//2D准星
-				{
-					const short Range = UI_Visual_HitMark_Range, Length = UI_Visual_HitMark_Length, Width = UI_Visual_HitMark_Thickness;//绘制设置(距离,长度,粗细)
-					ESP_Paint.Render_Line(CS_Scr_Res.r / 2 - Range, CS_Scr_Res.g / 2 - Range, CS_Scr_Res.r / 2 - Range - Length, CS_Scr_Res.g / 2 - Range - Length, Mark_Color, Width);
-					ESP_Paint.Render_Line(CS_Scr_Res.r / 2 + Range, CS_Scr_Res.g / 2 + Range, CS_Scr_Res.r / 2 + Range + Length, CS_Scr_Res.g / 2 + Range + Length, Mark_Color, Width);
-					ESP_Paint.Render_Line(CS_Scr_Res.r / 2 + Range, CS_Scr_Res.g / 2 - Range, CS_Scr_Res.r / 2 + Range + Length, CS_Scr_Res.g / 2 - Range - Length, Mark_Color, Width);
-					ESP_Paint.Render_Line(CS_Scr_Res.r / 2 - Range, CS_Scr_Res.g / 2 + Range, CS_Scr_Res.r / 2 - Range - Length, CS_Scr_Res.g / 2 + Range + Length, Mark_Color, Width);
-					if (UI_Visual_HitMark_Damage)ESP_Paint.Render_String(CS_Scr_Res.r / 2 - 5, CS_Scr_Res.g / 2 + Range + 10, to_string(Mark_DMG), "Small Fonts", 11, Mark_Color, false);
-				}
-			}
-			if (UI_Misc_AutoPeek && Global_LocalPlayer.Health())//AutoPeek
-			{
-				auto Range = 30;//范围变量
-				const auto LocalPlayer_Pos = Global_LocalPlayer.Origin(); static BOOL IS_SAVED_POS = false; static auto Peek_Pos = LocalPlayer_Pos;//缓存要移动的坐标
-				static BOOL DO_MOVE = false;//判断是否要移动到目标坐标
-				if (System::Get_Key(UI_Misc_AutoPeek_Key))
-				{
-					if (!IS_SAVED_POS) { Peek_Pos = LocalPlayer_Pos; IS_SAVED_POS = true; }//刷新缓存坐标
-					if (Variable::Coor_Dis_3D(LocalPlayer_Pos, Peek_Pos) > 250)Peek_Pos = LocalPlayer_Pos;//如果距离太远那么再次刷新
-					if (Global_LocalPlayer.ShotsFired() != 0)DO_MOVE = true;//开枪后移动
-					if (DO_MOVE && Advanced::Move_to_Pos(Peek_Pos, Range))DO_MOVE = false;//判断结束移动
-					const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
-					Range += 5;//范围修正
-					for (short i = 0; i <= 20; ++i)//绘制Peek圆圈
-					{
-						srand(i + System::Tick());//随机种子
-						const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Peek_Pos, Player_Matrix);//起点坐标 (屏幕2D坐标)
-						const auto Effect_Pos_To = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, { Peek_Pos.x + rand() % Range - Range / 2,Peek_Pos.y + rand() % Range - Range / 2,Peek_Pos.z }, Player_Matrix);
-						if (DO_MOVE)ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor, 2);
-						else ESP_Paint.Render_Line(Effect_Pos.x, Effect_Pos.y, Effect_Pos_To.x, Effect_Pos_To.y, GUI_IO.GUIColor / 2);
+					else {
+						IS_SAVED_POS = false;
+						if (DO_MOVE)//防止串按键
+						{
+							ExecuteCommand("-forward");
+							ExecuteCommand("-right");
+							ExecuteCommand("-back");
+							ExecuteCommand("-left");//释放所有按键
+							DO_MOVE = false;
+						}
 					}
 				}
-				else {
-					IS_SAVED_POS = false;
-					if (DO_MOVE)//防止串按键
-					{
-						ExecuteCommand("-forward");
-						ExecuteCommand("-right");
-						ExecuteCommand("-back");
-						ExecuteCommand("-left");//释放所有按键
-						DO_MOVE = false;
-					}
+				if (UI_Legit_Aimbot && UI_Legit_Armory_ShowAimbotRange)//Aimbot Range 自瞄范围绘制
+				{
+					auto Circle_Range = 0;
+					const auto Local_ActiveWeaponType = Global_LocalPlayer.ActiveWeapon(true);//本地人物手持武器类型
+					if (Local_ActiveWeaponType == 1)Circle_Range = UI_Legit_Armory_Range_PISTOL * 5;
+					else if (Local_ActiveWeaponType == 2)Circle_Range = UI_Legit_Armory_Range_RIFLE * 5;
+					else if (Local_ActiveWeaponType == 3) { if (Global_LocalPlayer.Scoped())Circle_Range = UI_Legit_Armory_Range_SNIPER * 14; else Circle_Range = UI_Legit_Armory_Range_SNIPER * 5; }
+					Circle_Range += abs(Global_LocalPlayer.AimPunchAngle().x * 25);//后坐力反馈
+					if (Circle_Range > 300)ESP_Paint.Render_HollowCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), GUI_IO.GUIColor / 3);
+					else ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), { 0,0,0,0 }, GUI_IO.GUIColor.D_Alpha(80), 0.95);
 				}
+				if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped())ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, UI_Misc_SniperCrosshair_Size, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }, 0.3);//狙击枪准星
 			}
-			if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped())ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, UI_Misc_SniperCrosshair_Size, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }, 0.3);//狙击枪准星
 		}
 		else Sleep(20);
 		ESP_Paint.DrawPaint();//最终绘制画板
@@ -1423,7 +1434,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 	System::Log("Load Thread: Thread_Funtion_EntityESP()");
 	Window::Windows RenderWindow; Window::Render WEP_Render;
 	const auto Render_Window_HWND = RenderWindow.Create_RenderBlock(Window::Get_Resolution().x, Window::Get_Resolution().y, "Rensen - EntityESP");
-	RenderWindow.Set_WindowAttributes({ 0,0,0 });//窗口过滤颜色和透明度
+	RenderWindow.Set_WindowAttributes({ 0,0,0 }, 180);//窗口过滤颜色和透明度
 	WEP_Render.CreatePaint(Render_Window_HWND, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);
 	while (true)
 	{
@@ -1431,11 +1442,10 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 		RenderWindow.Set_WindowTitle(System::Rand_String(10));//随机实体透视窗口标题
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		WEP_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//刷新绘制画板
-		if (CS2_HWND && UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)) && UI_Visual_ESP_Drops && (Menu_Open || Global_IsShowWindow) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
+		if (CS2_HWND && UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)) && UI_Visual_ESP_Drops && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 本地人物活着
 		{
 			if (Menu_Open)Sleep(50);//节省CPU性能 (可有可无)
-			auto Draw_Color = GUI_IO.GUIColor;
-			if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
+			auto Draw_Color = GUI_IO.GUIColor; if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
 			MoveWindow(Render_Window_HWND, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//Pos & Size
 			const auto Entitylist = Base::EntityList(); const auto Local_Origin = Global_LocalPlayer.Origin(); const auto Local_ViewMatrix = Base::ViewMatrix();
 			static vector<short> Class_ID = {};//有效实体ID
@@ -1449,7 +1459,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, i);
 					if (!Entity.Pawn())continue;
 					const auto Entity_Pos = Entity.Origin();
-					if (Entity_Pos.x == 0 || Entity_Pos.y == 0 || Variable::Coor_Dis_3D(Local_Origin, Entity_Pos) > 2000)continue;//实体之间距离检测
+					if (Entity_Pos.x == 0 || Entity_Pos.y == 0 || Variable::Coor_Dis_3D(Local_Origin, Entity_Pos) >= 2500)continue;//实体之间距离检测
 					const auto Entity_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Entity.Origin(), Local_ViewMatrix);
 					if (Entity_ScrPos.x < -800 || Entity_ScrPos.x > CS_Scr_Res.r + 800)continue;//检测实体是否在屏幕内
 					if (Entity.ActiveWeaponName(true, Entity.Pawn()) == "NONE" && !Variable::String_Find(Entity.EntityName(), "_projectile"))continue;//检测实体名称是否有效
@@ -1582,8 +1592,8 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
-		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Attest = true; }//白名单过滤 (开发者)
-		if (!Attest)for (short i = 0; i <= 5000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(Local_UserName) == "BYPASS")Attest = true; }//修改认证
+		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Sleep(100); Attest = true; }//白名单过滤 (开发者白名单)
+		if (!Attest)for (short i = 0; i <= 10000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS")Attest = true; }//遍历检测并修改认证
 		UserID_READ.Release();//释放缓存
 	}
 	if (!Attest) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出

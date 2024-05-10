@@ -89,7 +89,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			   short ActiveWeapon(BOOL Type = 0) const noexcept//人物手持武器(类型,ID)
 			   {
 				   const auto ClippingWeapon = CS2_MEM.Read<short>(CS2_MEM.Read<uintptr_t>(m_PlayerPawn + CS2_Offsets::m_pClippingWeapon) + CS2_Offsets::m_iItemDefinitionIndex);
-				   if (Type)//武器类型 0:无效 1:手枪 2:连射枪 3:单发狙击枪
+				   if (Type)//武器类型 0:无效 1:手枪 2:连射枪 3:狙击枪
 				   {
 					   switch (ClippingWeapon)
 					   {
