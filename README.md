@@ -4,8 +4,6 @@
 <a href="https://store.steampowered.com/app/730/CounterStrike_2"><img src="https://img.shields.io/badge/Game-CS2-red.svg?style=flat&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEiIHdpZHRoPSI2MDAiIGhlaWdodD0iNjAwIj48cGF0aCBkPSJNMTI5IDExMWMtNTUgNC05MyA2Ni05MyA3OEwwIDM5OGMtMiA3MCAzNiA5MiA2OSA5MWgxYzc5IDAgODctNTcgMTMwLTEyOGgyMDFjNDMgNzEgNTAgMTI4IDEyOSAxMjhoMWMzMyAxIDcxLTIxIDY5LTkxbC0zNi0yMDljMC0xMi00MC03OC05OC03OGgtMTBjLTYzIDAtOTIgMzUtOTIgNDJIMjM2YzAtNy0yOS00Mi05Mi00MmgtMTV6IiBmaWxsPSIjZmZmIi8+PC9zdmc+"></a>
 </p>
 Just a multifunction cheat software developed for the game Counter-Strike 2.
-
-The only sales channel TAOBAO: [Coslly的小店](https://item.taobao.com/item.htm?ft=t&id=783904867844)
 ## 🤓Features
 - External Menu
 - Saveable System
