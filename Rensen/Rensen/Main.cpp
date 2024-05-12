@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-11 01:00]";//程序发布日期
-const float Rensen_Version = 3.68;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-12 13:00]";//程序发布日期
+const float Rensen_Version = 3.71;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -819,8 +819,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		static auto NightMode_Alpha = 0; const auto NightMode_Alpha_Ani = Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(NightMode_Alpha, 8);//夜晚模式透明度动画
 		if (UI_Misc_NightMode && (Global_IsShowWindow || Menu_Open))
 		{
-			Variable::Vector4 BackGround_Color = { 0,0,0 };//原黑色背景
-			if (Menu_Open)BackGround_Color = GUI_IO.GUIColor / 10;//菜单外部背景色
+			Variable::Vector4 BackGround_Color = { 0,0,10 }; if (Menu_Open)BackGround_Color = GUI_IO.GUIColor / 10;//菜单外部背景色
 			Window_NightMode.BackGround_Color(Variable::Animation_Vec4<class CLASS_NIGHTMODE_BACKGROUNDCOLOR_ANI_>(BackGround_Color));//绘制颜色背景板
 			if (System::Sleep_Tick<class CLASS_NightMode_Window_Sleep_>(500))//降低CPU占用 (窗口标题,消息循环)
 			{
@@ -1010,7 +1009,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 						if (!System::Get_Key(UI_Spoof_FakeRageBot_Key))continue;//修复延时开枪
 						if (UI_Spoof_FakeRageBot_Target && i != UI_Spoof_FakeRageBot_Target)continue;//任何目标判定
 						const auto Target = Advanced::Traverse_Player(i);
-						if (Target.Health() && Target.Pawn() != Global_LocalPlayer.Pawn())//目标活着 && 不是本地人物
+						if (Target.Health() && Target.Pawn() != Global_LocalPlayer.Pawn() && Target.TeamNumber() != 1)//目标活着 && 不是本地人物
 						{
 							const auto Old_Angle = Base::ViewAngles();//原始视角坐标 (要返回的坐标)
 							const auto Aim_Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), Target.BonePos(6), Global_LocalPlayer.AimPunchAngle() * 2);//计算要瞄准的目标视角坐标
@@ -1093,14 +1092,15 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 					Aim_Range = FovG - 2;//防止锁住两个或多个人
 					if (Global_LocalPlayer.Scoped() && LocalPlayer_ActiveWeapon_Type == 3)System::Mouse_Move(-Angle.y * Aim_Smooth * 3.5, Angle.x * Aim_Smooth * 3.5);
 					else System::Mouse_Move(-Angle.y * Aim_Smooth, Angle.x * Aim_Smooth);
-					if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || Advanced::Stop_Move()) && FovG <= 0.8)//AutoShoot & AutoStop
+					if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || Advanced::Stop_Move()) && FovG <= 1.5)//AutoShoot & AutoStop
 					{
-						if (LocalPlayer_ActiveWeapon_Type == 3 && LocalPlayer_ActiveWeapon_ID != 11 && LocalPlayer_ActiveWeapon_ID != 38)System::Key_Con(UI_Legit_Aimbot_Key, false);//单发狙击枪射击后释放按键
+						if (LocalPlayer_ActiveWeapon_Type == 3 && LocalPlayer_ActiveWeapon_ID != 11 && LocalPlayer_ActiveWeapon_ID != 38)System::Key_Con(UI_Legit_Aimbot_Key, false);//单发狙击枪射击后释放触发按键
 						if (UI_Legit_Aimbot_AutoScope && LocalPlayer_ActiveWeapon_Type == 3 && !Global_LocalPlayer.Scoped())//自动开镜
 						{
 							ExecuteCommand("+attack2");
 							Sleep(1);
 							ExecuteCommand("-attack2");
+							Sleep(100);//待扩散稳定
 						}
 						ExecuteCommand("+attack");
 						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8左轮无法开枪修复
@@ -1152,9 +1152,8 @@ void Thread_Funtion_Triggerbot() noexcept//功能线程: 自动扳机
 		{
 			System::Sleep_ns(1000);//纳秒级延时
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器序号
-			const auto Local_ActiveWeaponType = Global_LocalPlayer.ActiveWeapon(true);//本地人物手持武器类型
 			if (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500 || Local_ActiveWeaponID == 31)continue;//过滤特殊武器 (刀子, 电击枪)
-			else if (((UI_Legit_Triggerbot_AnyTarget && Global_LocalPlayer.IDEntIndex() != -1) || Advanced::Check_Enemy(Global_LocalPlayer.IDEntIndex_Pawn())) && (!UI_Legit_Triggerbot_ShootWhenAccurate || Local_ActiveWeaponType == 1 || Advanced::Stop_Move(50, false)))//当瞄准的人是敌人
+			else if (((UI_Legit_Triggerbot_AnyTarget && Global_LocalPlayer.IDEntIndex() != -1) || Advanced::Check_Enemy(Global_LocalPlayer.IDEntIndex_Pawn())) && (!UI_Legit_Triggerbot_ShootWhenAccurate || Global_LocalPlayer.ActiveWeapon(true) == 1 || Advanced::Stop_Move(50, false)))
 			{
 				ExecuteCommand("+attack");//Shoot!! 开枪!!
 				Sleep(UI_Legit_Triggerbot_ShootDuration);
@@ -1182,15 +1181,14 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 			}
 			if (UI_Legit_MagnetAim && System::Is_MousePos_InMid(CS2_HWND) && !System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon() != 0)//磁吸瞄准
 			{
-				float Aim_Range = 8;
+				float Aim_Range = 10;
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
 					if (!Advanced::Check_Enemy(PlayerPawn) || !PlayerPawn.Spotted())continue;//简单的实体判断
 					const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(6), Base::ViewAngles());
 					const auto Fov = hypot(Angle.x, Angle.y);
-					if (Global_LocalPlayer.IDEntIndex_Pawn().Pawn() == PlayerPawn.Pawn() && Fov <= 0.6)continue;//范围光线判断
-					if (!Angle.IsZero() && Fov <= Aim_Range) { Aim_Range = Fov; System::Mouse_Move(-Angle.y * (6.6666 - UI_Legit_MagnetAim_Smooth), Angle.x * (6.6666 - UI_Legit_MagnetAim_Smooth)); }
+					if (!Angle.IsZero() && Fov <= Aim_Range && Fov >= 1.5) { Aim_Range = Fov; System::Mouse_Move(-Angle.y * (7.f - UI_Legit_MagnetAim_Smooth), Angle.x * (7.f - UI_Legit_MagnetAim_Smooth)); }
 				}
 			}
 		}
@@ -1239,18 +1237,6 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
-			if (UI_Debug_ShowDebugWindow && Debug_Control_Var::Checkbox_1)//调试绘制
-			{
-				const auto DrawColor_1 = System::RainbowColor(5), DrawColor_2 = System::RainbowColor(5, 1);
-				ESP_Paint.RenderA_GradientRect(0, 0, Window::Get_Resolution().x, 150, { 0,0,0,200 }, { 0,0,0,0 }, true);
-				ESP_Paint.RenderA_GradientLine(0, 0, Window::Get_Resolution().x, 0, DrawColor_1, DrawColor_2, 3);
-				int DrawPos = 10;//文字Y坐标
-				ESP_Paint.RenderA_GradientString(10, DrawPos, "Draw FPS: " + to_string(ESP_Paint.FPS()), "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//FPS
-				ESP_Paint.RenderA_GradientString(10, DrawPos, "Name: " + Advanced::LocalPlayer_Name(), "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物名称
-				ESP_Paint.RenderA_GradientString(10, DrawPos, "Pos: [" + Variable::Float_Precision(Global_LocalPlayer.Origin().x) + ", " + Variable::Float_Precision(Global_LocalPlayer.Origin().y) + ", " + Variable::Float_Precision(Global_LocalPlayer.Origin().z) + "]", "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物坐标
-				ESP_Paint.RenderA_GradientString(10, DrawPos, "Angle: [" + Variable::Float_Precision(Base::ViewAngles().x) + ", " + Variable::Float_Precision(Base::ViewAngles().y) + "]", "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物视角
-				ESP_Paint.RenderA_GradientString(10, DrawPos, "Speed: " + Variable::Float_Precision(Global_LocalPlayer.MoveSpeed()), "Tahoma", 20, DrawColor_1, DrawColor_2); DrawPos += 20;//本地人物移动速度
-			}
 			if (UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)))//ESP 透视
 			{
 				auto Draw_Color = GUI_IO.GUIColor;
@@ -1282,7 +1268,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					const auto Width = Hight * 0.25;
 					const auto Left = Top_Pos.x - Width;
 					const auto Right = Top_Pos.x + Width;
-					if (Player_Distance <= 3000)//距离检测 降低CPU占用
+					if (Player_Distance <= 4000)//距离检测 降低CPU占用
 					{
 						if (UI_Visual_ESP_Line)ESP_Paint.RenderA_GradientLine(CS_Scr_Res.r / 2, CS_Scr_Res.g, Left + (Right - Left) / 2, Bottom_Pos.y, { 0,0,0,0 }, Draw_Color.D_Alpha(200));//射线
 						if (UI_Visual_ESP_Skeleton)//骨骼
@@ -1518,7 +1504,7 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 	Radar_Window.Set_WindowPos(UI_Visual_Radar_Pos.x, UI_Visual_Radar_Pos.y);//套用参数的雷达位置
 	while (true)
 	{
-		Sleep(10);//降低CPU占用
+		Sleep(5);//降低CPU占用
 		Radar_Window.Set_WindowTitle(System::Rand_String(10));//随机雷达窗口标题
 		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2.5);
 		if ((Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
@@ -1536,8 +1522,7 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);
 					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
-					const auto EntityPos = PlayerPawn.Origin();
-					static vector<float> 敌人屏幕坐标;
+					const auto EntityPos = PlayerPawn.Origin(); static vector<float> 敌人屏幕坐标;
 					if (UI_Visual_Radar_FollowAngle)敌人屏幕坐标 = { RadarSizeAnimation / 2 - Variable::Ang_Pos(Variable::Coor_Dis_2D(LocalPlayerPos, EntityPos), ViewAngle.y - 90 + atan2((LocalPlayerPos.x - EntityPos.x), (LocalPlayerPos.y - EntityPos.y)) * (180 / acos(-1)))[0] / RadarRangeAnimation,RadarSizeAnimation / 2 + 15 + Variable::Ang_Pos(Variable::Coor_Dis_2D(LocalPlayerPos, EntityPos), ViewAngle.y - 90 + atan2((LocalPlayerPos.x - EntityPos.x), (LocalPlayerPos.y - EntityPos.y)) * (180 / acos(-1)))[1] / RadarRangeAnimation };
 					else 敌人屏幕坐标 = { RadarSizeAnimation / 2 - (LocalPlayerPos.x - EntityPos.x) / RadarRangeAnimation,RadarSizeAnimation / 2 + 15 + (LocalPlayerPos.y - EntityPos.y) / RadarRangeAnimation };
 					if (敌人屏幕坐标[0] > RadarSizeAnimation)敌人屏幕坐标[0] = RadarSizeAnimation;//边缘限制 (无法离开绘制区域)
@@ -1549,14 +1534,14 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 				}
 				Radar_Paint.Render_GradientRect(0, 0, Radar_Window.Get_WindowSize().x, 14, GUI_IO.GUIColor / 2, GUI_IO.GUIColor / 4, false);
 				Radar_Paint.Render_GradientRect(0, 14, Radar_Window.Get_WindowSize().x, 1, GUI_IO.GUIColor / 4, GUI_IO.GUIColor / 2, false);//标题背景
-				Radar_Paint.Render_String(3 + 1, 1 + 1, "Rensen - Radar", "Small Fonts", 12, { 0,0,0 }, false);//标题阴影
+				Radar_Paint.Render_String(3 + 1, 1 + 1, "Rensen - Radar", "Small Fonts", 12, { 0,0,1 }, false);//标题阴影
 				Radar_Paint.Render_String(3, 1, "Rensen - Radar", "Small Fonts", 12, GUI_IO.GUIColor, false);//标题
 				Radar_Paint.DrawPaint();//最终绘制雷达画板
 			}
 		}
 		else Radar_Size_ = 0;
-		Radar_Window.Set_WindowSize(RadarSizeAnimation, RadarSizeAnimation + 15);
-		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2.5));
+		Radar_Window.Set_WindowSize(RadarSizeAnimation, RadarSizeAnimation + 15);//雷达大小
+		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2.5));//雷达透明度
 		Radar_Window.Fix_inWhile();//窗口消息循环
 	}
 }
@@ -1620,7 +1605,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	thread Thread_Funtion_Sonar_ = thread(Thread_Funtion_Sonar);
 	while (true)//菜单动画和关闭快捷键
 	{
-		if (!Attest)exit(0);//过滤未认证用户 (防止被HOOK初始化函数)
+		if (!Attest) { exit(0); return 0; }//过滤未认证用户 (防止被HOOK初始化函数)
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
 		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 2;//窗体透明度动画
