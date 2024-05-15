@@ -1,4 +1,4 @@
-﻿//2024-05-15 11:20
+﻿//2024-05-15 22:20
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -252,6 +252,12 @@ namespace Variable//变量转换
         const float radian = ((Ang + Ang_) * 3.1415926535) / 180;
         vector<float> ReturnValue = { X + Dis * sin(radian),Y + Dis * cos(radian) };
         return ReturnValue;
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    Vector3 Ang_Pos_Vec(Vector3 OG_Pos, int Dis, float Ang, float Ang_ = 0) noexcept//角度距离转坐标
+    {//Variable::Ang_Pos_Vec({ 100,100,100 }, 10, 10, 10);
+        const float radian = ((Ang + Ang_) * 3.1415926535) / 180;
+        return { OG_Pos.x + Dis * sin(radian),OG_Pos.y + Dis * cos(radian),OG_Pos.z };
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------

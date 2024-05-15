@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-15 11:20]";//程序发布日期
-const float Rensen_Version = 3.72;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-15 22:20]";//程序发布日期
+const float Rensen_Version = 3.73;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1379,8 +1379,17 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						if (Global_LocalPlayer.ShotsFired() != 0)DO_MOVE = true;//开枪后移动
 						if (DO_MOVE && Advanced::Move_to_Pos(Peek_Pos, Range))DO_MOVE = false;//判断结束移动
 						const auto Player_Matrix = Base::ViewMatrix();//本地人物视角矩阵
+						const auto Target_Origin = Peek_Pos;//目标绘制点3D世界坐标
+						const auto Draw_SCR_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Target_Origin, Player_Matrix);//中心点屏幕坐标
+						if (Draw_SCR_Pos.x > 0 && Draw_SCR_Pos.x < CS_Scr_Res.r && Draw_SCR_Pos.y > 0 && Draw_SCR_Pos.y < CS_Scr_Res.g)
+						{
+							const auto Origin_Offset = Variable::Pos_Angle(LocalPlayer_Pos, Target_Origin);//双点坐标连接偏差角度
+							const auto Size_X = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Variable::Ang_Pos_Vec(Target_Origin, Range, Origin_Offset * -1), Player_Matrix);
+							const auto Size_Y = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Variable::Ang_Pos_Vec(Target_Origin, Range, Origin_Offset * -1 + 90), Player_Matrix);
+							if (Draw_SCR_Pos.x != 9999 && Size_X.x != 9999 && Size_Y.x != 9999 && Variable::Coor_Dis_2D(Size_X, Draw_SCR_Pos) <= 500)ESP_Paint.RenderA_GradientEllipse(Draw_SCR_Pos.x, Draw_SCR_Pos.y, Variable::Coor_Dis_2D(Size_X, Draw_SCR_Pos) * 2, Variable::Coor_Dis_2D(Size_Y, Draw_SCR_Pos) * 2, GUI_IO.GUIColor.D_Alpha(255), { 0,0,0,0 }, 0);
+						}
 						Range += 5;//范围修正
-						for (short i = 0; i <= 20; ++i)//绘制Peek圆圈
+						for (short i = 0; i <= 10; ++i)//绘制Peek圆圈
 						{
 							srand(i + System::Tick());//随机种子
 							const auto Effect_Pos = Variable::WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Peek_Pos, Player_Matrix);//起点坐标 (屏幕2D坐标)
