@@ -1,4 +1,4 @@
-﻿//2024-05-11 01:00
+﻿//2024-05-15 11:20
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -2463,27 +2463,28 @@ namespace EasyGUI
             MSG msg = { 0 }; if (GetMessage(&msg, 0, 0, 0)) { TranslateMessage(&msg); DispatchMessage(&msg); }
             GetCursorPos(&EasyGUI_MousePos); GetWindowRect(EasyGUI_WindowHWND, &EasyGUI_WindowPos);//刷新鼠标窗口坐标
             //---------------------------------------
-            static BOOL 防止脱离, 保存鼠标坐标;
-            static Vector2 OldPos;//按下时坐标
+            static BOOL 防止脱离, 保存鼠标坐标; static Vector2 OldPos;//按下时坐标
             if (GetForegroundWindow() == EasyGUI_WindowHWND)//检测窗口是否在最前端
             {
-                if (!Mouse_Block_ && In_KeyEvent(VK_LBUTTON) && !防止脱离)//当鼠标指针不在Block上则可以移动窗口
+                if (!Mouse_Block_ && In_KeyEvent(VK_LBUTTON) && !防止脱离)//触发移动窗口机制
                 {
                     if (保存鼠标坐标) { OldPos = { EasyGUI_MousePos.x - EasyGUI_WindowPos.left ,EasyGUI_MousePos.y - EasyGUI_WindowPos.top }; 保存鼠标坐标 = false; }
-                    MoveWindow(EasyGUI_WindowHWND, EasyGUI_MousePos.x - OldPos.x, EasyGUI_MousePos.y - OldPos.y, EasyGUI_WindowPos.right - EasyGUI_WindowPos.left, EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top, true);//移动窗口到鼠标坐标
-                    防止脱离 = true;
+                    防止脱离 = true;//触发移动窗口事件变量
                 }
-                else if (防止脱离 && In_KeyEvent(VK_LBUTTON))
+                else if (防止脱离 && In_KeyEvent(VK_LBUTTON))//移动窗口时
                 {
                     Mouse_Block_ = true;
                     MoveWindow(EasyGUI_WindowHWND, EasyGUI_MousePos.x - OldPos.x, EasyGUI_MousePos.y - OldPos.y, EasyGUI_WindowPos.right - EasyGUI_WindowPos.left, EasyGUI_WindowPos.bottom - EasyGUI_WindowPos.top, true);//移动窗口到鼠标坐标
                     if (In_TickSleep<class CLASS_EasyGUI_WindowMove_FPS_Delay_>(100))return false;//定时返回false (用来刷新面板)
                     else return true;
                 }
-                else {
+                else {//闲置时
                     防止脱离 = false; 保存鼠标坐标 = true; Mouse_Block_ = false;
-                    if (In_KeyEvent(VK_LBUTTON))Sleep(1);
-                    else Sleep(Draw_Delay);//降低CPU占用
+                    if (!Mouse_Slider_)
+                    {
+                        if (In_KeyEvent(VK_LBUTTON))Sleep(1);
+                        else Sleep(Draw_Delay);//降低CPU占用
+                    }
                     return false;
                 }
             }
@@ -2527,17 +2528,17 @@ namespace EasyGUI
             if (BackGround_StyleCode == 0)//毛都没有
             {
                 彩虹条颜色 = { 16,16,16,16,16,16,16,16,16 };
-                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,15,15,15,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
+                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,15,15,15,Global_EasyGUIColor.r / 10,Global_EasyGUIColor.g / 10,Global_EasyGUIColor.b / 10 };
             }
             else if (BackGround_StyleCode == 1)//仿
             {
                 彩虹条颜色 = { 100,255,255,255,100,255,255,255,100 };
-                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,5,5,5,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
+                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,5,5,5,Global_EasyGUIColor.r / 10,Global_EasyGUIColor.g / 10,Global_EasyGUIColor.b / 10 };
             }
             else if (BackGround_StyleCode == 2)//仿2
             {
                 彩虹条颜色 = { 0,255,255,255,0,255,255,255,0 };
-                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,3,3,3,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
+                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,3,3,3,Global_EasyGUIColor.r / 10,Global_EasyGUIColor.g / 10,Global_EasyGUIColor.b / 10 };
             }
             else if (BackGround_StyleCode == 3)//彩色变色渐变条*****************
             {
@@ -2553,7 +2554,7 @@ namespace EasyGUI
                     (int)floor(sin((float)GetTickCount64() / Speed * 2 + 3) * 127 + 128),
                     (int)floor(sin((float)GetTickCount64() / Speed * 2 + 5) * 127 + 128),
                 };
-                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,3,3,3, Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7 ,Global_EasyGUIColor.b / 7 };
+                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,3,3,3,Global_EasyGUIColor.r / 10,Global_EasyGUIColor.g / 10,Global_EasyGUIColor.b / 10 };
                 Global_EasyGUIColor = { 彩虹条颜色[3],彩虹条颜色[4], 彩虹条颜色[5] };
             }
             else if (BackGround_StyleCode == 4)//主题色渐变条*****************
@@ -2572,7 +2573,7 @@ namespace EasyGUI
                     (int)(Sins.x * Global_EasyGUIColor.b / 2 + Global_EasyGUIColor.b / 2)
                 };
                 const auto Min = 50; for (int i = 0; i <= 8; ++i)if (彩虹条颜色[i] < Min)彩虹条颜色[i] = Min;//颜色最小值
-                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,0,0,0,Global_EasyGUIColor.r / 7,Global_EasyGUIColor.g / 7,Global_EasyGUIColor.b / 7 };
+                主题颜色 = { 0,0,0,60,60,60,30,30,30,15,15,15,0,0,0,Global_EasyGUIColor.r / 10,Global_EasyGUIColor.g / 10,Global_EasyGUIColor.b / 10 };
             }
             In_DrawRect(0, 0, Window_Size.x, Window_Size.y, { 主题颜色[0], 主题颜色[1], 主题颜色[2] });
             In_DrawRect(1, 1, Window_Size.x - 2, Window_Size.y - 2, { 主题颜色[3], 主题颜色[4], 主题颜色[5] });
@@ -2604,7 +2605,7 @@ namespace EasyGUI
             if (m_In_Block < 0)m_In_Block = 0; else if (m_In_Block >= BlockText_.size())m_In_Block = BlockText_.size() - 1;//范围限制
             In_DrawRect(X, Y, Width, Length, { 0,0,0 });//黑色外边框
             In_DrawRect(X + 1, Y + 1, Width - 2, Length - 2, { 60,60,60 });//白色外边框
-            In_DrawGradientRect(X + 2, Y + 2, Width - 4, Length - 4, Global_EasyGUIColor / 8, { 10,10,10 }, true);//主题色渐变背景
+            In_DrawGradientRect(X + 2, Y + 2, Width - 4, Length - 4, Global_EasyGUIColor / 10, { 10,10,10 }, true);//主题色渐变背景
             In_DrawString(X + 16, Y - 6, BlockText.c_str(), { 0,0,0 }, "Small Fonts", 14, 700);
             In_DrawString(X + 15, Y - 7, BlockText.c_str(), { 200,200,200 }, "Small Fonts", 14, 700);
             for (short i = 0; i < BlockText_.size(); ++i)//遍历坐标
@@ -3026,7 +3027,7 @@ namespace EasyGUI
             if (m_InLine < 0)m_InLine = 0; else if (m_InLine >= LineString.size())m_InLine = LineString.size() - 1;//范围限制
             if (!LimitLine)LimitLine = LineString.size();
             In_DrawRect(BlockPos.x + 53, BlockPos.y - 10 + 30 * StartLineRow, 234, LimitLine * 25 + 5, { 0,0,0 });//黑色外边框
-            In_DrawGradientRect(BlockPos.x + 54, BlockPos.y - 9 + 30 * StartLineRow, 232, LimitLine * 25 + 3, Global_EasyGUIColor / 8, { 10,10,10 }, true);//主题色渐变背景
+            In_DrawGradientRect(BlockPos.x + 54, BlockPos.y - 9 + 30 * StartLineRow, 232, LimitLine * 25 + 3, Global_EasyGUIColor / 10, { 10,10,10 }, true);//主题色渐变背景
             for (short i = 0; i < LineString.size(); ++i)
             {
                 if (i >= LimitLine)continue;//限制行数

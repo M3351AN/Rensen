@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-12 13:00]";//程序发布日期
-const float Rensen_Version = 3.71;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-15 11:20]";//程序发布日期
+const float Rensen_Version = 3.72;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1294,14 +1294,19 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					}
 					if (UI_Visual_ESP_Health)//血条
 					{
-						const auto PlayerHealth = PlayerPawn.Health();
-						auto Health_Ma = PlayerHealth * 0.01;
-						if (PlayerHealth > 100)Health_Ma = 1;
-						else if (PlayerHealth < 0)Health_Ma = 0;//限制值 防止绘制出错
+						const auto PlayerHealth = PlayerPawn.Health();//人物血量
+						float Health_Ma = PlayerHealth * 0.01;
+						if (PlayerHealth >= 100)Health_Ma = 1;
+						else if (PlayerHealth <= 0)Health_Ma = 0;
+						const auto PlayerArmor = PlayerPawn.Armor();//人物护甲
+						float Armor_Ma = PlayerArmor * 0.01;
+						if (PlayerArmor >= 100)Armor_Ma = 1;
+						else if (PlayerArmor <= 0)Armor_Ma = 0;
 						ESP_Paint.RenderA_SolidRect(Left - 6, Top_Pos.y - 1, 4, Bottom_Pos.y - Top_Pos.y + 3, { 0,0,0,130 });
-						if (UI_Visual_ESP_CustomColor)ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, Draw_Color.D_Alpha(200), { 0,0,0,200 }, true);
+						ESP_Paint.RenderA_SolidRect(Left - 5, Bottom_Pos.y - Hight * Armor_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Armor_Ma) + 1, { 50,50,50,200 });//护甲条绘制
+						if (UI_Visual_ESP_CustomColor)ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, Draw_Color.D_Alpha(200), { 0,0,0,200 }, true);//血量条绘制
 						else ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, { (int)(1 - Health_Ma * 255),(int)(255 * Health_Ma),0,200 }, { 255,0,0,200 }, true);
-						if (PlayerHealth < 100 && PlayerHealth > 0)ESP_Paint.Render_SmpStr(Left - 8, Bottom_Pos.y - Hight * Health_Ma - 6, to_string(PlayerHealth), { 150,150,150 }, { 0 }, false);
+						if (PlayerHealth < 100 && PlayerHealth > 0)ESP_Paint.Render_SmpStr(Left - 8, Bottom_Pos.y - Hight * Health_Ma - 6, to_string(PlayerHealth), { 150,150,150 }, { 0 }, false);//血量值绘制
 					}
 					if (UI_Visual_ESP_State)//人物状态
 					{
@@ -1315,7 +1320,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						if (Player_Distance >= 2500) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "INV", { 100,0,255 }, { 0 }, false); ++i; }
 					}
 					if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_SmpStr(Left, Bottom_Pos.y, PlayerPawn.ActiveWeaponName(), { 200,200,200 }, { 0 }, false);//手持武器名称
-					if (UI_Visual_ESP_Name)ESP_Paint.RenderA_String(Left - 2, Top_Pos.y - 15, Advanced::Player_Name(Global_ValidClassID[i]), "Segoe UI", 11, { 255,255,255,255 });//人物名称
+					if (UI_Visual_ESP_Name)ESP_Paint.RenderA_String(Left - 2, Top_Pos.y - 15, Advanced::Player_Name(Global_ValidClassID[i]), "Segoe UI", 11, (Draw_Color * 3).Re_Col().D_Alpha(255));//人物名称
 				}
 			}
 			if (Global_LocalPlayer.Health())//当本地人物活着时执行的功能
