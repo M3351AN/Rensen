@@ -1,4 +1,4 @@
-﻿//2024-05-15 22:20
+﻿//2024-05-18 22:00
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -2116,15 +2116,21 @@ namespace EasyGUI
     }
     */
     //---------------------------------------------------------------------------------------------------------------------------------------------------------
-    LRESULT WINAPI WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) noexcept//消息循环(用于解决窗口未响应问题 接收窗口消息)
+    LRESULT CALLBACK WndProc(HWND Hwnd, UINT Message, WPARAM wParam, LPARAM lParam) noexcept//消息循环(用于解决窗口未响应问题 接收窗口消息)
     {
-        switch (msg)
+        switch (Message)
         {
-        case WM_ERASEBKGND:return 1; break;
-        case WM_PAINT:return 1; break;//一直重绘
+        case WM_ERASEBKGND:return true; break;
+        case WM_PAINT:return true; break;//一直重绘
         case WM_CLOSE:exit(0); break;//接收到关闭窗口事件时返回全部线程
+        case WM_MOUSEWHEEL://鼠标滚轮事件
+        {
+            const auto Delta = GET_WHEEL_DELTA_WPARAM(wParam);
+            if (Delta > 0)keybd_event(VK_UP, 0, 0, 0);
+            else if (Delta < 0)keybd_event(VK_DOWN, 0, 0, 0);
+        }break;
         }
-        return DefWindowProc(hwnd, msg, wp, lp);//定义回调函数的返回值
+        return DefWindowProc(Hwnd, Message, wParam, lParam);//定义回调函数的返回值
     }
     //---------------------------------------------------------------------------------------------------------------------------------------------------------
     /*
@@ -2397,6 +2403,7 @@ namespace EasyGUI
             if (ReverseColor)BitBlt(EasyGUI_DrawHDC, 0, 0, PaintSize.x, PaintSize.y, EasyGUI_DrawHDC, 0, 0, PATINVERT);//反转颜色
             BitBlt(EasyGUI_WindowHDC, 0, 0, PaintSize.x, PaintSize.y, EasyGUI_DrawHDC, 0, 0, SRCCOPY);//最终绘制内存中的图像
             //--------------------------------消息循环
+            In_KeyEvent(VK_UP, true); In_KeyEvent(VK_DOWN, true);//释放滚轮消息
             MSG msg = { 0 }; if (GetMessage(&msg, 0, 0, 0)) { TranslateMessage(&msg); DispatchMessage(&msg); }
             GetCursorPos(&EasyGUI_MousePos); GetWindowRect(EasyGUI_WindowHWND, &EasyGUI_WindowPos);//刷新鼠标窗口坐标
             //--------------------------------帧数计算
@@ -2491,6 +2498,7 @@ namespace EasyGUI
                         if (In_KeyEvent(VK_LBUTTON))Sleep(1);
                         else Sleep(Draw_Delay);//降低CPU占用
                     }
+                    else this_thread::sleep_for(chrono::nanoseconds(100));//纳秒休眠函数 (让滑条更加顺滑)
                     return false;
                 }
             }
@@ -2937,8 +2945,8 @@ namespace EasyGUI
                 {
                     if (In_KeyEvent(VK_LBUTTON, true))UsedColor[Color_Bl]++;
                     else if (In_KeyEvent(VK_RBUTTON, true))UsedColor[Color_Bl]--;
-                    if (In_KeyEvent(VK_LEFT, true))UsedColor[Color_Bl] += 5;
-                    else if (In_KeyEvent(VK_RIGHT, true))UsedColor[Color_Bl] -= 5;
+                    if (In_KeyEvent(VK_LEFT, true) || In_KeyEvent(VK_UP, true))UsedColor[Color_Bl] += 5;
+                    else if (In_KeyEvent(VK_RIGHT, true) || In_KeyEvent(VK_DOWN, true))UsedColor[Color_Bl] -= 5;
                 }
                 if (UsedColor[Color_Bl] >= 255)UsedColor[Color_Bl] = 255;
                 else if (UsedColor[Color_Bl] <= 0)UsedColor[Color_Bl] = 0;//范围限制
@@ -2978,8 +2986,8 @@ namespace EasyGUI
                 {
                     if (In_KeyEvent(VK_LBUTTON, true))UsedColor[Color_Bl]++;
                     else if (In_KeyEvent(VK_RBUTTON, true))UsedColor[Color_Bl]--;
-                    if (In_KeyEvent(VK_LEFT, true))UsedColor[Color_Bl] += 5;
-                    else if (In_KeyEvent(VK_RIGHT, true))UsedColor[Color_Bl] -= 5;
+                    if (In_KeyEvent(VK_LEFT, true) || In_KeyEvent(VK_UP, true))UsedColor[Color_Bl] += 5;
+                    else if (In_KeyEvent(VK_RIGHT, true) || In_KeyEvent(VK_DOWN, true))UsedColor[Color_Bl] -= 5;
                 }
                 if (UsedColor[Color_Bl] >= 255)UsedColor[Color_Bl] = 255;//范围限制
                 else if (UsedColor[Color_Bl] <= 0)UsedColor[Color_Bl] = 0;
@@ -3010,8 +3018,8 @@ namespace EasyGUI
                     else if (In_KeyEvent(VK_RBUTTON, true))UsedPos[Color_Bl] -= 0.03;
                     if (In_KeyEvent(VK_LEFT, true))UsedPos[Color_Bl] += 1;
                     else if (In_KeyEvent(VK_RIGHT, true))UsedPos[Color_Bl] -= 1;
-                    if (In_KeyEvent(VK_UP))UsedPos[Color_Bl] += 10;//快速变值
-                    else if (In_KeyEvent(VK_DOWN))UsedPos[Color_Bl] -= 10;
+                    if (In_KeyEvent(VK_UP, true))UsedPos[Color_Bl] += 10;//快速变值
+                    else if (In_KeyEvent(VK_DOWN, true))UsedPos[Color_Bl] -= 10;
                     m_PosValue = { UsedPos[0],UsedPos[1],UsedPos[2] };
                 }
                 In_DrawRect(BlockPos.x + 180 + 70 * Color_Bl, BlockPos.y - 6 + 30 * LineRow, 70, 20, { 0,0,0 });

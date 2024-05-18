@@ -7,7 +7,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	auto Module_client = CS2_MEM.Get_Module("client.dll");//模块地址: 本地
 	auto Module_engine = CS2_MEM.Get_Module("engine.dll");//模块地址: 引擎
 	auto Module_server = CS2_MEM.Get_Module("server.dll");//模块地址: 服务器
-	vector<short> Global_ValidClassID = { 0 };//有效实体
+	vector<short> Global_ValidClassID = { NULL };//有效实体
 	BOOL Global_IsShowWindow = false;//窗口显示
 	BOOL Global_TeamCheck = false;//团队过滤
 	void ExecuteCommand(string Command_Str) noexcept//发送指令到CS控制台
@@ -245,14 +245,14 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (Return_Kill)return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_iNumRoundKills);
 			else return CS2_MEM.Read<short>(Local_RoundValue + CS2_Offsets::m_unTotalRoundDamageDealt);
 		}
-		void Move_to_Angle(Variable::Vector3 Target_Angles = { 0,0,0 }, float Smooth = 40, float Offset = 0.3) noexcept//本地人物将视角移动到指定坐标
+		void Move_to_Angle(Variable::Vector3 Target_Angles = { 0,0,0 }, float Smooth = 40, float Offset = 0.25, int Traversals_Mum = 100) noexcept//本地人物将视角移动到指定坐标
 		{
-			for (int i = 0; i <= 50; ++i)
+			for (int i = 0; i <= Traversals_Mum; ++i)
 			{
 				const auto LocalPlayer_Angle = Base::ViewAngles();//本地人物朝向
 				if (hypot(LocalPlayer_Angle.x - Target_Angles.x, LocalPlayer_Angle.y - Target_Angles.y) <= Offset)return;
 				System::Mouse_Move((-Target_Angles.y + LocalPlayer_Angle.y) * Smooth, (Target_Angles.x - LocalPlayer_Angle.x) * Smooth);
-				System::Sleep_ns(500);
+				if (Traversals_Mum != 1)Sleep(1);
 			}
 		}
 		BOOL Move_to_Pos(Variable::Vector3 Target_Pos = { 0,0,0 }, float Edge = 5) noexcept//本地人物移动到指定世界坐标

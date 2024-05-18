@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-15 22:20]";//程序发布日期
-const float Rensen_Version = 3.73;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-18 22:00]";//程序发布日期
+const float Rensen_Version = 3.75;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -978,8 +978,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				static BOOL IS_LearnPlayer = false;//释放按键判断变量
 				if (UI_Spoof_LearnPlayer && System::Get_Key(UI_Spoof_LearnPlayer_Key))//模仿最近玩家
 				{
-					IS_LearnPlayer = true;
-					struct RecPla { Base::PlayerPawn Pawn = { 0 }; int Dis = 99999; }; RecPla RecentPlayer;//最近的玩家结构体变量
+					IS_LearnPlayer = true; struct RecPla { Base::PlayerPawn Pawn = { 0 }; int Dis = 99999; }; RecPla RecentPlayer;//最近的玩家结构体变量
 					for (short i = 0; i < Global_ValidClassID.size(); ++i)//遍历计算最近玩家
 					{
 						const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
@@ -989,7 +988,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					}
 					if (RecentPlayer.Dis <= 1000)//超出范围则不执行 (因为跟不上)
 					{
-						Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles(), 2);//学习玩家朝向角度
+						Advanced::Move_to_Angle(RecentPlayer.Pawn.ViewAngles(), 2, 1, 1);//学习玩家朝向角度
 						Advanced::Move_to_Pos(RecentPlayer.Pawn.Origin());//移动到玩家
 					}
 				}
@@ -1013,15 +1012,15 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 						{
 							const auto Old_Angle = Base::ViewAngles();//原始视角坐标 (要返回的坐标)
 							const auto Aim_Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), Target.BonePos(6), Global_LocalPlayer.AimPunchAngle() * 2);//计算要瞄准的目标视角坐标
-							Advanced::Move_to_Angle(Aim_Angle, 40, 0.1);//判定点范围
+							Advanced::Move_to_Angle(Aim_Angle, 40, 0.1);//将视角移动到目标位置
 							if (Global_LocalPlayer.IDEntIndex_Pawn().Pawn() == Target.Pawn())//检查是否瞄准到
 							{
 								ExecuteCommand("+attack");
 								Sleep(1);
 								ExecuteCommand("-attack");
+								Sleep(100);//防止重复冲突
 							}
-							Advanced::Move_to_Angle(Old_Angle);
-							Sleep(100);//防止重复冲突
+							Advanced::Move_to_Angle(Old_Angle);//将视角移动到出发点位置 实现fake静默XD
 						}
 					}
 				}
