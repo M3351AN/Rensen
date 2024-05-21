@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-18 22:00]";//程序发布日期
-const float Rensen_Version = 3.75;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-21 19:00]";//程序发布日期
+const float Rensen_Version = 3.77;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1621,8 +1621,8 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (!Attest) { exit(0); return 0; }//过滤未认证用户 (防止被HOOK初始化函数)
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
-		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 2;//窗体透明度动画
-		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 2;
+		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 3;//窗体透明度动画
+		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 3;
 		if (MenuWindowAlpha >= UI_Setting_MainColor.a)MenuWindowAlpha = UI_Setting_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度

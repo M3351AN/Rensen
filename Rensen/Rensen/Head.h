@@ -1,4 +1,4 @@
-﻿//2024-05-18 22:00
+﻿//2024-05-21 18:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1767,6 +1767,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     BOOL Get_Key(int VK_Code) noexcept//获取按键是否被按下（不会出现没有按下却返回true的bug）
     {//System::Get_Key(VK_INSERT);
+        if (!VK_Code)return false;//排除0
         if (GetAsyncKeyState(VK_Code) & 0x8000)return true; else return false;
     }
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -2128,7 +2129,7 @@ namespace EasyGUI
             const auto Delta = GET_WHEEL_DELTA_WPARAM(wParam);
             if (Delta > 0)keybd_event(VK_UP, 0, 0, 0);
             else if (Delta < 0)keybd_event(VK_DOWN, 0, 0, 0);
-        }break;
+        } break;
         }
         return DefWindowProc(Hwnd, Message, wParam, lParam);//定义回调函数的返回值
     }
