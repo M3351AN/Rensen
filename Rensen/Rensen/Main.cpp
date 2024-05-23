@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-21 19:00]";//程序发布日期
-const float Rensen_Version = 3.77;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-23 20:20]";//程序发布日期
+const float Rensen_Version = 3.78;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -960,6 +960,12 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 						const auto Fov = hypot(Angle.x, Angle.y);
 						if (!Angle.IsZero() && Fov <= Aim_Range) { Aim_Range = Fov; System::Mouse_Move(-Angle.y * (40 - UI_Spoof_AimbotTeam_Smooth), Angle.x * (40 - UI_Spoof_AimbotTeam_Smooth)); }
 					}
+					const auto TargetPawn = Global_LocalPlayer.IDEntIndex_Pawn();//瞄准到的人物Pawn //防止瞄准到敌人
+					if (Advanced::Check_Enemy(TargetPawn))//基础人物判断
+					{
+						const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), TargetPawn.BonePos(0), Base::ViewAngles() + Global_LocalPlayer.AimPunchAngle() * 2);
+						if (hypot(Angle.x, Angle.y) <= Aim_Range)System::Mouse_Move(Angle.y * 10, 0);
+					}
 				}
 				//--------------------------------------
 				if (UI_Spoof_IncreaseRecoil && System::Get_ValueBigger<int, class CLASS_MISC_Spoof_IncreaseRecoil_>(Global_LocalPlayer.ShotsFired()))System::Mouse_Move(0, -1 * UI_Spoof_IncreaseRecoil_Value);//加强后坐力
@@ -1180,7 +1186,7 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 			}
 			if (UI_Legit_MagnetAim && System::Is_MousePos_InMid(CS2_HWND) && !System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon() != 0)//磁吸瞄准
 			{
-				float Aim_Range = 10;
+				float Aim_Range = 8;
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
@@ -1284,6 +1290,13 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						{
 							const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6), Local_Matrix);
 							ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 15, Draw_Color.D_Alpha(150), { 0,0,0,0 }, 0.2);
+							/*
+							for (int i = 0; i <= 30; ++i)//显示所有骨骼ID
+							{
+								const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(i), Local_Matrix);
+								ESP_Paint.Render_SmpStr(Head_ScrPos.x, Head_ScrPos.y, to_string(i), { 255,0,0 });
+							}
+							*/
 						}
 					}
 					if (UI_Visual_ESP_Box)//方框

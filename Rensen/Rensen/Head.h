@@ -1,4 +1,4 @@
-﻿//2024-05-21 18:30
+﻿//2024-05-23 20:20
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1901,7 +1901,7 @@ namespace System//Windows系统
         template<class T>
         T Read(uintptr_t Address) noexcept//读取内存
         {
-            T Value = { };
+            T Value = {};
             ReadProcessMemory(HProcessID, (LPVOID)(Address), &Value, sizeof(T), 0);
             return Value;
         }
@@ -1909,7 +1909,7 @@ namespace System//Windows系统
         template<class T>
         T Write_Level(uintptr_t Address, vector<uintptr_t>Offsets, T value) noexcept//修改地址的内存(等级地址版本)
         {
-            uintptr_t F = { };
+            uintptr_t F = {};
             ReadProcessMemory(HProcessID, (LPVOID)(Address), &F, sizeof(uintptr_t), 0);
             for (short i = 0; i <= Offsets.size() - 1; ++i)ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[i - 1]), &F, sizeof(uintptr_t), 0);//计算等级
             WriteProcessMemory(HProcessID, (LPVOID)(F + Offsets[Offsets.size() - 1]), &value, sizeof(T), 0);
@@ -1919,8 +1919,8 @@ namespace System//Windows系统
         template<class T>
         T Read_Level(uintptr_t Address, vector<uintptr_t>Offsets) noexcept//获取地址的内存(等级地址版本)
         {
-            uintptr_t F = { };
-            T Returnvalue = { };
+            uintptr_t F = {};
+            T Returnvalue = {};
             ReadProcessMemory(HProcessID, (LPVOID)(Address), &F, sizeof(uintptr_t), 0);
             for (short i = 0; i <= Offsets.size() - 1; ++i)ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[i - 1]), &F, sizeof(uintptr_t), 0);//计算等级
             ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[Offsets.size() - 1]), &Returnvalue, sizeof(T), 0);
