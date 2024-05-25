@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-23 20:20]";//程序发布日期
-const float Rensen_Version = 3.78;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-25 16:40]";//程序发布日期
+const float Rensen_Version = 3.79;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1250,8 +1250,8 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);
-					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
 					static uintptr_t C4_CachePlayer = 0; if (PlayerPawn.ActiveWeaponName() == "C4")C4_CachePlayer = PlayerPawn.Pawn();//更新C4缓存人物ID (可能会有刷新偏差Bug)
+					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
 					const auto Top_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6) + Variable::Vector3{ 0, 0, 8 }, Local_Matrix);
 					const auto Entity_Position = PlayerPawn.Origin();
 					const auto Player_Distance = Variable::Coor_Dis_3D(Local_Position, Entity_Position);
