@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-26 16:20]";//程序发布日期
-const float Rensen_Version = 3.81;//程序版本
+const string Rensen_ReleaseDate = "[2024-05-27 18:50]";//程序发布日期
+const float Rensen_Version = 3.83;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -12,6 +12,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Visual_Res_1920;
 	BOOL UI_Visual_Res_1280;
 	BOOL UI_Visual_Res_960;
+	BOOL UI_Visual_Radar_Show;
 	BOOL UI_Misc_LoadCloudConfig;
 	BOOL UI_Setting_OPENLINKAuthor;
 	BOOL UI_Setting_SaveLocalConfig;
@@ -433,7 +434,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 		static int UI_Panel = 0;//大区块选择
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
-		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_Open_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
+		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_OpenState_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
 		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_CustomColor)//自定义颜色(单色)
@@ -520,7 +521,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_21>(Block_ESP, 14, "Radius", 0, 100, UI_Visual_ESP_OutFOV_Radius, "%");
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 15, "Custom color", UI_Visual_ESP_CustomColor);
 				GUI_VAR.GUI_ColorSelector(Block_ESP, 15, UI_Visual_ESP_CustomColor_Color);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_22>(Block_ESP, 16, "Draw alpha", 50, 255, UI_Visual_ESP_DrawAlpha);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_22>(Block_ESP, 16, "Draw alpha", 20, 255, UI_Visual_ESP_DrawAlpha);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_23>(Block_ESP, 17, "Draw delay", 1, 30, UI_Visual_ESP_DrawDelay, "ms");
 				const auto Block_Hitmark = GUI_VAR.GUI_Block(580, 30, 280, "Hit mark");
 				GUI_VAR.GUI_Checkbox(Block_Hitmark, 1, "Enabled", UI_Visual_HitMark);
@@ -534,6 +535,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_28>(Block_Hitmark, 8, "Range", 10, 500, UI_Visual_HitMark_KillEffect_Range);
 				const auto Block_Radar = GUI_VAR.GUI_Block(580, 330, 190, "Radar");
 				GUI_VAR.GUI_Checkbox(Block_Radar, 1, "Enabled", UI_Visual_Radar);
+				GUI_VAR.GUI_Button_Small({ Block_Radar.x + 10,Block_Radar.y }, 2, UI_Visual_Radar_Show);
 				GUI_VAR.GUI_Checkbox({ Block_Radar.x + 20,Block_Radar.y }, 2, "Follow angle", UI_Visual_Radar_FollowAngle);
 				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_29>(Block_Radar, 3, "Range", 0.2, 40, UI_Visual_Radar_Range);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_30>(Block_Radar, 4, "Size", 150, 500, UI_Visual_Radar_Size, "px");
@@ -636,7 +638,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_MainColor);
 				if (UI_Setting_MainColor.a < 100)UI_Setting_MainColor.a = 100;//限制透明度
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_51>(Block_Menu, 3, "Menu animation speed", 1.5, 5, UI_Setting_MenuAnimation);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_51>(Block_Menu, 3, "Menu animation speed", 1.2, 10, UI_Setting_MenuAnimation);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_52>(Block_Menu, 4, "Menu font size", 0, 30, UI_Setting_MenuFontSize, "px");
 				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_53>(Block_Menu, 5, UI_Setting_MenuFont, "Custom menu font");
 				GUI_VAR.GUI_Button(Block_Menu, 6, "Save local config", UI_Setting_SaveLocalConfig, 65);
@@ -800,8 +802,8 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
 				static string WaterMark_String = "";
 				short WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 4.85;
-				if (!CS2_HWND)WaterMark_String = "Rensen | CS not found | " + System::Get_UserName() + " | " + System::Time_String();
-				else { WaterMark_String = "Rensen | " + System::Get_UserName() + " | " + System::Time_String(); WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 5.2; }
+				if (!CS2_HWND)WaterMark_String = "Rensen | CS not found | " + System::Get_UserName() + " | " + "Release" + Rensen_ReleaseDate + " | " + System::Time_String();
+				else { WaterMark_String = "Rensen | " + System::Get_UserName() + " | " + "Release" + Rensen_ReleaseDate + " | " + System::Time_String(); WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 5.2; }
 				const Variable::Vector2 Watermark_Pos = { Window::Get_Resolution().x - WaterMark_String_Size - 10,10 };
 				Window_Watermark_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });
 				Window_Watermark_Render.RenderA_SolidRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size, 15, { 1,1,1,130 });
@@ -1243,7 +1245,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 		if (SpareRenderWindow.Get_HWND() != 0)SpareRenderWindow.Fix_inWhile();//当已创建窗口时进入消息循环
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//修改 Pos & Size
-		SetLayeredWindowAttributes(Rensen_ESP_RenderWindow, RGB(0, 0, 0), UI_Visual_ESP_DrawAlpha, LWA_ALPHA);//窗口透明度设置
+		SetLayeredWindowAttributes(Rensen_ESP_RenderWindow, RGB(0, 0, 0), Variable::Animation<class CLASS_PlayerESP_Alpha_Animation_>(UI_Visual_ESP_DrawAlpha, 2), LWA_ALPHA);//窗口透明度设置
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
@@ -1255,7 +1257,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);
-					static uintptr_t C4_CachePlayer = 0; if (PlayerPawn.ActiveWeaponName() == "C4")C4_CachePlayer = PlayerPawn.Pawn();//更新C4缓存人物ID (可能会有刷新偏差Bug)
+					static uintptr_t C4_CachePlayerPawn = 0; if (PlayerPawn.ActiveWeaponName() == "C4")C4_CachePlayerPawn = PlayerPawn.Pawn();//更新C4缓存人物ID (可能会有刷新偏差Bug)
 					if (!Advanced::Check_Enemy(PlayerPawn))continue;//多点检测
 					const auto Top_Pos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6) + Variable::Vector3{ 0, 0, 8 }, Local_Matrix);
 					const auto Entity_Position = PlayerPawn.Origin();
@@ -1330,7 +1332,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					{
 						auto i = 0;//Line pos
 						if (PlayerPawn.Armor()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "HK", { 200,200,200 }, { 0 }, false); ++i; }
-						if (C4_CachePlayer == PlayerPawn.Pawn()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "C4", { 255,0,0 }, { 0 }, false); ++i; }
+						if (C4_CachePlayerPawn == PlayerPawn.Pawn()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "C4", { 255,0,0 }, { 0 }, false); ++i; }
 						if (PlayerPawn.Scoped() && PlayerPawn.ActiveWeapon(true) == 3) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "ZOOM", { 0,120,255 }, { 0 }, false); ++i; }
 						if (PlayerPawn.Spotted()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "HIT", { 200,200,200 }, { 0 }, false); ++i; }
 						if (PlayerPawn.ShotsFired() > 0) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "SHOT", { 200,200,200 }, { 0 }, false); ++i; }
@@ -1538,13 +1540,13 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 	{
 		Sleep(5);//降低CPU占用
 		Radar_Window.Set_WindowTitle(System::Rand_String(10));//随机雷达窗口标题
-		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2.5);
+		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2);
 		if ((Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
 		{
 			Radar_Size_ = UI_Visual_Radar_Size; UI_Visual_Radar_Pos = Radar_Window.Get_WindowPos();
 			if (!Radar_Window.Window_Move(15))//移动雷达窗口
 			{
-				const float RadarRangeAnimation = Variable::Animation<class Class_Radar_Window_Range>(UI_Visual_Radar_Range, 2.5);//窗口动画
+				const float RadarRangeAnimation = Variable::Animation<class Class_Radar_Window_Range>(UI_Visual_Radar_Range, 2);//窗口动画
 				const auto LocalPlayerPos = Global_LocalPlayer.Origin(); const auto ViewAngle = Base::ViewAngles();
 				Radar_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//背景
 				if (UI_Visual_Radar_FollowAngle)Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });
@@ -1572,8 +1574,9 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 			}
 		}
 		else Radar_Size_ = 0;
+		if (UI_Visual_Radar_Show)Radar_Window.Show_Window();//修复窗口不显示BUG
 		Radar_Window.Set_WindowSize(RadarSizeAnimation, RadarSizeAnimation + 15);//雷达大小
-		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2.5));//雷达透明度
+		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2));//雷达透明度
 		Radar_Window.Fix_inWhile();//窗口消息循环
 	}
 }
@@ -1604,8 +1607,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 {
 	System::Anti_Debugger("Debugging is disabled after compilation is completed.");//防止逆向破解
-	BOOL Attest = false;//认证变量
-	System::URL_READ UserID_READ = { "Cache_UserID" };
+	System::URL_READ UserID_READ = { "Cache_UserID" }; BOOL Attest = false;//认证变量
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
@@ -1615,7 +1617,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	}
 	if (!Attest) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
 	//----------------------------------------------------------------------------------------------------------------------------------
-	Beep(100, 50);//开启音效
+	Beep(50, 50);//开启音效
 	System::Anti_click();//控制台不被暂停
 	Window::Hide_ConsoleWindow();//隐藏控制台
 	Window::Initialization_ConsoleWindow();//初始化控制台窗口 (初始化窗口大小, 清除字符)
@@ -1638,10 +1640,10 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	while (true)//菜单动画和关闭快捷键
 	{
 		if (!Attest) { exit(0); return 0; }//过滤未认证用户 (防止被HOOK初始化函数)
-		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(100, 30); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
+		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(50, 50); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
 		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 3;//窗体透明度动画
-		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 3;
+		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 1.5;
 		if (MenuWindowAlpha >= UI_Setting_MainColor.a)MenuWindowAlpha = UI_Setting_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
