@@ -1,6 +1,6 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-27 18:50]";//程序发布日期
+const string Rensen_ReleaseDate = "[2024-05-27 18:55]";//程序发布日期
 const float Rensen_Version = 3.83;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
@@ -822,7 +822,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		}
 		else Window_Watermark.Set_WindowPos(99999, 99999);//将窗口移至边界外来代替隐藏窗口
 		//----------------------------------------------------------------------------------------------------------------------------------------
-		static auto NightMode_Alpha = 0; const auto NightMode_Alpha_Ani = Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(NightMode_Alpha, 8);//夜晚模式透明度动画
+		static auto NightMode_Alpha = 0; const auto NightMode_Alpha_Ani = Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(NightMode_Alpha, 5);//夜晚模式透明度动画
 		if (UI_Misc_NightMode && (Global_IsShowWindow || Menu_Open))
 		{
 			Variable::Vector4 BackGround_Color = { 0,0,10 }; if (Menu_Open)BackGround_Color = GUI_IO.GUIColor / 10;//菜单外部背景色
