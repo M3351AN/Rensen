@@ -225,7 +225,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			else return CS2_MEM.Read_str(PlayerController + CS2_Offsets::m_iszPlayerName);
 		}
 		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber()) && PlayerPawn.TeamNumber() != 1); }//判断人物是否是敌人
-		BOOL Stop_Move(short TriggerValue = 50, BOOL Movement = true) noexcept//急停
+		BOOL Stop_Move(short TriggerValue = 70, BOOL Movement = true) noexcept//急停
 		{
 			const auto LocalVel = Global_LocalPlayer.Velocity();
 			if (hypot(LocalVel.x, LocalVel.y) <= TriggerValue)return true;//当精准则返回真

@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-05-30 20:40]";//程序发布日期
-const float Rensen_Version = 3.85;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-01 00:00]";//程序发布日期
+const float Rensen_Version = 3.87;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -453,7 +453,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
 		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_OpenState_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
-		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
+		if (!GUI_VAR.Window_Move(3) && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_CustomColor)//自定义颜色(单色)
 			{
@@ -1084,25 +1084,25 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 			{
 				if (UI_Legit_Armory_BodyAim_PISTOL)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_PISTOL / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_PISTOL;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_PISTOL - 2;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 2)//步枪
 			{
 				if (UI_Legit_Armory_BodyAim_RIFLE)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_RIFLE / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_RIFLE;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_RIFLE - 2;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 3)//狙击枪
 			{
 				if (UI_Legit_Armory_BodyAim_SNIPER)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_SNIPER / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SNIPER;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SNIPER - 2;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 4)//霰弹枪
 			{
 				if (UI_Legit_Armory_BodyAim_SHOTGUN)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_SHOTGUN / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SHOTGUN;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SHOTGUN - 2;
 			}
 			else continue;//如果是无效的武器则重新来过(刀,道具,电击枪等)
 			if (Aim_Range == 0)continue;//范围为0时则重新来过
@@ -1126,7 +1126,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 				const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
 				if (!Advanced::Check_Enemy(PlayerPawn) || (UI_Legit_Aimbot_TriggerOnAim && !CrosshairId) || ((UI_Legit_Aimbot_JudgingWall || SpottedPlayer_Quantity) && !PlayerPawn.Spotted()))continue;
 				if (LocalPlayer_ActiveWeapon_Type == 4 && Variable::Coor_Dis_3D(PlayerPawn.Origin(), Global_LocalPlayer.Origin()) > UI_Legit_Armory_TriggerDistance_SHOTGUN)continue;//霰弹枪最大触发范围
-				if (UI_Legit_Armory_HitSiteParser && PlayerPawn.Health() <= 20)Aim_Parts = 4;//部位解析器
+				if (UI_Legit_Armory_HitSiteParser && PlayerPawn.Health() <= 20)Aim_Parts = 4;//部位解析器 (粗制滥造)
 				const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(Aim_Parts), Recoil_Angle);//最终瞄准角度
 				const auto FovG = hypot(Angle.x, Angle.y);//圆圈范围计算
 				if (!Angle.IsZero() && FovG <= Aim_Range)//范围判断
@@ -1134,7 +1134,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 					Aim_Range = FovG - 2;//防止锁住两个或多个人
 					if (Global_LocalPlayer.Scoped() && LocalPlayer_ActiveWeapon_Type == 3)System::Mouse_Move(-Angle.y * Aim_Smooth * 3.5, Angle.x * Aim_Smooth * 3.5);//加快开镜时灵敏度
 					else System::Mouse_Move(-Angle.y * Aim_Smooth, Angle.x * Aim_Smooth);
-					if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || Advanced::Stop_Move()) && FovG <= 1.5)//AutoShoot & AutoStop
+					if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || LocalPlayer_ActiveWeapon_Type == 4 || Advanced::Stop_Move()) && FovG <= 1.8)//AutoShoot & AutoStop
 					{
 						if (LocalPlayer_ActiveWeapon_Type == 3 && LocalPlayer_ActiveWeapon_ID != 11 && LocalPlayer_ActiveWeapon_ID != 38)System::Key_Con(UI_Legit_Aimbot_Key, false);//单发狙击枪射击后释放触发按键
 						if (UI_Legit_Aimbot_AutoScope && LocalPlayer_ActiveWeapon_Type == 3 && !Global_LocalPlayer.Scoped())//自动开镜
@@ -1149,7 +1149,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 						else Sleep(1);
 						ExecuteCommand("-attack");
 						if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1) { System::Mouse_Con(2, false); Sleep(1); System::Key_Con(2, true); }//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
-						Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
+						if (Global_LocalPlayer.ShotsFired() != 0)Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
 					}
 				}
 			}
@@ -1606,7 +1606,11 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 			}
 		}
 		else Radar_Size_ = 0;
-		if (UI_Visual_Radar_Show)Radar_Window.Show_Window();//修复窗口不显示BUG
+		if (UI_Visual_Radar_Show)//修复窗口不显示BUG
+		{
+			Radar_Window.Show_Window();
+			Window::Set_Topmost_Status(Radar_Window.Get_HWND(), true);
+		}
 		Radar_Window.Set_WindowSize(RadarSizeAnimation, RadarSizeAnimation + 15);//雷达大小
 		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2));//雷达透明度
 		Radar_Window.Fix_inWhile();//窗口消息循环
@@ -1674,8 +1678,8 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (!Attest) { exit(0); return 0; }//过滤未认证用户 (防止被HOOK初始化函数)
 		if (System::Get_Key(VK_INSERT) && System::Get_Key(VK_DELETE)) { Beep(50, 50); Window::NVIDIA_Overlay(); exit(0); }//快速关闭键 (防止卡线程)
 		static short MenuWindowAlpha = 0;
-		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 3;//窗体透明度动画
-		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 1.5;
+		if (Menu_Open)MenuWindowAlpha = MenuWindowAlpha + UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 2.5;//窗体透明度动画
+		else MenuWindowAlpha = MenuWindowAlpha - UI_Setting_MainColor.a / UI_Setting_MenuAnimation / 1.25;
 		if (MenuWindowAlpha >= UI_Setting_MainColor.a)MenuWindowAlpha = UI_Setting_MainColor.a;
 		else if (MenuWindowAlpha <= 0)MenuWindowAlpha = 0;
 		GUI_VAR.Window_SetAlpha(MenuWindowAlpha);//修改菜单透明度
