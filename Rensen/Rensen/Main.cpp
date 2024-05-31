@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-01 00:00]";//程序发布日期
-const float Rensen_Version = 3.87;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-01 00:20]";//程序发布日期
+const float Rensen_Version = 3.88;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1499,6 +1499,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			if (Menu_Open)Sleep(50);//节省CPU性能 (可有可无)
 			auto Draw_Color = GUI_IO.GUIColor; if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
 			MoveWindow(Render_Window_HWND, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//Pos & Size
+			RenderWindow.Set_WindowAttributes({ 0,0,0 }, Variable::Animation<class CLASS_EntityESP_Alpha_Animation_>(UI_Visual_ESP_DrawAlpha, 2));//窗口透明度设置
 			const auto Entitylist = Base::EntityList(); const auto Local_Origin = Global_LocalPlayer.Origin(); const auto Local_ViewMatrix = Base::ViewMatrix();
 			static vector<short> Class_ID = {};//有效实体ID
 			if (System::Sleep_Tick<class CLASS_Drops_ESP_Reload_ClassID_>(500))//特殊算法为了提高绘制效率

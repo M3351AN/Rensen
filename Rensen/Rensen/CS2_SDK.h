@@ -207,7 +207,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		Variable::Vector3 ViewAngles() noexcept { return CS2_MEM.Read<Variable::Vector3>(Module_client + CS2_Offsets::dwViewAngles); }//本地人物朝向
 		Variable::view_matrix_t ViewMatrix() noexcept { return CS2_MEM.Read<Variable::view_matrix_t>(Module_client + CS2_Offsets::dwViewMatrix); }//本地人物视觉矩阵(用于制作ESP)
 	}
-	Base::PlayerPawn Global_LocalPlayer = 0;//本地人物地址
+	Base::PlayerPawn Global_LocalPlayer = NULL;//本地人物地址
 	namespace Advanced//进阶内存扩展函数
 	{
 		Base::PlayerPawn Traverse_Player(short i, BOOL ReturnPlayerController = false) noexcept//遍历人物Pawn
