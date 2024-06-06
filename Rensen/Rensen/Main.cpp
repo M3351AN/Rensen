@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-01 00:20]";//程序发布日期
-const float Rensen_Version = 3.88;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-06 18:10]";//程序发布日期
+const float Rensen_Version = 3.90;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -453,7 +453,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
 		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_OpenState_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
-		if (!GUI_VAR.Window_Move(3) && Menu_Open)//不在移动窗口时绘制GUI
+		if (!GUI_VAR.Window_Move(5) && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_CustomColor)//自定义颜色(单色)
 			{
@@ -821,7 +821,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);//水印窗口默认坐标
-			if (System::Sleep_Tick<class CLASS_WaterMark_WindowReload_Delay_>(100))//降低CPU占用
+			if (System::Sleep_Tick<class CLASS_WaterMark_WindowReload_Delay_>(500))//降低CPU占用
 			{
 				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
 				static string WaterMark_String = "";
@@ -1073,9 +1073,9 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 	System::Log("Load Thread: Thread_Funtion_Aimbot()");
 	while (true)
 	{
-		System::Sleep_ns(500);//比Sleep更快的函数为了更加自然平滑
-		if (Global_IsShowWindow && UI_Legit_Aimbot && System::Get_Key(UI_Legit_Aimbot_Key) && Global_LocalPlayer.Health())
+		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Aimbot && System::Get_Key(UI_Legit_Aimbot_Key))
 		{
+			System::Sleep_ns(800);//比Sleep更快的函数为了更加自然平滑
 			static short Aim_Range, Aim_Parts; static float Aim_Smooth;//瞄准范围,瞄准部位,瞄准平滑度
 			BOOL SpottedPlayer_Quantity = false;//是否有实体暴露 (用于优先瞄准暴露的实体)
 			const auto LocalPlayer_ActiveWeapon_ID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
@@ -1162,9 +1162,9 @@ void Thread_Funtion_AdaptiveAimbot() noexcept//功能线程: 生物瞄准机器�
 	System::Log("Load Thread: Thread_Funtion_AdaptiveAimbot()");
 	while (true)
 	{
-		System::Sleep_ns(5000);//比Sleep更快的函数为了更加自然平滑
-		if (Global_IsShowWindow && UI_Legit_AdaptiveAimbot && System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.Health() && Global_LocalPlayer.ActiveWeapon(true) == 2)//当CS窗口在最前端 && 本地人物活着 && 按键按下 && 步枪
+		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_AdaptiveAimbot && System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon(true) == 2)//当CS窗口在最前端 && 本地人物活着 && 按键按下 && 步枪
 		{
+			System::Sleep_ns(5000);//比Sleep更快的函数为了更加自然平滑
 			float Aim_Range = 3; int Aim_Bone = 6; const auto PunchAngle = Global_LocalPlayer.AimPunchAngle();
 			if (abs(PunchAngle.x) * 2 >= Aim_Range)Aim_Range = abs(PunchAngle.x) * 1.5;//计算开枪之后附加后坐力的范围
 			for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
@@ -1190,7 +1190,7 @@ void Thread_Funtion_Triggerbot() noexcept//功能线程: 自动扳机
 	System::Log("Load Thread: Thread_Funtion_Triggerbot()");
 	while (true)
 	{
-		if (Global_IsShowWindow && UI_Legit_Triggerbot && System::Get_Key(UI_Legit_Triggerbot_Key) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着 && 按键按下
+		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Triggerbot && System::Get_Key(UI_Legit_Triggerbot_Key))//当CS窗口在最前端 && 本地人物活着 && 按键按下
 		{
 			System::Sleep_ns(1000);//纳秒级延时
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器序号
@@ -1223,6 +1223,7 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 			}
 			if (UI_Legit_MagnetAim && System::Is_MousePos_InMid(CS2_HWND) && !System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon() != 0)//磁吸瞄准
 			{
+				Sleep(1);//降低CPU占用
 				float Aim_Range = UI_Legit_MagnetAim_Range / 5;//瞄准范围
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
 				{
@@ -1242,7 +1243,7 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 	System::Log("Load Thread: Thread_Funtion_RemoveRecoil()");
 	while (true)
 	{
-		if (Global_IsShowWindow && UI_Legit_RemoveRecoil && Global_LocalPlayer.Health())//移除后坐力
+		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_RemoveRecoil)//移除后坐力
 		{
 			Sleep(1);
 			static auto OldPunch = Variable::Vector3{};
@@ -1273,13 +1274,14 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 	while (true)
 	{
 		Sleep(UI_Visual_ESP_DrawDelay);//降低CPU占用
-		if (SpareRenderWindow.Get_HWND() != 0)SpareRenderWindow.Fix_inWhile();//当已创建窗口时进入消息循环
+		if (SpareRenderWindow.Get_HWND())SpareRenderWindow.Fix_inWhile();//当已创建窗口时进入消息循环
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//修改 Pos & Size
 		SetLayeredWindowAttributes(Rensen_ESP_RenderWindow, RGB(0, 0, 0), Variable::Animation<class CLASS_PlayerESP_Alpha_Animation_>(UI_Visual_ESP_DrawAlpha, 2), LWA_ALPHA);//窗口透明度设置
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
+			Window::Set_Topmost_Status(Rensen_ESP_RenderWindow, Global_IsShowWindow);//修改窗口为最前端窗口 (覆盖一切的!!!)
 			if (UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)))//ESP 透视
 			{
 				auto Draw_Color = GUI_IO.GUIColor;
@@ -1478,7 +1480,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 		}
 		else Sleep(20);
 		ESP_Paint.DrawPaint();//最终绘制画板
-		if (CS2_HWND && Menu_Open)Sleep(10);//菜单打开时降低绘制速度以降低CPU使用率
+		if (CS2_HWND && Menu_Open)Sleep(20);//菜单打开时降低绘制速度以降低CPU使用率
 	}
 }
 void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
@@ -1502,7 +1504,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			RenderWindow.Set_WindowAttributes({ 0,0,0 }, Variable::Animation<class CLASS_EntityESP_Alpha_Animation_>(UI_Visual_ESP_DrawAlpha, 2));//窗口透明度设置
 			const auto Entitylist = Base::EntityList(); const auto Local_Origin = Global_LocalPlayer.Origin(); const auto Local_ViewMatrix = Base::ViewMatrix();
 			static vector<short> Class_ID = {};//有效实体ID
-			if (System::Sleep_Tick<class CLASS_Drops_ESP_Reload_ClassID_>(500))//特殊算法为了提高绘制效率
+			if (System::Sleep_Tick<class CLASS_Drops_ESP_Reload_ClassID_>(600))//特殊算法为了提高绘制效率
 			{
 				short Show_Quantity = 0;//计算绘制的实体数量
 				Class_ID = {};//刷新有效实体ID
@@ -1622,7 +1624,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 	System::Log("Load Thread: Thread_Funtion_Sonar()");
 	while (true)
 	{
-		Sleep(1);
+		Sleep(5);
 		if (Global_IsShowWindow && UI_Misc_Sonar && (UI_Misc_Sonar_Key == 0 || System::Get_Key(UI_Misc_Sonar_Key)) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
 			const auto Local_Pos = Global_LocalPlayer.Origin();//本地人物坐标

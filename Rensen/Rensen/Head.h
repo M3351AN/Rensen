@@ -1,4 +1,4 @@
-﻿//2024-06-01 00:20
+﻿//2024-06-06 18:10
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -421,7 +421,7 @@ namespace Window//窗口
             if (wcscmp(entrys.szExeFile, wstring(processName.begin(), processName.end()).c_str()) == 0)
             {
                 processId = entrys.th32ProcessID;
-                OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);//开通权限
+                OpenProcess(PROCESS_ALL_ACCESS, 0, processId);//开通权限
                 break;
             }
         }
@@ -454,7 +454,7 @@ namespace Window//窗口
             if (wcscmp(entrys.szExeFile, wstring(processName.begin(), processName.end()).c_str()) == 0)
             {
                 processId = entrys.th32ProcessID;
-                OpenProcess(PROCESS_ALL_ACCESS, FALSE, processId);//开通权限
+                OpenProcess(PROCESS_ALL_ACCESS, 0, processId);//开通权限
                 break;
             }
         }
@@ -487,7 +487,7 @@ namespace Window//窗口
     void Kill_Window(HWND Window_HWND) noexcept//关闭指定窗口
     {//Window::Kill_Window(FindWindowA(NULL, "Test Windows"));
         DWORD ProcessID; GetWindowThreadProcessId(Window_HWND, &ProcessID);
-        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, ProcessID);
+        HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, ProcessID);
         TerminateProcess(hProcess, 0); CloseHandle(hProcess);
     }
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -521,8 +521,8 @@ namespace Window//窗口
     {
         switch (msg)
         {
-        case WM_ERASEBKGND: return TRUE; break;
-        case WM_PAINT: return TRUE; break;
+        case WM_ERASEBKGND: return true; break;
+        case WM_PAINT: return true; break;
         case WM_CLOSE: exit(0); break;
         }
         return DefWindowProcW(hwnd, msg, wp, lp);//定义回调函数的返回值
@@ -530,7 +530,7 @@ namespace Window//窗口
     class Windows//更加方便的 窗口创建
     {
     private:
-        HWND Window_Hwnd = NULL;//GUI Window HWND
+        HWND Window_Hwnd = 0;//GUI Window HWND
         int BKX = 0; int BKY = 0;
     public:
         //----------------------------------------------------------------------------------------
@@ -544,11 +544,11 @@ namespace Window//窗口
             RenderWindowM.lpfnWndProc = Window_Process_Loop;//关联消息处理函数,告诉操作系统，如果有事件发生调用这个函数
             RenderWindowM.cbClsExtra = 0;
             RenderWindowM.cbWndExtra = 0;
-            RenderWindowM.hInstance = GetModuleHandle(NULL);//实例句柄
-            RenderWindowM.hIcon = LoadIcon(NULL, IDI_SHIELD);//图标
-            RenderWindowM.hCursor = LoadCursor(NULL, IDC_ARROW);//光标样式
+            RenderWindowM.hInstance = GetModuleHandle(0);//实例句柄
+            RenderWindowM.hIcon = LoadIcon(0, IDI_SHIELD);//图标
+            RenderWindowM.hCursor = LoadCursor(0, IDC_ARROW);//光标样式
             RenderWindowM.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);//画刷
-            RenderWindowM.lpszMenuName = NULL;
+            RenderWindowM.lpszMenuName = 0;
             RenderWindowM.lpszClassName = wstring(WindowName.begin(), WindowName.end()).c_str();//窗口类的名称，操作系统根据类的名称做映射
             RegisterClass(&RenderWindowM);//将这个窗体注册（告诉）到操作系统
             const HWND hWnd = CreateWindowEx(//创建窗口
@@ -562,7 +562,7 @@ namespace Window//窗口
                 , Size_Y
                 , hWndParent//父窗口
                 , 0//系统菜单
-                , GetModuleHandle(NULL)
+                , GetModuleHandle(0)
                 , 0//用户数据
             );
             if (hWnd)//更新显示
@@ -585,11 +585,11 @@ namespace Window//窗口
             RenderWindowM.lpfnWndProc = Window_Process_Loop;
             RenderWindowM.cbClsExtra = 0;
             RenderWindowM.cbWndExtra = 0;
-            RenderWindowM.hInstance = GetModuleHandle(NULL);
-            RenderWindowM.hIcon = LoadIcon(NULL, IDI_SHIELD);
-            RenderWindowM.hCursor = LoadCursor(NULL, IDC_ARROW);
+            RenderWindowM.hInstance = GetModuleHandle(0);
+            RenderWindowM.hIcon = LoadIcon(0, IDI_SHIELD);
+            RenderWindowM.hCursor = LoadCursor(0, IDC_ARROW);
             RenderWindowM.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-            RenderWindowM.lpszMenuName = NULL;
+            RenderWindowM.lpszMenuName = 0;
             RenderWindowM.lpszClassName = wstring(WindowName.begin(), WindowName.end()).c_str();
             RegisterClass(&RenderWindowM);
             const HWND hWnd = CreateWindowEx((WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW), wstring(WindowName.begin(), WindowName.end()).c_str(), wstring(WindowName.begin(), WindowName.end()).c_str(), WS_POPUP, 0, 0, Size_X, Size_Y, hWndParent, 0, GetModuleHandle(NULL), 0);
@@ -598,7 +598,7 @@ namespace Window//窗口
                 DWM_BLURBEHIND bb = { 0 };
                 bb.dwFlags = DWM_BB_ENABLE | DWM_BB_BLURREGION;
                 bb.hRgnBlur = CreateRectRgn(0, 0, -1, -1);
-                bb.fEnable = TRUE;
+                bb.fEnable = true;
                 DwmEnableBlurBehindWindow(hWnd, &bb);
                 UpdateWindow(hWnd);
                 ShowWindow(hWnd, SW_SHOW);
@@ -618,11 +618,11 @@ namespace Window//窗口
             RenderWindowM.lpfnWndProc = Window_Process_Loop;
             RenderWindowM.cbClsExtra = 0;
             RenderWindowM.cbWndExtra = 0;
-            RenderWindowM.hInstance = GetModuleHandle(NULL);
-            RenderWindowM.hIcon = LoadIcon(NULL, IDI_SHIELD);
-            RenderWindowM.hCursor = LoadCursor(NULL, IDC_ARROW);
+            RenderWindowM.hInstance = GetModuleHandle(0);
+            RenderWindowM.hIcon = LoadIcon(0, IDI_SHIELD);
+            RenderWindowM.hCursor = LoadCursor(0, IDC_ARROW);
             RenderWindowM.hbrBackground = (HBRUSH)GetStockObject(NULL_BRUSH);
-            RenderWindowM.lpszMenuName = NULL;
+            RenderWindowM.lpszMenuName = 0;
             RenderWindowM.lpszClassName = wstring(WindowName.begin(), WindowName.end()).c_str();
             RegisterClass(&RenderWindowM);
             const HWND hWnd = CreateWindowEx((WS_EX_TOPMOST | WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_TOOLWINDOW), wstring(WindowName.begin(), WindowName.end()).c_str(), wstring(WindowName.begin(), WindowName.end()).c_str(), WS_POPUP, 0, 0, Size_X, Size_Y, hWndParent, 0, GetModuleHandle(NULL), 0);
@@ -685,7 +685,7 @@ namespace Window//窗口
             GetWindowRect(Window_Hwnd, &Windowrect);
             BKX = Windowrect.right - Windowrect.left;
             BKY = Windowrect.bottom - Windowrect.top;
-            MoveWindow(Window_Hwnd, Windowrect.left, Windowrect.top, XX, YY, TRUE);
+            MoveWindow(Window_Hwnd, Windowrect.left, Windowrect.top, XX, YY, true);
         }
         //----------------------------------------------------------------------------------------
         string Get_WindowTitle() noexcept//获取窗口标题
@@ -749,12 +749,12 @@ namespace Window//窗口
                         OldY = (MousePos.y - Windowrect.top);
                         保存鼠标坐标 = false;
                     }
-                    MoveWindow(Window_Hwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);//移动窗口到鼠标坐标
+                    MoveWindow(Window_Hwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, true);//移动窗口到鼠标坐标
                     防止脱离 = true;
                 }
                 else if (防止脱离 && GetAsyncKeyState(VK_LBUTTON))
                 {
-                    MoveWindow(Window_Hwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, TRUE);//移动窗口到鼠标坐标
+                    MoveWindow(Window_Hwnd, MousePos.x - OldX, MousePos.y - OldY, Windowrect.right - Windowrect.left, Windowrect.bottom - Windowrect.top, true);//移动窗口到鼠标坐标
                     return true;
                 }
                 else {
@@ -782,7 +782,7 @@ namespace Window//窗口
     HWND Get_PIDtoHWND(DWORD dwProcessID) noexcept//通过pid获取窗口句柄
     {//Window::Get_PIDtoHWND(8102);
         HWND h = GetTopWindow(0);
-        HWND retHwnd = NULL;
+        HWND retHwnd = 0;
         while (h)
         {
             DWORD pid = 0;
@@ -926,7 +926,7 @@ namespace Window//窗口
             if (AntiAlias)HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintAntiAlias);//抗锯齿 https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-textrenderinghint
             else HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintSingleBitPerPixelGridFit);
             Gdiplus::Font font(&fontFamily, FontSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);//字体状况(大小or斜体) https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-fontstyle
-            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, NULL, 0);//转码 UTF-8 (为了显示中文)
+            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, 0, 0);//转码 UTF-8 (为了显示中文)
             wchar_t* wide_text = new wchar_t[len];
             MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);//转码 UTF-8 (为了显示中文)
             Gdiplus::SolidBrush Brush_Shadow(Gdiplus::Color(Color.a / 1.5, 0, 0, 0));//阴影颜色
@@ -944,7 +944,7 @@ namespace Window//窗口
             if (AntiAlias)HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintAntiAlias);//抗锯齿 https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-textrenderinghint
             else HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintSingleBitPerPixelGridFit);
             Gdiplus::Font font(&fontFamily, FontSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);//字体状况(大小or斜体) https://learn.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-fontstyle
-            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, NULL, 0);//转码 UTF-8 (为了显示中文)
+            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, 0, 0);//转码 UTF-8 (为了显示中文)
             wchar_t* wide_text = new wchar_t[len];
             MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);//转码 UTF-8 (为了显示中文)
             Gdiplus::SolidBrush Brush_Shadow(Gdiplus::Color(Color_1.a / 1.5, 0, 0, 0));//阴影颜色
@@ -1008,7 +1008,7 @@ namespace Window//窗口
             const HDC HMS = hMenDC;
             auto Font_Style = DEFAULT_QUALITY;
             if (AntiAlias)Font_Style = NONANTIALIASED_QUALITY;
-            const HGDIOBJ FontPen = SelectObject(HMS, CreateFont(FontSize, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, Font_Style, FF_DONTCARE, wstring(FontName.begin(), FontName.end()).c_str()));
+            const HGDIOBJ FontPen = SelectObject(HMS, CreateFont(FontSize, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, Font_Style, FF_DONTCARE, wstring(FontName.begin(), FontName.end()).c_str()));
             SetTextColor(HMS, RGB(Color.r, Color.g, Color.b));//文字颜色
             SetBkMode(HMS, TRANSPARENT);//背景透明
             TextOutA(HMS, X, Y, String.c_str(), strlen(String.c_str()));
@@ -1123,7 +1123,7 @@ namespace Window//窗口
         void Render_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 }, BOOL Frame = true) noexcept//文字绘制(简单样式)(不包含Alpha)
         {
             const HDC Hdc = hMenDC;
-            const HGDIOBJ FontPen = SelectObject(Hdc, CreateFont(9, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, L"Small Fonts"));
+            const HGDIOBJ FontPen = SelectObject(Hdc, CreateFont(9, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, L"Small Fonts"));
             SetBkMode(Hdc, TRANSPARENT);//背景透明
             if (Frame)
             {
@@ -1280,7 +1280,7 @@ namespace Window//窗口
             ID2D1SolidColorBrush* Brush; IDWriteFactory* WriteFactory; IDWriteTextFormat* TextFormat;
             DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(WriteFactory), reinterpret_cast<IUnknown**>(&WriteFactory));
             WriteFactory->CreateTextFormat(wstring(FontName.begin(), FontName.end()).c_str(), 0, DWRITE_FONT_WEIGHT_NORMAL, DWRITE_FONT_STYLE_NORMAL, DWRITE_FONT_STRETCH_NORMAL, FontSize, L"", &TextFormat);
-            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, NULL, 0);
+            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, 0, 0);
             wchar_t* wide_text = new wchar_t[len];
             MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);
             Render_Target->CreateSolidColorBrush(D2D1::ColorF(0, 0, 0, Color.a / 255 / 2), &Brush);
@@ -1328,7 +1328,7 @@ namespace Window//窗口
         DwmExtendFrameIntoClientArea(Window_HWND, &margin);
         SetLayeredWindowAttributes(Window_HWND, RGB(0, 0, 0), 255, LWA_ALPHA);
         SetWindowPos(Window_HWND, HWND_TOPMOST, 0, 0, InitialSize.x, InitialSize.y, 0x0002 | 0x0001);
-        MoveWindow(Window_HWND, 0, 0, InitialSize.x, InitialSize.y, TRUE);
+        MoveWindow(Window_HWND, 0, 0, InitialSize.x, InitialSize.y, true);
         ShowWindow(Window_HWND, SW_SHOW);
         return Window_HWND;
     }
@@ -2298,8 +2298,8 @@ namespace EasyGUI
             if (String == "" || Fount_Size == 0)return;
             if (Fount_Size > 15)Y -= Fount_Size / 3;//平衡上下坐标
             HGDIOBJ FontPen;
-            if (AntiAlias)FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
-            else FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
+            if (AntiAlias)FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
+            else FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(Fount_Size, 0, 0, 0, Font_Width, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, Fount_Name.c_str()));
             SetTextColor(EasyGUI_DrawHDC, RGB(TextColor.r, TextColor.g, TextColor.b));//文字颜色
             SetBkMode(EasyGUI_DrawHDC, TRANSPARENT);//背景透明
             if (String.find("UTT") != string::npos)//不转换UTF-8
@@ -2309,7 +2309,7 @@ namespace EasyGUI
                 DeleteObject(FontPen);
             }
             else {//转换UTF-8
-                const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, NULL, 0);//转码 UTF-8 (为了显示中文)
+                const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, 0, 0);//转码 UTF-8 (为了显示中文)
                 wchar_t* wide_text = new wchar_t[len];
                 MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);//转码 UTF-8 (为了显示中文)
                 TextOutW(EasyGUI_DrawHDC, X, Y, wide_text, len - 1);
@@ -2321,7 +2321,7 @@ namespace EasyGUI
         void In_DrawString_Simple(int X, int Y, string String, Vector4 TextColor = { 255,255,255 }) noexcept//绘制简单文字
         {
             if (String == "")return;
-            HGDIOBJ FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(12, 0, 0, 0, FW_NORMAL, FALSE, FALSE, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, "Small Fonts"));
+            HGDIOBJ FontPen = SelectObject(EasyGUI_DrawHDC, CreateFontA(12, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, "Small Fonts"));
             SetBkMode(EasyGUI_DrawHDC, TRANSPARENT);//背景透明
             SetTextColor(EasyGUI_DrawHDC, RGB(0, 0, 0));//文字颜色
             TextOutA(EasyGUI_DrawHDC, X + 1, Y + 1, String.c_str(), strlen(String.c_str()));
