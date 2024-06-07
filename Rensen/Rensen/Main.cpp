@@ -1,17 +1,14 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-06 18:10]";//程序发布日期
-const float Rensen_Version = 3.90;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-07 17:30]";//程序发布日期
+const float Rensen_Version = 3.91;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
 	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n500\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n4\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n\n13\n0\n1\n9\n1\n255\n0\n100\n0\n400\n40\n250\n";//默认参数
 	//----------------------------------------------------------------------------------------------
-	BOOL UI_Visual_Res_2560;
-	BOOL UI_Visual_Res_1920;
-	BOOL UI_Visual_Res_1280;
-	BOOL UI_Visual_Res_960;
+	BOOL UI_Visual_Res_2560, UI_Visual_Res_1920, UI_Visual_Res_1280, UI_Visual_Res_960;
 	BOOL UI_Visual_Radar_Show;
 	BOOL UI_Misc_LoadCloudConfig;
 	BOOL UI_Setting_OPENLINKAuthor;
@@ -294,7 +291,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Legit_Backtracking_MinimumTime) + "\n"
 		);
 	}
-	void LoadCloudConfig(string FileName, string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
+	void LoadCloudConfig(string FileName = "", string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
 	{
 		System::URL_READ URL_CONFIG = { "Cache_CloudConfig" };
 		if (URL_CONFIG.StoreMem(NormalURL + FileName + (string)".cfg?raw=true"))
@@ -609,7 +606,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button(Block_CloudConfig, 1, "Load config", UI_Misc_LoadCloudConfig, 80);
 				GUI_VAR.GUI_List(Block_CloudConfig, 2, { "Legit","Rage","Legit - no visual" }, UI_Misc_SelectedConfig);
 				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 370, "Spoof");
-				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });//恶搞功能总开关
+				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
 				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_49>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
@@ -661,7 +658,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_55>(Block_Menu, 1, UI_Setting_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_MainColor);
-				if (UI_Setting_MainColor.a < 100)UI_Setting_MainColor.a = 100;//限制透明度
+				if (UI_Setting_MainColor.a < 100)UI_Setting_MainColor.a = 100;
 				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_56>(Block_Menu, 3, "Menu animation speed", 1.2, 10, UI_Setting_MenuAnimation);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_57>(Block_Menu, 4, "Menu font size", 0, 30, UI_Setting_MenuFontSize, "px");
 				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_58>(Block_Menu, 5, UI_Setting_MenuFont, "Custom menu font");
@@ -768,9 +765,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					System::Open_Website("https://github.com/Coslly");
 					System::Log("Setting: OpenGithubURL");
 				}
-				if (UI_Setting_SaveLocalConfig)//保存当前所设置的参数
+				if (UI_Setting_SaveLocalConfig || (System::Get_Key(VK_LCONTROL) && System::Get_Key_Onest(0x53)))//保存当前所设置的参数
 				{
 					SaveLocalConfig();
+					Beep(50, 50);
 					System::Log("Setting: SaveConfig");
 				}
 				if (UI_Setting_StartCS)//启动CS
@@ -778,7 +776,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					if (CS2_MEM.Get_ProcessHWND() == 0)System::Open_Website("steam://rungameid/730");
 					System::Log("Setting: StartCS");
 				}
-				if (UI_Setting_QuitCS)//关闭CS
+				else if (UI_Setting_QuitCS)//关闭CS
 				{
 					if (CS2_MEM.Get_ProcessHWND() != 0)Window::Kill_Window(CS2_MEM.Get_ProcessHWND());
 					System::Log("Setting: QuitCS");
@@ -821,7 +819,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (UI_Misc_Watermark)//水印
 		{
 			Window_Watermark.Set_WindowPos(0, 0);//水印窗口默认坐标
-			if (System::Sleep_Tick<class CLASS_WaterMark_WindowReload_Delay_>(500))//降低CPU占用
+			if (System::Sleep_Tick<class CLASS_WaterMark_WindowReload_Delay_>(200))//降低CPU占用
 			{
 				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
 				static string WaterMark_String = "";
@@ -1075,7 +1073,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 	{
 		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Aimbot && System::Get_Key(UI_Legit_Aimbot_Key))
 		{
-			System::Sleep_ns(800);//比Sleep更快的函数为了更加自然平滑
+			System::Sleep_ns(1000);//比Sleep更快的函数为了更加自然平滑
 			static short Aim_Range, Aim_Parts; static float Aim_Smooth;//瞄准范围,瞄准部位,瞄准平滑度
 			BOOL SpottedPlayer_Quantity = false;//是否有实体暴露 (用于优先瞄准暴露的实体)
 			const auto LocalPlayer_ActiveWeapon_ID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
@@ -1213,7 +1211,7 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 	{
 		if (Global_IsShowWindow && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
-			System::Sleep_ns(2000);//纳秒级延时 (加快循环速度)
+			System::Sleep_ns(3000);//纳秒级延时 (加快循环速度)
 			if (UI_Legit_PreciseAim)//精确瞄准
 			{
 				const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
@@ -1243,19 +1241,19 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 	System::Log("Load Thread: Thread_Funtion_RemoveRecoil()");
 	while (true)
 	{
-		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_RemoveRecoil)//移除后坐力
+		if (Global_IsShowWindow && Global_LocalPlayer.Health() && System::Get_Key(VK_LBUTTON) && UI_Legit_RemoveRecoil)//移除后坐力
 		{
-			Sleep(1);
 			static auto OldPunch = Variable::Vector3{};
-			if (System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ShotsFired() >= UI_Legit_RemoveRecoil_StartBullet)//判断开出的子弹数
+			if (Global_LocalPlayer.ShotsFired() >= UI_Legit_RemoveRecoil_StartBullet)//判断开出的子弹数
 			{
 				const auto AimPunch = Global_LocalPlayer.AimPunchAngle();//RecoilAngle
-				const auto NewPunch = Variable::Vector3{ OldPunch.x - AimPunch.x * 2,OldPunch.y - AimPunch.y * 2,0 };
-				if (UI_Legit_RemoveRecoil_LateralRepair)System::Mouse_Move(-NewPunch.y * 40, 0);//只处理X坐标
-				else System::Mouse_Move(-NewPunch.y * 40, NewPunch.x * 28);//X,Y
+				auto NewPunch = Variable::Vector3{ OldPunch.x - AimPunch.x * 2,OldPunch.y - AimPunch.y * 2,0 };//计算后坐力之后的角度
+				if (UI_Legit_RemoveRecoil_LateralRepair)NewPunch.x = 0;//只处理X坐标
+				System::Mouse_Move(-NewPunch.y * 40, NewPunch.x * 28);//修改计算后坐力之后的角度
 				OldPunch = AimPunch * 2;
 			}
 			else OldPunch = { 0,0,0 };
+			Sleep(1);
 		}
 		else Sleep(20);
 	}
