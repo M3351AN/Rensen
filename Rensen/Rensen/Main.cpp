@@ -1,12 +1,12 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-07 17:30]";//程序发布日期
-const float Rensen_Version = 3.91;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-08 14:20]";//程序发布日期
+const float Rensen_Version = 3.93;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
 	const string UI_LocalConfigPath = "Rensen.cfg";
-	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n500\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n4\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n\n13\n0\n1\n9\n1\n255\n0\n100\n0\n400\n40\n250\n";//默认参数
+	const string UI_DefaultConfig = "1\n6\n1\n1\n0\n1\n1\n100\n1\n1\n0\n100\n0\n0\n100\n0\n1\n100\n5\n1\n5\n0\n1\n150\n1\n0.015\n0.004\n1\n1\n2\n1\n500\n1\n0\n0\n1\n1\n0\n1\n0\n1\n1\n1\n1\n40\n80\n0\n255\n255\n255\n255\n1\n1\n1\n4\n260\n180\n26\n11\n1\n1\n1000\n10\n1\n1\n5\n5\n1\n1\n0\n0\n1\n1\n1\n0\n0\n1\n160\n800\n350\n0\n45\n0\n200\n200\n255\n250\n200\n200\n255\n2\n0\n1\n1\n4\n10\n10\n0\n1\n2\n10\n1\n500\n1\n1\n4\n1\n3\n1\n10\n100\n1\n1\n0\n1\n1\n50\n1\n6\n0\n5\n1\n5\n0\n1\n\n13\n0\n1\n9\n1\n255\n0\n100\n0\n400\n40\n250\n40\n";//默认参数
 	//----------------------------------------------------------------------------------------------
 	BOOL UI_Visual_Res_2560, UI_Visual_Res_1920, UI_Visual_Res_1280, UI_Visual_Res_960;
 	BOOL UI_Visual_Radar_Show;
@@ -147,6 +147,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	int UI_Legit_Armory_TriggerDistance_SHOTGUN = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 136));
 	int UI_Legit_MagnetAim_Range = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 137));
 	int UI_Legit_Backtracking_MinimumTime = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 138));
+	int UI_Legit_RemoveRecoil_Sensitive = Variable::string_int_(System::Get_File(UI_LocalConfigPath, 139));
 	//----------------------------------------------------------------------------------------------
 	void SaveLocalConfig() noexcept//保存本地参数
 	{
@@ -288,7 +289,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			to_string(UI_Legit_Armory_Smooth_SHOTGUN) + "\n" +
 			to_string(UI_Legit_Armory_TriggerDistance_SHOTGUN) + "\n" +
 			to_string(UI_Legit_MagnetAim_Range) + "\n" +
-			to_string(UI_Legit_Backtracking_MinimumTime) + "\n"
+			to_string(UI_Legit_Backtracking_MinimumTime) + "\n" +
+			to_string(UI_Legit_RemoveRecoil_Sensitive) + "\n"
 		);
 	}
 	void LoadCloudConfig(string FileName = "", string NormalURL = "https://github.com/Coslly/Misc/raw/main/About%20Rensen/") noexcept//加载Github云参数
@@ -425,6 +427,7 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 			UI_Legit_Armory_TriggerDistance_SHOTGUN = Variable::string_int_(URL_CONFIG.Read(136));
 			UI_Legit_MagnetAim_Range = Variable::string_int_(URL_CONFIG.Read(137));
 			UI_Legit_Backtracking_MinimumTime = Variable::string_int_(URL_CONFIG.Read(138));
+			UI_Legit_RemoveRecoil_Sensitive = Variable::string_int_(URL_CONFIG.Read(139));
 			URL_CONFIG.Release();
 		}
 	}
@@ -500,24 +503,26 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_PreciseAim, 1, "Enabled", UI_Legit_PreciseAim);
 				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_16>(Block_PreciseAim, 2, "Default sensitivity", 0, 0.022, UI_Legit_PreciseAim_DefaultSensitivity);
 				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_17>(Block_PreciseAim, 3, "Enable sensitivity", 0, 0.015, UI_Legit_PreciseAim_EnableSensitivity);
-				const auto Block_RemoveRecoil = GUI_VAR.GUI_Block(580, 390, 130, "Remove recoil");
+				const auto Block_RemoveRecoil = GUI_VAR.GUI_Block(580, 390, 160, "Remove recoil");
 				GUI_VAR.GUI_Checkbox(Block_RemoveRecoil, 1, "Enabled", UI_Legit_RemoveRecoil);
 				GUI_VAR.GUI_Checkbox({ Block_RemoveRecoil.x + 20,Block_RemoveRecoil.y }, 2, "Lateral repair", UI_Legit_RemoveRecoil_LateralRepair);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_18>(Block_RemoveRecoil, 3, "Start bullet", 1, 10, UI_Legit_RemoveRecoil_StartBullet);
-				const auto Block_MagnetAim = GUI_VAR.GUI_Block(580, 540, 130, "Magnet aim");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_19>(Block_RemoveRecoil, 4, "Sensitive", 0, 100, UI_Legit_RemoveRecoil_Sensitive, "%");
+				const auto Block_MagnetAim = GUI_VAR.GUI_Block(580, 570, 130, "Magnet aim");
 				GUI_VAR.GUI_Checkbox(Block_MagnetAim, 1, "Enabled", UI_Legit_MagnetAim);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_19>(Block_MagnetAim, 2, "Range", 0, 100, UI_Legit_MagnetAim_Range, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_20>(Block_MagnetAim, 3, "Smooth", 0.5, 6.6666, UI_Legit_MagnetAim_Smooth);
-				const auto Block_Backtracking = GUI_VAR.GUI_Block(580, 690, 130, "Back tracking");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_20>(Block_MagnetAim, 2, "Range", 0, 100, UI_Legit_MagnetAim_Range, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_21>(Block_MagnetAim, 3, "Smooth", 0.5, 6.6666, UI_Legit_MagnetAim_Smooth);
+				const auto Block_Backtracking = GUI_VAR.GUI_Block(580, 720, 130, "Back tracking");
 				GUI_VAR.GUI_Checkbox(Block_Backtracking, 1, "Enabled", UI_Legit_Backtracking);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_21>(Block_Backtracking, 2, "Minimum time", 0, 500, UI_Legit_Backtracking_MinimumTime, "ms");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_22>(Block_Backtracking, 3, "Maximum time", UI_Legit_Backtracking_MinimumTime, 1000, UI_Legit_Backtracking_MaximumTime, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_22>(Block_Backtracking, 2, "Minimum time", 0, 500, UI_Legit_Backtracking_MinimumTime, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_23>(Block_Backtracking, 3, "Maximum time", UI_Legit_Backtracking_MinimumTime, 1000, UI_Legit_Backtracking_MaximumTime, "ms");
 				GUI_VAR.GUI_Tips(Block_Aimbot, 1, "Help you quickly aim at the target.");
 				GUI_VAR.GUI_Tips({ Block_Aimbot.x + 10,Block_Aimbot.y }, 5, "Prefer Ragebot.", 0, { 255,150,150 });
 				GUI_VAR.GUI_Tips(Block_Aimbot, 9, "More biological than normal aimbot.", 0, { 200,200,150 });
 				GUI_VAR.GUI_Tips(Block_Triggerbot, 1, "Shoot when aiming at the enemy.");
 				GUI_VAR.GUI_Tips(Block_PreciseAim, 1, "Reduce the sensitivity of the reticle when aiming at the enemy.");
 				GUI_VAR.GUI_Tips({ Block_RemoveRecoil.x + 10,Block_RemoveRecoil.y }, 2, "Operations that only return landscape.");
+				GUI_VAR.GUI_Tips({ Block_RemoveRecoil.x + 10,Block_RemoveRecoil.y }, 4, "Corresponding game sensitivity value.");
 				GUI_VAR.GUI_Tips(Block_MagnetAim, 1, "Slow aiming without triggering key conditions. (Hard to see)");
 				GUI_VAR.GUI_Tips(Block_Backtracking, 1, "Take advantage of network latency to have a bigger hitbox.");
 				GUI_WindowSize = { 1010,910 };
@@ -526,41 +531,41 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			{
 				const auto Block_ESP = GUI_VAR.GUI_Block(150, 30, 550, "Extra sensory perception");
 				GUI_VAR.GUI_Checkbox(Block_ESP, 1, "Enabled", UI_Visual_ESP);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_23>(Block_ESP, 1, UI_Visual_ESP_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_24>(Block_ESP, 1, UI_Visual_ESP_Key);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 2, "Box", UI_Visual_ESP_Box);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 3, "Health bar", UI_Visual_ESP_Health);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 4, "Weapon text", UI_Visual_ESP_ActiveWeapon);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 5, "Line", UI_Visual_ESP_Line);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 6, "Skeleton", UI_Visual_ESP_Skeleton);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_24>(Block_ESP, 7, "Thickness", 1, 5, UI_Visual_ESP_Skeleton_Thickness, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_25>(Block_ESP, 7, "Thickness", 1, 5, UI_Visual_ESP_Skeleton_Thickness, "px");
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 8, "Head dot", UI_Visual_ESP_HeadDot);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 9, "State", UI_Visual_ESP_State);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 10, "Name", UI_Visual_ESP_Name);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 11, "Drops", UI_Visual_ESP_Drops);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 12, "Out of FOV arrow", UI_Visual_ESP_OutFOV);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_25>(Block_ESP, 13, "Size", 20, 70, UI_Visual_ESP_OutFOV_Size, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_26>(Block_ESP, 14, "Radius", 0, 100, UI_Visual_ESP_OutFOV_Radius, "%");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_26>(Block_ESP, 13, "Size", 20, 70, UI_Visual_ESP_OutFOV_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_27>(Block_ESP, 14, "Radius", 0, 100, UI_Visual_ESP_OutFOV_Radius, "%");
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 15, "Custom color", UI_Visual_ESP_CustomColor);
 				GUI_VAR.GUI_ColorSelector(Block_ESP, 15, UI_Visual_ESP_CustomColor_Color);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_27>(Block_ESP, 16, "Draw alpha", 20, 255, UI_Visual_ESP_DrawAlpha);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_28>(Block_ESP, 17, "Draw delay", 1, 30, UI_Visual_ESP_DrawDelay, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_28>(Block_ESP, 16, "Draw alpha", 20, 255, UI_Visual_ESP_DrawAlpha);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_29>(Block_ESP, 17, "Draw delay", 1, 30, UI_Visual_ESP_DrawDelay, "ms");
 				const auto Block_Hitmark = GUI_VAR.GUI_Block(580, 30, 280, "Hit mark");
 				GUI_VAR.GUI_Checkbox(Block_Hitmark, 1, "Enabled", UI_Visual_HitMark);
 				GUI_VAR.GUI_ColorSelector(Block_Hitmark, 1, UI_Visual_HitMark_Color);
 				GUI_VAR.GUI_Checkbox({ Block_Hitmark.x + 20,Block_Hitmark.y }, 2, "Show damage", UI_Visual_HitMark_Damage);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_29>(Block_Hitmark, 3, "Range", 3, 100, UI_Visual_HitMark_Range, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_30>(Block_Hitmark, 4, "Length", 3, 100, UI_Visual_HitMark_Length, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Hitmark, 5, "Thickness", 1, 10, UI_Visual_HitMark_Thickness, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_30>(Block_Hitmark, 3, "Range", 3, 100, UI_Visual_HitMark_Range, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Hitmark, 4, "Length", 3, 100, UI_Visual_HitMark_Length, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_32>(Block_Hitmark, 5, "Thickness", 1, 10, UI_Visual_HitMark_Thickness, "px");
 				GUI_VAR.GUI_Checkbox({ Block_Hitmark.x + 20,Block_Hitmark.y }, 6, "Lightning effect", UI_Visual_HitMark_KillEffect);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_32>(Block_Hitmark, 7, "Quantity", 10, 500, UI_Visual_HitMark_KillEffect_Quantity);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_33>(Block_Hitmark, 8, "Range", 10, 500, UI_Visual_HitMark_KillEffect_Range);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_33>(Block_Hitmark, 7, "Quantity", 10, 500, UI_Visual_HitMark_KillEffect_Quantity);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_34>(Block_Hitmark, 8, "Range", 10, 500, UI_Visual_HitMark_KillEffect_Range);
 				const auto Block_Radar = GUI_VAR.GUI_Block(580, 330, 190, "Radar");
 				GUI_VAR.GUI_Checkbox(Block_Radar, 1, "Enabled", UI_Visual_Radar);
 				GUI_VAR.GUI_Button_Small({ Block_Radar.x + 10,Block_Radar.y }, 2, UI_Visual_Radar_Show);
 				GUI_VAR.GUI_Checkbox({ Block_Radar.x + 20,Block_Radar.y }, 2, "Follow angle", UI_Visual_Radar_FollowAngle);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_34>(Block_Radar, 3, "Range", 0.2, 40, UI_Visual_Radar_Range);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_35>(Block_Radar, 4, "Size", 150, 500, UI_Visual_Radar_Size, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_36>(Block_Radar, 5, "Alpha", 100, 240, UI_Visual_Radar_Alpha);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_35>(Block_Radar, 3, "Range", 0.2, 40, UI_Visual_Radar_Range);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_36>(Block_Radar, 4, "Size", 150, 500, UI_Visual_Radar_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_37>(Block_Radar, 5, "Alpha", 0, 255, UI_Visual_Radar_Alpha);
 				GUI_VAR.GUI_Tips(Block_ESP, 1, "Learn enemy coordinates through walls. (Full screen cannot be used)");
 				GUI_VAR.GUI_Tips(Block_Hitmark, 1, "Effect that triggers when hitting the player.");
 				GUI_VAR.GUI_Tips(Block_Radar, 1, "Exterior window radar. (Full screen cannot be used)");
@@ -571,31 +576,31 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 720, "Miscellaneous");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_37>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Misc, 4, "Length", 10, 80, UI_Misc_HitSound_Length);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>(Block_Misc, 4, "Length", 10, 80, UI_Misc_HitSound_Length);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 5, "Sonar", UI_Misc_Sonar);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_39>(Block_Misc, 5, UI_Misc_Sonar_Key);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_40>(Block_Misc, 6, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_41>(Block_Misc, 7, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_40>(Block_Misc, 5, UI_Misc_Sonar_Key);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_41>(Block_Misc, 6, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_42>(Block_Misc, 7, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 8, "Knife bot", UI_Misc_AutoKnife);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_42>(Block_Misc, 8, UI_Misc_AutoKnife_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_43>(Block_Misc, 8, UI_Misc_AutoKnife_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 9, "Taser bot", UI_Misc_AutoTaser);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_43>(Block_Misc, 9, UI_Misc_AutoTaser_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_44>(Block_Misc, 9, UI_Misc_AutoTaser_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 10, "Water mark", UI_Misc_Watermark);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 11, "Sniper crosshair", UI_Misc_SniperCrosshair);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_44>(Block_Misc, 12, "Size", 10, 60, UI_Misc_SniperCrosshair_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_45>(Block_Misc, 12, "Size", 10, 60, UI_Misc_SniperCrosshair_Size, "px");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Anti AFK kick", UI_Misc_AntiAFKKick);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Hide from OBS", UI_Misc_ByPassOBS);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Save performance", UI_Misc_SavePerformance);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Night mode", UI_Misc_NightMode);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_45>(Block_Misc, 18, "Alpha", 50, 180, UI_Misc_NightMode_Alpha);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_46>(Block_Misc, 18, "Alpha", 50, 180, UI_Misc_NightMode_Alpha);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Auto peek", UI_Misc_AutoPeek);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_46>(Block_Misc, 19, UI_Misc_AutoPeek_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_47>(Block_Misc, 19, UI_Misc_AutoPeek_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 20, "Quick stop", UI_Misc_QuickStop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 21, "Auto kill ceasefire", UI_Misc_AutoKillCeasefire);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 22, "Cursor ESP", UI_Misc_CursorESP);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_47>(Block_Misc, 22, UI_Misc_CursorESP_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Misc, 22, UI_Misc_CursorESP_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 23, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
 				const auto Block_Resolution = GUI_VAR.GUI_Block(580, 30, 160, "Screen resolution");
 				GUI_VAR.GUI_Button(Block_Resolution, 1, "2560 * 1440", UI_Visual_Res_2560, 78);
@@ -608,21 +613,21 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 370, "Spoof");
 				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_49>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_49>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_50>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 4, "Increase recoil", UI_Spoof_IncreaseRecoil);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_50>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_51>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 6, "Unable to pick up C4", UI_Spoof_DropC4);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 7, "Fake anti aim", UI_Spoof_FakeAntiAim);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_51>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_52>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 8, "Kill drop sniper", UI_Spoof_KillDropSniper);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 9, "Learn player", UI_Spoof_LearnPlayer);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_52>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_53>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 10, "Fake ragebot", UI_Spoof_FakeRageBot);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_53>(Block_Spoof, 10, UI_Spoof_FakeRageBot_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_54>(Block_Spoof, 10, UI_Spoof_FakeRageBot_Key);
 				auto FakeRageBot_SliderString = "Target: " + Advanced::Player_Name(UI_Spoof_FakeRageBot_Target);
 				if (!UI_Spoof_FakeRageBot_Target)FakeRageBot_SliderString = "Target: Any target";
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_54>({ Block_Spoof.x + 20,Block_Spoof.y }, 11, FakeRageBot_SliderString, 0, 64, UI_Spoof_FakeRageBot_Target);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_55>({ Block_Spoof.x + 20,Block_Spoof.y }, 11, FakeRageBot_SliderString, 0, 64, UI_Spoof_FakeRageBot_Target);
 				GUI_VAR.GUI_Tips(Block_Misc, 2, "Play Beep when hitting player.");
 				GUI_VAR.GUI_Tips(Block_Misc, 5, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
@@ -655,13 +660,13 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", 0, GUI_VAR.Global_Get_EasyGUI_Color());
 				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 310, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_55>(Block_Menu, 1, UI_Setting_MenuKey);
+				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_56>(Block_Menu, 1, UI_Setting_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_CustomColor);
 				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_MainColor);
 				if (UI_Setting_MainColor.a < 100)UI_Setting_MainColor.a = 100;
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_56>(Block_Menu, 3, "Menu animation speed", 1.2, 10, UI_Setting_MenuAnimation);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_57>(Block_Menu, 4, "Menu font size", 0, 30, UI_Setting_MenuFontSize, "px");
-				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_58>(Block_Menu, 5, UI_Setting_MenuFont, "Custom menu font");
+				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_57>(Block_Menu, 3, "Menu animation speed", 1.2, 10, UI_Setting_MenuAnimation);
+				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_58>(Block_Menu, 4, "Menu font size", 0, 30, UI_Setting_MenuFontSize, "px");
+				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_59>(Block_Menu, 5, UI_Setting_MenuFont, "Custom menu font");
 				GUI_VAR.GUI_Button(Block_Menu, 6, "Save local config", UI_Setting_SaveLocalConfig, 65);
 				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 7, "Quit CS", UI_Setting_QuitCS, 90);
 				else GUI_VAR.GUI_Button(Block_Menu, 7, "Start CS", UI_Setting_StartCS, 85);
@@ -986,7 +991,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 						if (PlayerPawn.Pawn() == Global_LocalPlayer.Pawn() || !PlayerPawn.Health() || PlayerPawn.TeamNumber() != Global_LocalPlayer.TeamNumber())continue;//检查是否队友
 						const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(6), Base::ViewAngles() + Global_LocalPlayer.AimPunchAngle() * 2);
 						const auto Fov = hypot(Angle.x, Angle.y);
-						if (!Angle.IsZero() && Fov <= Aim_Range) { Aim_Range = Fov; System::Mouse_Move(-Angle.y * (40 - UI_Spoof_AimbotTeam_Smooth), Angle.x * (40 - UI_Spoof_AimbotTeam_Smooth)); }
+						if (!Angle.IsZero() && Fov <= Aim_Range) { Aim_Range = Fov; System::Mouse_Move(-Angle.y * (30 - UI_Spoof_AimbotTeam_Smooth), Angle.x * (30 - UI_Spoof_AimbotTeam_Smooth)); }
 					}
 					const auto TargetPawn = Global_LocalPlayer.IDEntIndex_Pawn();//瞄准到的人物Pawn //防止瞄准到敌人
 					if (Advanced::Check_Enemy(TargetPawn))//基础人物判断
@@ -1146,7 +1151,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8左轮无法开枪修复
 						else Sleep(1);
 						ExecuteCommand("-attack");
-						if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1) { System::Mouse_Con(2, false); Sleep(1); System::Key_Con(2, true); }//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
+						if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1)System::Mouse_Con(2, false);//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
 						if (Global_LocalPlayer.ShotsFired() != 0)Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
 					}
 				}
@@ -1246,10 +1251,10 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 			static auto OldPunch = Variable::Vector3{};
 			if (Global_LocalPlayer.ShotsFired() >= UI_Legit_RemoveRecoil_StartBullet)//判断开出的子弹数
 			{
-				const auto AimPunch = Global_LocalPlayer.AimPunchAngle();//RecoilAngle
+				const auto AimPunch = Global_LocalPlayer.AimPunchAngle();//原始后坐力角度
 				auto NewPunch = Variable::Vector3{ OldPunch.x - AimPunch.x * 2,OldPunch.y - AimPunch.y * 2,0 };//计算后坐力之后的角度
 				if (UI_Legit_RemoveRecoil_LateralRepair)NewPunch.x = 0;//只处理X坐标
-				System::Mouse_Move(-NewPunch.y * 40, NewPunch.x * 28);//修改计算后坐力之后的角度
+				System::Mouse_Move(-NewPunch.y * UI_Legit_RemoveRecoil_Sensitive, NewPunch.x * (UI_Legit_RemoveRecoil_Sensitive / 2 + 5));//修改计算后坐力之后的角度
 				OldPunch = AimPunch * 2;
 			}
 			else OldPunch = { 0,0,0 };
@@ -1323,12 +1328,12 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 								const auto Bone_ScreenPos_ = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(Bone_Flags[i + 1]), Local_Matrix);
 								ESP_Paint.Render_Line(Bone_ScreenPos.x, Bone_ScreenPos.y, Bone_ScreenPos_.x, Bone_ScreenPos_.y, Draw_Color / 2, UI_Visual_ESP_Skeleton_Thickness);
 							}
-							if (Debug_Control_Var::Checkbox_1)
+							if (Debug_Control_Var::Checkbox_1 && Debug_Control_Var::Checkbox_2)
 							{
 								for (int i = 0; i <= 30; ++i)//显示所有骨骼ID
 								{
-									const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(i), Local_Matrix);
-									ESP_Paint.Render_SmpStr(Head_ScrPos.x, Head_ScrPos.y, to_string(i), { 255,0,0 }, { 0 }, false);
+									const auto Bone_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(i), Local_Matrix);
+									ESP_Paint.RenderA_SmpStr(Bone_ScrPos.x, Bone_ScrPos.y, to_string(i), Draw_Color.D_Alpha(255), { 0,0,0,255 }, 10);
 								}
 							}
 						}
@@ -1368,6 +1373,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						if (PlayerPawn.Spotted()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "HIT", { 200,200,200 }, { 0 }, false); ++i; }
 						if (PlayerPawn.ShotsFired() > 0) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "SHOT", { 200,200,200 }, { 0 }, false); ++i; }
 						if (!(PlayerPawn.Flags() & (1 << 0))) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "AIR", { 200,200,200 }, { 0 }, false); ++i; }
+						if (Global_LocalPlayer.IDEntIndex_Pawn().Pawn() == PlayerPawn.Pawn()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "X", { 200,200,200 }, { 0 }, false); ++i; }
 						if (Player_Distance >= 2500) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "INV", { 100,0,255 }, { 0 }, false); ++i; }
 					}
 					if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_SmpStr(Left, Bottom_Pos.y, PlayerPawn.ActiveWeaponName(), { 200,200,200 }, { 0 }, false);//手持武器名称
@@ -1506,7 +1512,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			{
 				short Show_Quantity = 0;//计算绘制的实体数量
 				Class_ID = {};//刷新有效实体ID
-				for (short i = 65; i <= 1024; ++i)//class id 65-1024
+				for (short i = 65; i <= 2048; ++i)//class id 65-2048
 				{
 					if (Show_Quantity > 40)continue;//限制数量
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, i);
@@ -1582,8 +1588,11 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 				const float RadarRangeAnimation = Variable::Animation<class Class_Radar_Window_Range>(UI_Visual_Radar_Range, 2);//窗口动画
 				const auto LocalPlayerPos = Global_LocalPlayer.Origin(); const auto ViewAngle = Base::ViewAngles();
 				Radar_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//背景
-				if (UI_Visual_Radar_FollowAngle)Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });
-				else Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });//本地人物视野
+				if (UI_Visual_Radar_Alpha)//透明状态不绘制人物视角朝向
+				{
+					if (UI_Visual_Radar_FollowAngle)Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 135, 0)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, 225, 0)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });
+					else Radar_Paint.Render_GradientTriangle({ RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15 ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 45)[1] ,(int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[0], (int)Variable::Ang_Pos_(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 2, ViewAngle.y, 135)[1] }, GUI_IO.GUIColor / 4, { 0,0,0 }, { 0,0,0 });//本地人物视野
+				}
 				Radar_Paint.Render_HollowCircle(RadarSizeAnimation / 2, RadarSizeAnimation / 2 + 15, RadarSizeAnimation / 100 * 3.5, { 255,255,255 }, 2);//自身圆圈
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)
 				{
@@ -1613,7 +1622,8 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 			Window::Set_Topmost_Status(Radar_Window.Get_HWND(), true);
 		}
 		Radar_Window.Set_WindowSize(RadarSizeAnimation, RadarSizeAnimation + 15);//雷达大小
-		Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2));//雷达透明度
+		if (!UI_Visual_Radar_Alpha)Radar_Window.Set_WindowAttributes({ 0,0,0 }, 0, LWA_COLORKEY);//将黑色像素改为全透明
+		else Radar_Window.Set_WindowAlpha(Variable::Animation<class Class_Radar_Window_Alpha>(UI_Visual_Radar_Alpha, 2));//雷达透明度
 		Radar_Window.Fix_inWhile();//窗口消息循环
 	}
 }

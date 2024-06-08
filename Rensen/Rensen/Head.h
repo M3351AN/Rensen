@@ -1,4 +1,4 @@
-﻿//2024-06-07 17:30
+﻿//2024-06-08 14:20
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -194,9 +194,8 @@ namespace Variable//变量转换
         float _x = Matrix[0][0] * Pos.x + Matrix[0][1] * Pos.y + Matrix[0][2] * Pos.z + Matrix[0][3];
         float _y = Matrix[1][0] * Pos.x + Matrix[1][1] * Pos.y + Matrix[1][2] * Pos.z + Matrix[1][3];
         float w = Matrix[3][0] * Pos.x + Matrix[3][1] * Pos.y + Matrix[3][2] * Pos.z + Matrix[3][3];
-        float inv_w = 1.f / w;
-        _x *= inv_w; _y *= inv_w;
-        float x = X * .5f; float y = Y * .5f;
+        _x *= 1.f / w; _y *= 1.f / w;
+        float x = X / 2; float y = Y / 2;
         x += 0.5f * _x * X + 0.5f; y -= 0.5f * _y * Y + 0.5f;
         if (w >= 0.01f)return { x,y,w };
         else return { 9999,9999,9999 };
@@ -1142,12 +1141,12 @@ namespace Window//窗口
             DeleteObject(FontPen);
         }
         //--------------------------------------------------------------------------------------------------------
-        void RenderA_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 }) noexcept//文字绘制(简单样式)(包含Alpha)
+        void RenderA_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 },int Font_Size = 8) noexcept//文字绘制(简单样式)(包含Alpha)
         {
             Gdiplus::Graphics HDCwind(hMenDC);//HDC
             HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintSingleBitPerPixelGridFit);//不应用抗锯齿
             Gdiplus::FontFamily fontFamily(L"Calibri");//字体名字
-            Gdiplus::Font font(&fontFamily, 8, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);//字体状况
+            Gdiplus::Font font(&fontFamily, Font_Size, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);//字体状况
             if (Color_2.a != 0)
             {
                 Gdiplus::SolidBrush Black_Brush(Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b));//文字颜色(边框)
@@ -1328,7 +1327,7 @@ namespace Window//窗口
         DwmExtendFrameIntoClientArea(Window_HWND, &margin);
         SetLayeredWindowAttributes(Window_HWND, RGB(0, 0, 0), 255, LWA_ALPHA);
         SetWindowPos(Window_HWND, HWND_TOPMOST, 0, 0, InitialSize.x, InitialSize.y, 0x0002 | 0x0001);
-        MoveWindow(Window_HWND, 0, 0, InitialSize.x, InitialSize.y, true);
+        for (int i = 0; i <= 5; ++i)MoveWindow(Window_HWND, 0, 0, InitialSize.x, InitialSize.y, true);
         ShowWindow(Window_HWND, SW_SHOW);
         return Window_HWND;
     }
