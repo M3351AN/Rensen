@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-08 14:20]";//程序发布日期
-const float Rensen_Version = 3.93;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-13 19:30]";//程序发布日期
+const float Rensen_Version = 3.95;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -592,7 +592,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Anti AFK kick", UI_Misc_AntiAFKKick);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Hide from OBS", UI_Misc_ByPassOBS);
-				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Save performance", UI_Misc_SavePerformance);
+				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Save performance", UI_Misc_SavePerformance, { 255,150,150 });
 				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Night mode", UI_Misc_NightMode);
 				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_46>(Block_Misc, 18, "Alpha", 50, 180, UI_Misc_NightMode_Alpha);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Auto peek", UI_Misc_AutoPeek);
@@ -632,7 +632,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips(Block_Misc, 5, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
 				GUI_VAR.GUI_Tips(Block_Misc, 14, "Lock the game window to the front.");
-				GUI_VAR.GUI_Tips(Block_Misc, 16, "Reduce the load on the CPU.");
+				GUI_VAR.GUI_Tips(Block_Misc, 16, "Reduce the load on the CPU.", 0, { 255,150,150 });
 				GUI_VAR.GUI_Tips(Block_Misc, 17, "Reduce screen brightness.");
 				GUI_VAR.GUI_Tips(Block_Misc, 19, "Return to coordinates when shooting.");
 				GUI_VAR.GUI_Tips(Block_Misc, 22, "Implement ESP by modifying cursor coordinates.");
@@ -711,7 +711,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				auto PlayerOrigin = Player_Pawn.Origin(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 14, PlayerOrigin);
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 15, "Angle: ");
 				auto PlayerViewAngle = Player_Pawn.ViewAngles(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 15, PlayerViewAngle);
-				GUI_VAR.GUI_Tips({ Block_Info.x + 3,Block_Info.y }, 1, "Cloud offsets date: [" + CS2_Offsets::Offsets_Date + "]");
+				GUI_VAR.GUI_Tips({ Block_Info.x + 3,Block_Info.y }, 1, "Cloud offsets date: " + CS2_Offsets::Offsets_Date);
 				//-----------------------------------------------------------------------------------------------------------------------------测试控件-------
 				const auto Block_DebugControl = GUI_VAR.GUI_Block(510, 540, 280, "Debug control", 330);
 				GUI_VAR.GUI_Checkbox(Block_DebugControl, 1, "Show console window", UI_Debug_ShowDebugWindow);
@@ -829,8 +829,8 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				Window_Watermark.Set_WindowTitle(System::Rand_String(10));//随机水印窗口标题
 				static string WaterMark_String = "";
 				short WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 4.85;
-				if (!CS2_HWND)WaterMark_String = "Rensen | CS not found | " + System::Get_UserName() + " | " + "Release" + Rensen_ReleaseDate + " | " + System::Time_String();
-				else { WaterMark_String = "Rensen | " + System::Get_UserName() + " | " + "Release" + Rensen_ReleaseDate + " | " + System::Time_String(); WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 5.2; }
+				if (!CS2_HWND)WaterMark_String = "Rensen | CS not found | " + System::Get_UserName() + " | " + System::Time_String();
+				else { WaterMark_String = "Rensen | " + System::Get_UserName() + " | " + System::Time_String(); WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 5.2; }
 				const Variable::Vector2 Watermark_Pos = { Window::Get_Resolution().x - WaterMark_String_Size - 10,10 };
 				Window_Watermark_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });
 				Window_Watermark_Render.RenderA_SolidRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size, 15, { 1,1,1,130 });
@@ -844,6 +844,8 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x + WaterMark_String_Size / 2, Watermark_Pos.y, WaterMark_String_Size / 2, 1, { GUI_IO.GUIColor_Rainbow[3], GUI_IO.GUIColor_Rainbow[4], GUI_IO.GUIColor_Rainbow[5],255 }, { GUI_IO.GUIColor_Rainbow[6], GUI_IO.GUIColor_Rainbow[7], GUI_IO.GUIColor_Rainbow[8],255 });
 				}
 				Window_Watermark_Render.Render_String(Watermark_Pos.x + 4, Watermark_Pos.y + 2, WaterMark_String, "Small Fonts", 12, { 255,255,255 }, false);
+				Window_Watermark_Render.RenderA_SmpStr(2, 2, "Release" + Rensen_ReleaseDate, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//编译日期绘制
+				Window_Watermark_Render.RenderA_SmpStr(2, 2 + 14, "Offsets" + CS2_Offsets::Offsets_Date, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//云偏移更新日期绘制
 				Window_Watermark_Render.DrawPaint(true);
 			}
 		}
@@ -1333,7 +1335,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 								for (int i = 0; i <= 30; ++i)//显示所有骨骼ID
 								{
 									const auto Bone_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(i), Local_Matrix);
-									ESP_Paint.RenderA_SmpStr(Bone_ScrPos.x, Bone_ScrPos.y, to_string(i), Draw_Color.D_Alpha(255), { 0,0,0,255 }, 10);
+									ESP_Paint.RenderA_SmpStr(Bone_ScrPos.x, Bone_ScrPos.y, to_string(i), Draw_Color.D_Alpha(255));
 								}
 							}
 						}

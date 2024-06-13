@@ -35,7 +35,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	}
 	namespace CS2_Offsets//CS2固定偏移量 (游戏更新时需要同时更新 https://github.com/a2x/cs2-dumper.git)
 	{
-		string Offsets_Date = "0000-00-00 00:00";
+		string Offsets_Date = "[0000-00-00 00:00]";
 		uintptr_t dwLocalPlayerController = 0;
 		uintptr_t dwLocalPlayerPawn = 0;
 		uintptr_t dwEntityList = 0;
@@ -301,6 +301,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 				if (URL_OFFSETS.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/Offsets.ofs?raw=true"))//自动更新偏移量 Github更新有十分钟延迟
 				{
 					CS2_Offsets::Offsets_Date = URL_OFFSETS.Read(1); CS2_Offsets::Offsets_Date.erase(0, 2);//偏移更新日期 删除注释符号
+					CS2_Offsets::Offsets_Date = "[" + CS2_Offsets::Offsets_Date + "]";//加上括号
 					CS2_Offsets::dwLocalPlayerController = Variable::string_uint_(URL_OFFSETS.Read(4));
 					CS2_Offsets::dwLocalPlayerPawn = Variable::string_uint_(URL_OFFSETS.Read(6));
 					CS2_Offsets::dwEntityList = Variable::string_uint_(URL_OFFSETS.Read(8));

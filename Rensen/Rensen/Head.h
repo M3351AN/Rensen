@@ -1,4 +1,4 @@
-﻿//2024-06-08 14:20
+﻿//2024-06-13 19:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1141,7 +1141,7 @@ namespace Window//窗口
             DeleteObject(FontPen);
         }
         //--------------------------------------------------------------------------------------------------------
-        void RenderA_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 },int Font_Size = 8) noexcept//文字绘制(简单样式)(包含Alpha)
+        void RenderA_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 },int Font_Size = 12) noexcept//文字绘制(简单样式)(包含Alpha)
         {
             Gdiplus::Graphics HDCwind(hMenDC);//HDC
             HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintSingleBitPerPixelGridFit);//不应用抗锯齿
@@ -1160,6 +1160,29 @@ namespace Window//窗口
                 HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X, Y - 1), &Black_Brush);
             }
             Gdiplus::SolidBrush Color_Brush(Gdiplus::Color(Color_1.a, Color_1.r, Color_1.g, Color_1.b));//文字颜色
+            Gdiplus::PointF pointF(X, Y);//文字绘制坐标
+            HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, pointF, &Color_Brush);//最终绘制
+        }
+        //--------------------------------------------------------------------------------------------------------
+        void RenderA_SmpStr_Gra(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2, Variable::Vector4 Color_3 = { 0,0,0 }, int Font_Size = 12, int GradientOffset = 0) noexcept//文字绘制(简单样式)(包含Alpha)(渐变版本)
+        {
+            Gdiplus::Graphics HDCwind(hMenDC);//HDC
+            HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintSingleBitPerPixelGridFit);//不应用抗锯齿
+            Gdiplus::FontFamily fontFamily(L"Calibri");//字体名字
+            Gdiplus::Font font(&fontFamily, Font_Size, Gdiplus::FontStyleRegular, Gdiplus::UnitPixel);//字体状况
+            if (Color_2.a != 0)
+            {
+                Gdiplus::SolidBrush Black_Brush(Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b));//文字颜色(边框)
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X + 1, Y + 1), &Black_Brush);
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X - 1, Y - 1), &Black_Brush);
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X + 1, Y - 1), &Black_Brush);
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X - 1, Y + 1), &Black_Brush);
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X + 1, Y), &Black_Brush);
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X - 1, Y), &Black_Brush);
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X, Y + 1), &Black_Brush);
+                HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, Gdiplus::PointF(X, Y - 1), &Black_Brush);
+            }
+            Gdiplus::LinearGradientBrush Color_Brush(Gdiplus::Point(X, 0), Gdiplus::Point(X + String.size() * Font_Size / 1.7 + GradientOffset, 0), Gdiplus::Color(Color_1.a, Color_1.r, Color_1.g, Color_1.b), Gdiplus::Color(Color_2.a, Color_2.r, Color_2.g, Color_2.b));//文字颜色
             Gdiplus::PointF pointF(X, Y);//文字绘制坐标
             HDCwind.DrawString(wstring(String.begin(), String.end()).c_str(), -1, &font, pointF, &Color_Brush);//最终绘制
         }
