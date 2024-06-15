@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-13 19:30]";//程序发布日期
-const float Rensen_Version = 3.95;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-15 19:50]";//程序发布日期
+const float Rensen_Version = 3.98;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -445,7 +445,7 @@ using namespace Control_Var;
 void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义选项)
 {
 	System::Log("Load Thread: Thread_Menu()");
-	GUI_VAR.Window_Create(1010, 910, "Rensen", true);//创建置顶GUI绘制窗口
+	GUI_VAR.Window_Create(1200, 1000, "Rensen", true);//创建置顶GUI绘制窗口
 	while (true)
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
@@ -453,7 +453,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
 		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_OpenState_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
-		if (!GUI_VAR.Window_Move(5) && Menu_Open)//不在移动窗口时绘制GUI
+		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_CustomColor)//自定义颜色(单色)
 			{
@@ -461,61 +461,61 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_BackGround(4);//自定义颜色背景主题
 			}
 			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
-			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Setting","Debug" }, UI_Panel);
+			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Infolist","Setting","Attach" }, UI_Panel);
 			if (UI_Panel == 0)//Legit
 			{
 				const auto Block_Aimbot = GUI_VAR.GUI_Block(150, 30, 340, "Aim bot");
 				GUI_VAR.GUI_Checkbox(Block_Aimbot, 1, "Enabled", UI_Legit_Aimbot);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_1>(Block_Aimbot, 1, UI_Legit_Aimbot_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Aimbot_1>(Block_Aimbot, 1, UI_Legit_Aimbot_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Aimbot.x + 20,Block_Aimbot.y }, 2, "Judging wall", UI_Legit_Aimbot_JudgingWall);
 				GUI_VAR.GUI_Checkbox({ Block_Aimbot.x + 20,Block_Aimbot.y }, 3, "Remove recoil", UI_Legit_Aimbot_RemoveRecoil);
 				GUI_VAR.GUI_Checkbox({ Block_Aimbot.x + 20,Block_Aimbot.y }, 4, "Trigger on aiming", UI_Legit_Aimbot_TriggerOnAim);
 				GUI_VAR.GUI_Checkbox({ Block_Aimbot.x + 20,Block_Aimbot.y }, 5, "Auto shoot", UI_Legit_Aimbot_AutoShoot, { 255,150,150 });
 				GUI_VAR.GUI_Checkbox({ Block_Aimbot.x + 40,Block_Aimbot.y }, 6, "Auto stop", UI_Legit_Aimbot_AutoStop, { 255,150,150 });
 				GUI_VAR.GUI_Checkbox({ Block_Aimbot.x + 40,Block_Aimbot.y }, 7, "Auto scope", UI_Legit_Aimbot_AutoScope, { 255,150,150 });
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_2>({ Block_Aimbot.x + 20,Block_Aimbot.y }, 8, "Auto shoot delay", 0, 500, UI_Legit_Aimbot_AutoShootDelay, "ms", { 255,150,150 });
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Aimbot_2>({ Block_Aimbot.x + 20,Block_Aimbot.y }, 8, "Auto shoot delay", 0, 500, UI_Legit_Aimbot_AutoShootDelay, "ms", { 255,150,150 });
 				GUI_VAR.GUI_Checkbox(Block_Aimbot, 9, "Adaptive aimbot", UI_Legit_AdaptiveAimbot, { 200,200,150 });
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_3>(Block_Aimbot, 10, "Initial smooth", 0, 20, UI_Legit_AdaptiveAimbot_InitialSmooth, "", { 200,200,150 });
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Aimbot_3>(Block_Aimbot, 10, "Initial smooth", 0, 20, UI_Legit_AdaptiveAimbot_InitialSmooth, "", { 200,200,150 });
 				const auto Block_Armory = GUI_VAR.GUI_Block(150, 390, 490, "Armory");
 				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 1, "Show range", UI_Legit_Armory_ShowAimbotRange);
 				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 2, "Hit site parser", UI_Legit_Armory_HitSiteParser);
 				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 3, "PISTOL Body aim (else head)", UI_Legit_Armory_BodyAim_PISTOL);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_4>({ Block_Armory.x - 10,Block_Armory.y }, 4, "PISTOL range", 0, 100, UI_Legit_Armory_Range_PISTOL, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_5>({ Block_Armory.x - 10,Block_Armory.y }, 5, "PISTOL smooth", 0, 40, UI_Legit_Armory_Smooth_PISTOL);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_1>({ Block_Armory.x - 10,Block_Armory.y }, 4, "PISTOL range", 0, 100, UI_Legit_Armory_Range_PISTOL, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_2>({ Block_Armory.x - 10,Block_Armory.y }, 5, "PISTOL smooth", 0, 40, UI_Legit_Armory_Smooth_PISTOL);
 				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 6, "RIFLE Body aim (else head)", UI_Legit_Armory_BodyAim_RIFLE);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_6>({ Block_Armory.x - 10,Block_Armory.y }, 7, "RIFLE range", 0, 100, UI_Legit_Armory_Range_RIFLE, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_7>({ Block_Armory.x - 10,Block_Armory.y }, 8, "RIFLE smooth", 0, 40, UI_Legit_Armory_Smooth_RIFLE);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_3>({ Block_Armory.x - 10,Block_Armory.y }, 7, "RIFLE range", 0, 100, UI_Legit_Armory_Range_RIFLE, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_4>({ Block_Armory.x - 10,Block_Armory.y }, 8, "RIFLE smooth", 0, 40, UI_Legit_Armory_Smooth_RIFLE);
 				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 9, "SNIPER Body aim (else head)", UI_Legit_Armory_BodyAim_SNIPER);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_8>({ Block_Armory.x - 10,Block_Armory.y }, 10, "SNIPER range", 0, 100, UI_Legit_Armory_Range_SNIPER, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_9>({ Block_Armory.x - 10,Block_Armory.y }, 11, "SNIPER smooth", 0, 40, UI_Legit_Armory_Smooth_SNIPER);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_5>({ Block_Armory.x - 10,Block_Armory.y }, 10, "SNIPER range", 0, 100, UI_Legit_Armory_Range_SNIPER, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_6>({ Block_Armory.x - 10,Block_Armory.y }, 11, "SNIPER smooth", 0, 40, UI_Legit_Armory_Smooth_SNIPER);
 				GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 12, "SHOTGUN Body aim (else head)", UI_Legit_Armory_BodyAim_SHOTGUN);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_10>({ Block_Armory.x - 10,Block_Armory.y }, 13, "SHOTGUN range", 0, 100, UI_Legit_Armory_Range_SHOTGUN, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_11>({ Block_Armory.x - 10,Block_Armory.y }, 14, "SHOTGUN smooth", 0, 40, UI_Legit_Armory_Smooth_SHOTGUN);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_12>({ Block_Armory.x - 10,Block_Armory.y }, 15, "SHOTGUN trigger distance", 100, 2000, UI_Legit_Armory_TriggerDistance_SHOTGUN);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_7>({ Block_Armory.x - 10,Block_Armory.y }, 13, "SHOTGUN range", 0, 100, UI_Legit_Armory_Range_SHOTGUN, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_8>({ Block_Armory.x - 10,Block_Armory.y }, 14, "SHOTGUN smooth", 0, 40, UI_Legit_Armory_Smooth_SHOTGUN);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_9>({ Block_Armory.x - 10,Block_Armory.y }, 15, "SHOTGUN trigger distance", 100, 2000, UI_Legit_Armory_TriggerDistance_SHOTGUN);
 				const auto Block_Triggerbot = GUI_VAR.GUI_Block(580, 30, 190, "Trigger bot");
 				GUI_VAR.GUI_Checkbox(Block_Triggerbot, 1, "Enabled", UI_Legit_Triggerbot);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_13>(Block_Triggerbot, 1, UI_Legit_Triggerbot_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Triggerbot_1>(Block_Triggerbot, 1, UI_Legit_Triggerbot_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Triggerbot.x + 20,Block_Triggerbot.y }, 2, "Any target", UI_Legit_Triggerbot_AnyTarget);
 				GUI_VAR.GUI_Checkbox({ Block_Triggerbot.x + 20,Block_Triggerbot.y }, 3, "Shoot when accurate", UI_Legit_Triggerbot_ShootWhenAccurate);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_14>(Block_Triggerbot, 4, "Shoot delay", 1, 500, UI_Legit_Triggerbot_ShootDelay, "ms");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_15>(Block_Triggerbot, 5, "Shoot duration", 1, 1000, UI_Legit_Triggerbot_ShootDuration, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Triggerbot_2>(Block_Triggerbot, 4, "Shoot delay", 1, 500, UI_Legit_Triggerbot_ShootDelay, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Triggerbot_3>(Block_Triggerbot, 5, "Shoot duration", 1, 1000, UI_Legit_Triggerbot_ShootDuration, "ms");
 				const auto Block_PreciseAim = GUI_VAR.GUI_Block(580, 240, 130, "Precise aim");
 				GUI_VAR.GUI_Checkbox(Block_PreciseAim, 1, "Enabled", UI_Legit_PreciseAim);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_16>(Block_PreciseAim, 2, "Default sensitivity", 0, 0.022, UI_Legit_PreciseAim_DefaultSensitivity);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_17>(Block_PreciseAim, 3, "Enable sensitivity", 0, 0.015, UI_Legit_PreciseAim_EnableSensitivity);
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_PreciseAim_1>(Block_PreciseAim, 2, "Default sensitivity", 0, 0.022, UI_Legit_PreciseAim_DefaultSensitivity);
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_PreciseAim_2>(Block_PreciseAim, 3, "Enable sensitivity", 0, 0.015, UI_Legit_PreciseAim_EnableSensitivity);
 				const auto Block_RemoveRecoil = GUI_VAR.GUI_Block(580, 390, 160, "Remove recoil");
 				GUI_VAR.GUI_Checkbox(Block_RemoveRecoil, 1, "Enabled", UI_Legit_RemoveRecoil);
 				GUI_VAR.GUI_Checkbox({ Block_RemoveRecoil.x + 20,Block_RemoveRecoil.y }, 2, "Lateral repair", UI_Legit_RemoveRecoil_LateralRepair);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_18>(Block_RemoveRecoil, 3, "Start bullet", 1, 10, UI_Legit_RemoveRecoil_StartBullet);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_19>(Block_RemoveRecoil, 4, "Sensitive", 0, 100, UI_Legit_RemoveRecoil_Sensitive, "%");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_RemoveRecoil_1>(Block_RemoveRecoil, 3, "Start bullet", 1, 10, UI_Legit_RemoveRecoil_StartBullet);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_RemoveRecoil_2>(Block_RemoveRecoil, 4, "Sensitive", 0, 100, UI_Legit_RemoveRecoil_Sensitive, "%");
 				const auto Block_MagnetAim = GUI_VAR.GUI_Block(580, 570, 130, "Magnet aim");
 				GUI_VAR.GUI_Checkbox(Block_MagnetAim, 1, "Enabled", UI_Legit_MagnetAim);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_20>(Block_MagnetAim, 2, "Range", 0, 100, UI_Legit_MagnetAim_Range, "%");
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_21>(Block_MagnetAim, 3, "Smooth", 0.5, 6.6666, UI_Legit_MagnetAim_Smooth);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_MagnetAim_1>(Block_MagnetAim, 2, "Range", 0, 100, UI_Legit_MagnetAim_Range, "%");
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_MagnetAim_2>(Block_MagnetAim, 3, "Smooth", 0.5, 6.6666, UI_Legit_MagnetAim_Smooth);
 				const auto Block_Backtracking = GUI_VAR.GUI_Block(580, 720, 130, "Back tracking");
 				GUI_VAR.GUI_Checkbox(Block_Backtracking, 1, "Enabled", UI_Legit_Backtracking);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_22>(Block_Backtracking, 2, "Minimum time", 0, 500, UI_Legit_Backtracking_MinimumTime, "ms");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_23>(Block_Backtracking, 3, "Maximum time", UI_Legit_Backtracking_MinimumTime, 1000, UI_Legit_Backtracking_MaximumTime, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Backtracking_1>(Block_Backtracking, 2, "Minimum time", 0, 500, UI_Legit_Backtracking_MinimumTime, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Backtracking_2>(Block_Backtracking, 3, "Maximum time", UI_Legit_Backtracking_MinimumTime, 1000, UI_Legit_Backtracking_MaximumTime, "ms");
 				GUI_VAR.GUI_Tips(Block_Aimbot, 1, "Help you quickly aim at the target.");
 				GUI_VAR.GUI_Tips({ Block_Aimbot.x + 10,Block_Aimbot.y }, 5, "Prefer Ragebot.", 0, { 255,150,150 });
 				GUI_VAR.GUI_Tips(Block_Aimbot, 9, "More biological than normal aimbot.", 0, { 200,200,150 });
@@ -531,41 +531,41 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			{
 				const auto Block_ESP = GUI_VAR.GUI_Block(150, 30, 550, "Extra sensory perception");
 				GUI_VAR.GUI_Checkbox(Block_ESP, 1, "Enabled", UI_Visual_ESP);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_24>(Block_ESP, 1, UI_Visual_ESP_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_ESP_1>(Block_ESP, 1, UI_Visual_ESP_Key);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 2, "Box", UI_Visual_ESP_Box);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 3, "Health bar", UI_Visual_ESP_Health);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 4, "Weapon text", UI_Visual_ESP_ActiveWeapon);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 5, "Line", UI_Visual_ESP_Line);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 6, "Skeleton", UI_Visual_ESP_Skeleton);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_25>(Block_ESP, 7, "Thickness", 1, 5, UI_Visual_ESP_Skeleton_Thickness, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_ESP_2>(Block_ESP, 7, "Thickness", 1, 5, UI_Visual_ESP_Skeleton_Thickness, "px");
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 8, "Head dot", UI_Visual_ESP_HeadDot);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 9, "State", UI_Visual_ESP_State);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 10, "Name", UI_Visual_ESP_Name);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 11, "Drops", UI_Visual_ESP_Drops);
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 12, "Out of FOV arrow", UI_Visual_ESP_OutFOV);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_26>(Block_ESP, 13, "Size", 20, 70, UI_Visual_ESP_OutFOV_Size, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_27>(Block_ESP, 14, "Radius", 0, 100, UI_Visual_ESP_OutFOV_Radius, "%");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_ESP_3>(Block_ESP, 13, "Size", 20, 70, UI_Visual_ESP_OutFOV_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_ESP_4>(Block_ESP, 14, "Radius", 0, 100, UI_Visual_ESP_OutFOV_Radius, "%");
 				GUI_VAR.GUI_Checkbox({ Block_ESP.x + 20,Block_ESP.y }, 15, "Custom color", UI_Visual_ESP_CustomColor);
 				GUI_VAR.GUI_ColorSelector(Block_ESP, 15, UI_Visual_ESP_CustomColor_Color);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_28>(Block_ESP, 16, "Draw alpha", 20, 255, UI_Visual_ESP_DrawAlpha);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_29>(Block_ESP, 17, "Draw delay", 1, 30, UI_Visual_ESP_DrawDelay, "ms");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_ESP_5>(Block_ESP, 16, "Draw alpha", 20, 255, UI_Visual_ESP_DrawAlpha);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_ESP_6>(Block_ESP, 17, "Draw delay", 1, 30, UI_Visual_ESP_DrawDelay, "ms");
 				const auto Block_Hitmark = GUI_VAR.GUI_Block(580, 30, 280, "Hit mark");
 				GUI_VAR.GUI_Checkbox(Block_Hitmark, 1, "Enabled", UI_Visual_HitMark);
 				GUI_VAR.GUI_ColorSelector(Block_Hitmark, 1, UI_Visual_HitMark_Color);
 				GUI_VAR.GUI_Checkbox({ Block_Hitmark.x + 20,Block_Hitmark.y }, 2, "Show damage", UI_Visual_HitMark_Damage);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_30>(Block_Hitmark, 3, "Range", 3, 100, UI_Visual_HitMark_Range, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_31>(Block_Hitmark, 4, "Length", 3, 100, UI_Visual_HitMark_Length, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_32>(Block_Hitmark, 5, "Thickness", 1, 10, UI_Visual_HitMark_Thickness, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Hitmark_1>(Block_Hitmark, 3, "Range", 3, 100, UI_Visual_HitMark_Range, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Hitmark_2>(Block_Hitmark, 4, "Length", 3, 100, UI_Visual_HitMark_Length, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Hitmark_3>(Block_Hitmark, 5, "Thickness", 1, 10, UI_Visual_HitMark_Thickness, "px");
 				GUI_VAR.GUI_Checkbox({ Block_Hitmark.x + 20,Block_Hitmark.y }, 6, "Lightning effect", UI_Visual_HitMark_KillEffect);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_33>(Block_Hitmark, 7, "Quantity", 10, 500, UI_Visual_HitMark_KillEffect_Quantity);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_34>(Block_Hitmark, 8, "Range", 10, 500, UI_Visual_HitMark_KillEffect_Range);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Hitmark_4>(Block_Hitmark, 7, "Quantity", 10, 500, UI_Visual_HitMark_KillEffect_Quantity);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Hitmark_5>(Block_Hitmark, 8, "Range", 10, 500, UI_Visual_HitMark_KillEffect_Range);
 				const auto Block_Radar = GUI_VAR.GUI_Block(580, 330, 190, "Radar");
 				GUI_VAR.GUI_Checkbox(Block_Radar, 1, "Enabled", UI_Visual_Radar);
 				GUI_VAR.GUI_Button_Small({ Block_Radar.x + 10,Block_Radar.y }, 2, UI_Visual_Radar_Show);
 				GUI_VAR.GUI_Checkbox({ Block_Radar.x + 20,Block_Radar.y }, 2, "Follow angle", UI_Visual_Radar_FollowAngle);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_35>(Block_Radar, 3, "Range", 0.2, 40, UI_Visual_Radar_Range);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_36>(Block_Radar, 4, "Size", 150, 500, UI_Visual_Radar_Size, "px");
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_37>(Block_Radar, 5, "Alpha", 0, 255, UI_Visual_Radar_Alpha);
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Radar_1>(Block_Radar, 3, "Range", 0.2, 40, UI_Visual_Radar_Range);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Radar_2>(Block_Radar, 4, "Size", 150, 500, UI_Visual_Radar_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Radar_3>(Block_Radar, 5, "Alpha", 0, 255, UI_Visual_Radar_Alpha);
 				GUI_VAR.GUI_Tips(Block_ESP, 1, "Learn enemy coordinates through walls. (Full screen cannot be used)");
 				GUI_VAR.GUI_Tips(Block_Hitmark, 1, "Effect that triggers when hitting the player.");
 				GUI_VAR.GUI_Tips(Block_Radar, 1, "Exterior window radar. (Full screen cannot be used)");
@@ -576,31 +576,31 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_Misc = GUI_VAR.GUI_Block(150, 30, 720, "Miscellaneous");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 1, "Bunny hop", UI_Misc_BunnyHop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 2, "Hit sound", UI_Misc_HitSound);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_38>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_39>(Block_Misc, 4, "Length", 10, 80, UI_Misc_HitSound_Length);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Misc_1>(Block_Misc, 3, "Tone", 10, 5000, UI_Misc_HitSound_Tone);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Misc_2>(Block_Misc, 4, "Length", 10, 80, UI_Misc_HitSound_Length);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 5, "Sonar", UI_Misc_Sonar);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_40>(Block_Misc, 5, UI_Misc_Sonar_Key);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_41>(Block_Misc, 6, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_42>(Block_Misc, 7, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Misc_3>(Block_Misc, 5, UI_Misc_Sonar_Key);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Misc_4>(Block_Misc, 6, "Range far", 500, 1000, UI_Misc_Sonar_Range_Far);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Misc_5>(Block_Misc, 7, "Range near", 0, 500, UI_Misc_Sonar_Range_Near);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 8, "Knife bot", UI_Misc_AutoKnife);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_43>(Block_Misc, 8, UI_Misc_AutoKnife_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Misc_6>(Block_Misc, 8, UI_Misc_AutoKnife_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 9, "Taser bot", UI_Misc_AutoTaser);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_44>(Block_Misc, 9, UI_Misc_AutoTaser_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Misc_7>(Block_Misc, 9, UI_Misc_AutoTaser_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 10, "Water mark", UI_Misc_Watermark);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 11, "Sniper crosshair", UI_Misc_SniperCrosshair);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_45>(Block_Misc, 12, "Size", 10, 60, UI_Misc_SniperCrosshair_Size, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Misc_8>(Block_Misc, 12, "Size", 10, 60, UI_Misc_SniperCrosshair_Size, "px");
 				GUI_VAR.GUI_Checkbox(Block_Misc, 13, "Anti AFK kick", UI_Misc_AntiAFKKick);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 14, "Lock game window", UI_Misc_LockGameWindow);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 15, "Hide from OBS", UI_Misc_ByPassOBS);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 16, "Save performance", UI_Misc_SavePerformance, { 255,150,150 });
 				GUI_VAR.GUI_Checkbox(Block_Misc, 17, "Night mode", UI_Misc_NightMode);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_46>(Block_Misc, 18, "Alpha", 50, 180, UI_Misc_NightMode_Alpha);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Misc_9>(Block_Misc, 18, "Alpha", 50, 180, UI_Misc_NightMode_Alpha);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 19, "Auto peek", UI_Misc_AutoPeek);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_47>(Block_Misc, 19, UI_Misc_AutoPeek_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Misc_10>(Block_Misc, 19, UI_Misc_AutoPeek_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 20, "Quick stop", UI_Misc_QuickStop);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 21, "Auto kill ceasefire", UI_Misc_AutoKillCeasefire);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 22, "Cursor ESP", UI_Misc_CursorESP);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_48>(Block_Misc, 22, UI_Misc_CursorESP_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Misc_11>(Block_Misc, 22, UI_Misc_CursorESP_Key);
 				GUI_VAR.GUI_Checkbox(Block_Misc, 23, "Global team check", UI_Misc_TeamCheck, { 200,200,150 });
 				const auto Block_Resolution = GUI_VAR.GUI_Block(580, 30, 160, "Screen resolution");
 				GUI_VAR.GUI_Button(Block_Resolution, 1, "2560 * 1440", UI_Visual_Res_2560, 78);
@@ -613,21 +613,21 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				auto Block_Spoof = GUI_VAR.GUI_Block(580, 380, 370, "Spoof");
 				GUI_VAR.GUI_Checkbox(Block_Spoof, 1, "Enabled", UI_Spoof_Spoof, { 200,200,150 });
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 2, "Aim at teammate", UI_Spoof_AimbotTeam);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_49>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_50>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Spoof_1>(Block_Spoof, 2, UI_Spoof_AimbotTeam_Key);
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Spoof_2>({ Block_Spoof.x + 20,Block_Spoof.y }, 3, "Smooth", 0, 20, UI_Spoof_AimbotTeam_Smooth);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 4, "Increase recoil", UI_Spoof_IncreaseRecoil);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_51>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Spoof_3>({ Block_Spoof.x + 20,Block_Spoof.y }, 5, "Strength", 50, 1000, UI_Spoof_IncreaseRecoil_Value, "px");
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 6, "Unable to pick up C4", UI_Spoof_DropC4);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 7, "Fake anti aim", UI_Spoof_FakeAntiAim);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_52>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Spoof_4>(Block_Spoof, 7, UI_Spoof_FakeAntiAim_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 8, "Kill drop sniper", UI_Spoof_KillDropSniper);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 9, "Learn player", UI_Spoof_LearnPlayer);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_53>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Spoof_5>(Block_Spoof, 9, UI_Spoof_LearnPlayer_Key);
 				GUI_VAR.GUI_Checkbox({ Block_Spoof.x + 20,Block_Spoof.y }, 10, "Fake ragebot", UI_Spoof_FakeRageBot);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_54>(Block_Spoof, 10, UI_Spoof_FakeRageBot_Key);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Spoof_6>(Block_Spoof, 10, UI_Spoof_FakeRageBot_Key);
 				auto FakeRageBot_SliderString = "Target: " + Advanced::Player_Name(UI_Spoof_FakeRageBot_Target);
 				if (!UI_Spoof_FakeRageBot_Target)FakeRageBot_SliderString = "Target: Any target";
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_55>({ Block_Spoof.x + 20,Block_Spoof.y }, 11, FakeRageBot_SliderString, 0, 64, UI_Spoof_FakeRageBot_Target);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Spoof_7>({ Block_Spoof.x + 20,Block_Spoof.y }, 11, FakeRageBot_SliderString, 0, 64, UI_Spoof_FakeRageBot_Target);
 				GUI_VAR.GUI_Tips(Block_Misc, 2, "Play Beep when hitting player.");
 				GUI_VAR.GUI_Tips(Block_Misc, 5, "Makes a subtle sound when approaching an enemy.");
 				GUI_VAR.GUI_Tips(Block_Misc, 8, "Auto attack when conditions such as distance and blood volume are met.");
@@ -648,41 +648,14 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 10, "Mimic Ragebot silent aim.");
 				GUI_WindowSize = { 1010,780 };
 			}
-			else if (UI_Panel == 3)//Setting
-			{
-				const auto Block_About = GUI_VAR.GUI_Block(150, 30, 160, "About");
-				GUI_VAR.GUI_Text(Block_About, 1, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color());
-				GUI_VAR.GUI_Text({ Block_About.x + 47,Block_About.y }, 1, "for Counter-Strike 2 (External)", { 100,100,100 });
-				GUI_VAR.GUI_Text(Block_About, 2, "Version: " + Variable::Float_Precision(Rensen_Version), { 100,100,100 });
-				GUI_VAR.GUI_Text(Block_About, 3, "Release date: " + Rensen_ReleaseDate, { 100,100,100 });
-				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
-				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_OPENLINKAuthor);
-				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", 0, GUI_VAR.Global_Get_EasyGUI_Color());
-				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 310, "Menu");
-				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_Menu_56>(Block_Menu, 1, UI_Setting_MenuKey);
-				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_CustomColor);
-				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_MainColor);
-				if (UI_Setting_MainColor.a < 100)UI_Setting_MainColor.a = 100;
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_Menu_57>(Block_Menu, 3, "Menu animation speed", 1.2, 10, UI_Setting_MenuAnimation);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_Menu_58>(Block_Menu, 4, "Menu font size", 0, 30, UI_Setting_MenuFontSize, "px");
-				GUI_VAR.GUI_InputText<class CLASS_Rensen_Menu_59>(Block_Menu, 5, UI_Setting_MenuFont, "Custom menu font");
-				GUI_VAR.GUI_Button(Block_Menu, 6, "Save local config", UI_Setting_SaveLocalConfig, 65);
-				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 7, "Quit CS", UI_Setting_QuitCS, 90);
-				else GUI_VAR.GUI_Button(Block_Menu, 7, "Start CS", UI_Setting_StartCS, 85);
-				GUI_VAR.GUI_Button(Block_Menu, 8, "Restart menu", UI_Setting_RestartMenu, 75);
-				GUI_VAR.GUI_Button(Block_Menu, 9, "Unload", UI_Setting_Unload, 95);
-				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 6, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
-				GUI_WindowSize = { 580,550 };
-			}
-			else if (UI_Panel == 4)//Debug
+			else if (UI_Panel == 3)//List
 			{
 				const auto Block_PlayerList = GUI_VAR.GUI_Block(150, 30, 790, "Player list", 330);
 				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static string PlayerName = "";
-				GUI_VAR.GUI_Slider<int, class CLASS_Debug_PlayerID>(Block_PlayerList, 1, "Player ID", 0, 64, Debug_Control_Var::SelectPlayer);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_PlayerList_1>(Block_PlayerList, 1, "Player ID", 0, 64, Debug_Control_Var::SelectPlayer);
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
 				if (UI_Debug_PlayerList_ReloadList || System::Sleep_Tick<class CLASS_DEBUG_AUTO_RELOAD_PLAYERLIST_>(5000)) { ReLoad(true); PlayerNameList = {}; for (short i = 0; i <= 64; ++i)PlayerNameList.push_back(Advanced::Player_Name(i)); System::Log("Debug: Reload player list"); }//刷新玩家列表页面
-				GUI_VAR.GUI_InputText<class CLASS_Debug_PlayerName>(Block_PlayerList, 2, PlayerName, "Search player name");
+				GUI_VAR.GUI_InputText<class CLASS_Block_PlayerList_2>(Block_PlayerList, 2, PlayerName, "Search player name");
 				if (PlayerName != "" && PlayerName != "None") { for (short i = 0; i <= 64; ++i)if (PlayerName == Advanced::Player_Name(i))Debug_Control_Var::SelectPlayer = i; }//人物名称搜索
 				GUI_VAR.GUI_List(Block_PlayerList, 3, PlayerNameList, Debug_Control_Var::SelectPlayer, 27);
 				GUI_VAR.GUI_Tips({ Block_PlayerList.x + 12,Block_PlayerList.y }, 1, "Reload player list.");
@@ -716,14 +689,14 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_DebugControl = GUI_VAR.GUI_Block(510, 540, 280, "Debug control", 330);
 				GUI_VAR.GUI_Checkbox(Block_DebugControl, 1, "Show console window", UI_Debug_ShowDebugWindow);
 				GUI_VAR.GUI_Button_Small({ Block_DebugControl.x - 2,Block_DebugControl.y }, 1, Debug_Control_Var::ClearCommand);
-				GUI_VAR.GUI_InputText<class CLASS_Rensen_DebugControl_1>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 2, Debug_Control_Var::SystemCommand, "Command");
+				GUI_VAR.GUI_InputText<class CLASS_Block_DebugControl_1>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 2, Debug_Control_Var::SystemCommand, "Command");
 				GUI_VAR.GUI_Button_Small({ Block_DebugControl.x - 2,Block_DebugControl.y }, 2, Debug_Control_Var::SendSystemCommand);
 				GUI_VAR.GUI_Checkbox(Block_DebugControl, 3, "Checkbox 1", Debug_Control_Var::Checkbox_1);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_DebugControl_2>({ Block_DebugControl.x - 70,Block_DebugControl.y }, 3, Debug_Control_Var::KeySelector_1);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_DebugControl_2>({ Block_DebugControl.x - 70,Block_DebugControl.y }, 3, Debug_Control_Var::KeySelector_1);
 				GUI_VAR.GUI_Checkbox(Block_DebugControl, 4, "Checkbox 2", Debug_Control_Var::Checkbox_2);
-				GUI_VAR.GUI_KeySelector<class CLASS_Rensen_DebugControl_3>({ Block_DebugControl.x - 70,Block_DebugControl.y }, 4, Debug_Control_Var::KeySelector_2);
-				GUI_VAR.GUI_Slider<int, class CLASS_Rensen_DebugControl_4>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 5, "Slider int", -100, 100, Debug_Control_Var::Slider_1);
-				GUI_VAR.GUI_Slider<float, class CLASS_Rensen_DebugControl_5>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 6, "Slider float", -50, 50, Debug_Control_Var::Slider_2);
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_DebugControl_3>({ Block_DebugControl.x - 70,Block_DebugControl.y }, 4, Debug_Control_Var::KeySelector_2);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_DebugControl_4>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 5, "Slider int", -100, 100, Debug_Control_Var::Slider_1);
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_DebugControl_5>({ Block_DebugControl.x - 15,Block_DebugControl.y }, 6, "Slider float", -50, 50, Debug_Control_Var::Slider_2);
 				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 7, "Button 1", Debug_Control_Var::Button_1);
 				GUI_VAR.GUI_Button({ Block_DebugControl.x - 15,Block_DebugControl.y }, 8, "Button 2", Debug_Control_Var::Button_2);
 				GUI_VAR.GUI_Tips(Block_DebugControl, 1, "Clear console.");
@@ -748,6 +721,42 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					System::Log("IP V4: " + System::Get_IPv4Address());//打印用户IPV4
 				}
 				GUI_WindowSize = { 870,850 };
+			}
+			else if (UI_Panel == 4)//Setting
+			{
+				const auto Block_About = GUI_VAR.GUI_Block(150, 30, 160, "About");
+				GUI_VAR.GUI_Text(Block_About, 1, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color());
+				GUI_VAR.GUI_Text({ Block_About.x + 47,Block_About.y }, 1, "for Counter-Strike 2 (External)", { 100,100,100 });
+				GUI_VAR.GUI_Text(Block_About, 2, "Version: " + Variable::Float_Precision(Rensen_Version), { 100,100,100 });
+				GUI_VAR.GUI_Text(Block_About, 3, "Release date: " + Rensen_ReleaseDate, { 100,100,100 });
+				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
+				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_OPENLINKAuthor);
+				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", 0, GUI_VAR.Global_Get_EasyGUI_Color());
+				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 310, "Menu");
+				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
+				GUI_VAR.GUI_KeySelector<class CLASS_Block_Menu_1>(Block_Menu, 1, UI_Setting_MenuKey);
+				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_CustomColor);
+				GUI_VAR.GUI_ColorSelector_a(Block_Menu, 2, UI_Setting_MainColor);
+				if (UI_Setting_MainColor.a < 100)UI_Setting_MainColor.a = 100;
+				GUI_VAR.GUI_Slider<float, class CLASS_Block_Menu_2>(Block_Menu, 3, "Menu animation speed", 1.2, 10, UI_Setting_MenuAnimation);
+				GUI_VAR.GUI_Slider<int, class CLASS_Block_Menu_3>(Block_Menu, 4, "Menu font size", 0, 30, UI_Setting_MenuFontSize, "px");
+				GUI_VAR.GUI_InputText<class CLASS_Block_Menu_4>(Block_Menu, 5, UI_Setting_MenuFont, "Custom menu font");
+				GUI_VAR.GUI_Button(Block_Menu, 6, "Save local config", UI_Setting_SaveLocalConfig, 65);
+				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 7, "Quit CS", UI_Setting_QuitCS, 90);
+				else GUI_VAR.GUI_Button(Block_Menu, 7, "Start CS", UI_Setting_StartCS, 85);
+				GUI_VAR.GUI_Button(Block_Menu, 8, "Restart menu", UI_Setting_RestartMenu, 75);
+				GUI_VAR.GUI_Button(Block_Menu, 9, "Unload", UI_Setting_Unload, 95);
+				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 6, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
+				GUI_WindowSize = { 580,550 };
+			}
+			else if (UI_Panel == 5)//Attach
+			{
+				const auto Block_Size = GUI_VAR.Window_GetSize().y - 60;
+				const auto Block_A = GUI_VAR.GUI_Block(150, 30, Block_Size, "Block_A");
+				//Additional Controls Code A
+				const auto Block_B = GUI_VAR.GUI_Block(580, 30, Block_Size, "Block_B");
+				//Additional Controls Code B
+				GUI_WindowSize = { 1010,900 };
 			}
 			GUI_VAR.Draw_GUI(Debug_Control_Var::Checkbox_2);//最终绘制GUI画板
 			if (UI_Misc_SavePerformance)Sleep(10);//节省电脑占用性能
@@ -844,8 +853,11 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x + WaterMark_String_Size / 2, Watermark_Pos.y, WaterMark_String_Size / 2, 1, { GUI_IO.GUIColor_Rainbow[3], GUI_IO.GUIColor_Rainbow[4], GUI_IO.GUIColor_Rainbow[5],255 }, { GUI_IO.GUIColor_Rainbow[6], GUI_IO.GUIColor_Rainbow[7], GUI_IO.GUIColor_Rainbow[8],255 });
 				}
 				Window_Watermark_Render.Render_String(Watermark_Pos.x + 4, Watermark_Pos.y + 2, WaterMark_String, "Small Fonts", 12, { 255,255,255 }, false);
-				Window_Watermark_Render.RenderA_SmpStr(2, 2, "Release" + Rensen_ReleaseDate, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//编译日期绘制
-				Window_Watermark_Render.RenderA_SmpStr(2, 2 + 14, "Offsets" + CS2_Offsets::Offsets_Date, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//云偏移更新日期绘制
+				if (Menu_Open)//菜单开启时
+				{
+					Window_Watermark_Render.RenderA_SmpStr(2, 2, "Release" + Rensen_ReleaseDate, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//编译日期绘制
+					Window_Watermark_Render.RenderA_SmpStr(2, 2 + 14, "Offsets" + CS2_Offsets::Offsets_Date, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//云偏移更新日期绘制
+				}
 				Window_Watermark_Render.DrawPaint(true);
 			}
 		}
@@ -1574,6 +1586,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 {
 	System::Log("Load Thread: Thread_Funtion_Radar()");
+	Sleep(500);//相比菜单后一步创建窗口
 	Window::Windows Radar_Window; const auto RadarRenderWindow = Radar_Window.Create_Window(UI_Visual_Radar_Size, UI_Visual_Radar_Size + 15, "Rensen - Radar", true);//创建雷达绘制窗口
 	Window::Render Radar_Paint; Radar_Paint.CreatePaint(RadarRenderWindow, 0, 0, 500, 500 + 15);//创建绘制画板
 	Radar_Window.Set_WindowPos(UI_Visual_Radar_Pos.x, UI_Visual_Radar_Pos.y);//套用参数的雷达位置
@@ -1660,7 +1673,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
-		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Sleep(100); Attest = true; }//白名单过滤 (开发者白名单)
+		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Sleep(50); Attest = true; }//白名单过滤 (开发者白名单)
 		if (!Attest)for (short i = 0; i <= 10000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS")Attest = true; }//遍历检测并修改认证
 		UserID_READ.Release();//释放缓存
 	}
@@ -1672,7 +1685,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	Window::Initialization_ConsoleWindow();//初始化控制台窗口 (初始化窗口大小, 清除字符)
 	printf("Welcome to Rensen for Counter-Strike 2 cheat.\nThe Rensen project is a version converted from FreeCS.\nNo team author By: https://github.com/Coslly\nThe following information returned is debugging information.\n");//作者留言
 	System::Log("Load Thread: main()");
-	Sleep(200);//修复重启进程冲突
+	Sleep(100);//修复重启进程冲突
 	if (!System::Judge_File(UI_LocalConfigPath)) { System::Create_File(UI_LocalConfigPath, UI_DefaultConfig); System::Self_Restart(); }//创建默认参数文件 (当未找到参数文件时, 第一次启动时)
 	thread Thread_Menu_ = thread(Thread_Menu);
 	thread Thread_Misc_ = thread(Thread_Misc);

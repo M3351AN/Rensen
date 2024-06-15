@@ -1,4 +1,4 @@
-﻿//2024-06-13 19:30
+﻿//2024-06-15 19:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -2500,7 +2500,7 @@ namespace EasyGUI
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         int Window_FPS() noexcept { return EasyGUI_FPS; }//获取GUI绘制帧数
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
-        BOOL Window_Move(short Draw_Delay = 5) noexcept//移动GUI窗口 (在GUI循环线程内加入此函数不需要添加延时函数来降低CPU占用)
+        BOOL Window_Move(short Draw_Delay = 3) noexcept//移动GUI窗口 (在GUI循环线程内加入此函数不需要添加延时函数来降低CPU占用)
         {
             //--------------------------------消息循环
             MSG msg = { 0 }; if (GetMessage(&msg, 0, 0, 0)) { TranslateMessage(&msg); DispatchMessage(&msg); }
@@ -2528,7 +2528,7 @@ namespace EasyGUI
                         if (In_KeyEvent(VK_LBUTTON))Sleep(1);
                         else Sleep(Draw_Delay);//降低CPU占用
                     }
-                    else this_thread::sleep_for(chrono::nanoseconds(100));//纳秒休眠函数 (让滑条更加顺滑)
+                    else this_thread::sleep_for(chrono::nanoseconds(80));//纳秒休眠函数 (让滑条更加顺滑)
                     return false;
                 }
             }
