@@ -1,4 +1,4 @@
-﻿//2024-06-15 19:30
+﻿//2024-06-25 18:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -342,6 +342,19 @@ namespace Variable//变量转换
     {//Variable::String_Delete("Heello", "e");   return "hello";
         if (Str.find(DeleteStr) != string::npos)Str.erase(Str.find(DeleteStr), DeleteStr.length());//查找是否含有要删除的字符
         return Str;//未找到则返回默认字符
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    Variable::Vector3 Get_Move_Pos(Variable::Vector3 Pos) noexcept//获取指定坐标移动距离
+    {//System::Get_Move_Pos({ 10, 100 }).x;
+        static auto Old_Pos = Pos;
+        if (Pos.x != Old_Pos.x || Pos.y != Old_Pos.y)
+        {
+            const Variable::Vector3 ReturnValue = { Pos.x - Old_Pos.x,Pos.y - Old_Pos.y };
+            Old_Pos = Pos;
+            return ReturnValue;
+        }
+        else return { 0,0 };
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -834,15 +847,14 @@ namespace Window//窗口
         HDC CreatePaint(HWND WindowHWND, int X, int Y, int XX, int YY) noexcept//创建画布（在返回值内进行绘制 请勿放在循环*）
         {
             //-----------------------------------------------------------初始化GDI+
-            Gdiplus::GdiplusStartupInput gdiplusstartupinput;
-            ULONG_PTR gdiplusToken;
+            Gdiplus::GdiplusStartupInput gdiplusstartupinput;ULONG_PTR gdiplusToken;
             Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusstartupinput, nullptr);
             //---------------------------------------------------------------------
             StartPos = { X,Y };
             EndPos = { XX,YY };
             HdcWind = GetWindowDC(WindowHWND);
             hMenDC = CreateCompatibleDC(HdcWind);
-            SelectObject(hMenDC, (HBITMAP)CreateCompatibleBitmap(HdcWind, EndPos.x, EndPos.y));
+            SelectObject(hMenDC, CreateCompatibleBitmap(HdcWind, EndPos.x, EndPos.y));
             return hMenDC;
         }
         HDC Get_HDC() noexcept { return hMenDC; }//获取绘制DC
@@ -1119,10 +1131,10 @@ namespace Window//窗口
             GradientFill(hMenDC, vert, 3, &gTRi, 1, GRADIENT_FILL_TRIANGLE);
         }
         //------------------------------------------------------------------------------------------------
-        void Render_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 }, BOOL Frame = true) noexcept//文字绘制(简单样式)(不包含Alpha)
+        void Render_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 }, BOOL Frame = true, int Font_Size = 9) noexcept//文字绘制(简单样式)(不包含Alpha)
         {
             const HDC Hdc = hMenDC;
-            const HGDIOBJ FontPen = SelectObject(Hdc, CreateFont(9, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, L"Small Fonts"));
+            const HGDIOBJ FontPen = SelectObject(Hdc, CreateFont(Font_Size, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, NONANTIALIASED_QUALITY, FF_DONTCARE, L"Small Fonts"));
             SetBkMode(Hdc, TRANSPARENT);//背景透明
             if (Frame)
             {
@@ -1667,6 +1679,20 @@ namespace System//Windows系统
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
+    Variable::Vector2 Get_Mouse_Move_Pos() noexcept//获取鼠标移动距离
+    {//System::Get_Mouse_Move_Pos().x;
+        POINT MousePos; GetCursorPos(&MousePos);
+        static POINT Old_MousePos = MousePos;
+        if (MousePos.x != Old_MousePos.x || MousePos.y != Old_MousePos.y)
+        {
+            const Variable::Vector2 ReturnValue = { MousePos.x - Old_MousePos.x,MousePos.y - Old_MousePos.y };
+            Old_MousePos = MousePos;
+            return ReturnValue;
+        }
+        else return { 0,0 };
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
     void DownloadToPath(string Str_URL, string Str_DownloadPath) noexcept//下载文件到目录 当返回true则下载成功 如果要下载的文件大于300kb那么下载的几率会很低
     {//System::DownloadToPath("https://codeload.github.com/cazzwastaken/internal-bhop/zip/refs/heads/main", "C:\\TestFile.zip")
         byte Temp[1024]; ULONG Number = 1; FILE* stream; HINTERNET hSession = InternetOpen(L"RookIE/1.0", INTERNET_OPEN_TYPE_PRECONFIG, 0, 0, 0);
@@ -1880,8 +1906,7 @@ namespace System//Windows系统
         //-----------------------------------------------------------------------------------------
         Memory(string ProcessName) noexcept//获取进程ID 用来内存函数(可以用来初始化不放在循环)
         {
-            PROCESSENTRY32 entry = { };
-            entry.dwSize = sizeof(PROCESSENTRY32);
+            PROCESSENTRY32 entry = { }; entry.dwSize = sizeof(PROCESSENTRY32);
             const auto Snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
             while (Process32Next(Snapshot, &entry))
             {
@@ -1897,8 +1922,7 @@ namespace System//Windows系统
         //-----------------------------------------------------------------------------------------
         uintptr_t Get_Module(string ModuleName) noexcept//读取模块地址
         {
-            MODULEENTRY32 entry = { };
-            entry.dwSize = sizeof(MODULEENTRY32);
+            MODULEENTRY32 entry = { }; entry.dwSize = sizeof(MODULEENTRY32);
             const auto Snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, ProcessID);//获取所有模块
             uintptr_t dwModuleBaseAddress = 0;//返回值
             while (Module32Next(Snapshot, &entry))//遍历所有模块
@@ -1941,8 +1965,7 @@ namespace System//Windows系统
         template<class T>
         T Read_Level(uintptr_t Address, vector<uintptr_t>Offsets) noexcept//获取地址的内存(等级地址版本)
         {
-            uintptr_t F = {};
-            T Returnvalue = {};
+            uintptr_t F = {}; T Returnvalue = {};
             ReadProcessMemory(HProcessID, (LPVOID)(Address), &F, sizeof(uintptr_t), 0);
             for (short i = 0; i <= Offsets.size() - 1; ++i)ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[i - 1]), &F, sizeof(uintptr_t), 0);//计算等级
             ReadProcessMemory(HProcessID, (LPVOID)(F + Offsets[Offsets.size() - 1]), &Returnvalue, sizeof(T), 0);
@@ -1962,8 +1985,7 @@ namespace System//Windows系统
             HWND h = GetTopWindow(0); HWND retHwnd = 0;
             while (h)
             {
-                DWORD pid = 0;
-                uintptr_t dwTheardId = GetWindowThreadProcessId(h, &pid);
+                DWORD pid = 0; uintptr_t dwTheardId = GetWindowThreadProcessId(h, &pid);
                 if (dwTheardId != 0 && pid == ProcessID && GetParent(h) == 0 && IsWindowVisible(h))retHwnd = h;
                 h = GetNextWindow(h, GW_HWNDNEXT);
             }

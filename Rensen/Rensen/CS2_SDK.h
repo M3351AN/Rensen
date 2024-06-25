@@ -36,33 +36,33 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	namespace CS2_Offsets//CS2固定偏移量 (游戏更新时需要同时更新 https://github.com/a2x/cs2-dumper.git)
 	{
 		string Offsets_Date = "[0000-00-00 00:00]";
-		uintptr_t dwLocalPlayerController = 0;
-		uintptr_t dwLocalPlayerPawn = 0;
-		uintptr_t dwEntityList = 0;
-		uintptr_t dwViewAngles = 0;
-		uintptr_t dwViewMatrix = 0;
-		uintptr_t m_hPlayerPawn = 0;
-		uintptr_t m_iHealth = 0;
-		uintptr_t m_ArmorValue = 0;
-		uintptr_t m_iTeamNum = 0;
-		uintptr_t m_iIDEntIndex = 0;
-		uintptr_t m_fFlags = 0;
-		uintptr_t m_iShotsFired = 0;
-		uintptr_t m_vecVelocity = 0;
-		uintptr_t m_bSpotted = 0;//m_entitySpottedState + m_bSpotted
-		uintptr_t m_bIsScoped = 0;
-		uintptr_t m_pClippingWeapon = 0;
-		uintptr_t m_pGameSceneNode = 0;
-		uintptr_t m_vecOrigin = 0;
-		uintptr_t m_aimPunchCache = 0;
-		uintptr_t m_vecViewOffset = 0;
-		uintptr_t m_dwBoneMatrix = 0;//m_modelState + m_vecOrigin
-		uintptr_t m_iszPlayerName = 0;
-		uintptr_t m_pActionTrackingServices = 0;
-		uintptr_t m_iNumRoundKills = 0;
-		uintptr_t m_unTotalRoundDamageDealt = 0;
-		uintptr_t m_iItemDefinitionIndex = 0;//m_AttributeManager + m_Item + m_iItemDefinitionIndex
-		uintptr_t m_angEyeAngles = 0;
+		uintptr_t dwLocalPlayerController = 0x0;
+		uintptr_t dwLocalPlayerPawn = 0x0;
+		uintptr_t dwEntityList = 0x0;
+		uintptr_t dwViewAngles = 0x0;
+		uintptr_t dwViewMatrix = 0x0;
+		uintptr_t m_hPlayerPawn = 0x0;
+		uintptr_t m_iHealth = 0x0;
+		uintptr_t m_ArmorValue = 0x0;
+		uintptr_t m_iTeamNum = 0x0;
+		uintptr_t m_iIDEntIndex = 0x0;
+		uintptr_t m_fFlags = 0x0;
+		uintptr_t m_iShotsFired = 0x0;
+		uintptr_t m_vecVelocity = 0x0;
+		uintptr_t m_bSpotted = 0x0;//m_entitySpottedState + m_bSpotted
+		uintptr_t m_bIsScoped = 0x0;
+		uintptr_t m_pClippingWeapon = 0x0;
+		uintptr_t m_pGameSceneNode = 0x0;
+		uintptr_t m_vecOrigin = 0x0;
+		uintptr_t m_aimPunchCache = 0x0;
+		uintptr_t m_vecViewOffset = 0x0;
+		uintptr_t m_dwBoneMatrix = 0x0;//m_modelState + 0x80
+		uintptr_t m_iszPlayerName = 0x0;
+		uintptr_t m_pActionTrackingServices = 0x0;
+		uintptr_t m_iNumRoundKills = 0x0;
+		uintptr_t m_unTotalRoundDamageDealt = 0x0;
+		uintptr_t m_iItemDefinitionIndex = 0x0;//m_AttributeManager + m_Item + m_iItemDefinitionIndex
+		uintptr_t m_angEyeAngles = 0x0;
 	}
 	namespace Base//基础内存函数
 	{
@@ -83,7 +83,6 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			   }
 			   short Flags() const noexcept { return CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_fFlags); }//人物状态
 			   short ShotsFired() const noexcept { return CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_iShotsFired); }//人物开枪子弹数量
-			   float MoveSpeed() const noexcept { const auto Velocity = CS2_MEM.Read<Variable::Vector3>(m_PlayerPawn + CS2_Offsets::m_vecVelocity); return hypot(Velocity.x, Velocity.y); }//人物移动速度
 			   short Spotted() const noexcept { return CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_bSpotted); }//人物发现状态
 			   short Scoped() const noexcept { const auto Scoped = CS2_MEM.Read<short>(m_PlayerPawn + CS2_Offsets::m_bIsScoped); if (Scoped == 65536)return 0; else return Scoped; }//人物狙击枪开镜
 			   short ActiveWeapon(BOOL Type = 0) const noexcept//人物手持武器(类型,ID)
@@ -132,6 +131,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 				   }
 				   else return ClippingWeapon;
 			   }
+			   float MoveSpeed() const noexcept { const auto Velocity = CS2_MEM.Read<Variable::Vector3>(m_PlayerPawn + CS2_Offsets::m_vecVelocity); return hypot(Velocity.x, Velocity.y); }//人物移动速度
 			   string ActiveWeaponName(BOOL Use_WeaponBase = false, uintptr_t WeaponBase = 0) const noexcept//人物手持武器名称
 			   {
 				   auto ClippingWeapon = CS2_MEM.Read<short>(CS2_MEM.Read<uintptr_t>(m_PlayerPawn + CS2_Offsets::m_pClippingWeapon) + CS2_Offsets::m_iItemDefinitionIndex);
@@ -332,7 +332,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 					URL_OFFSETS.Release();//释放文件
 				}
 			}
-			Global_ValidClassID = {};//刷新有效实体ID
+			Global_ValidClassID = {};//遍历前刷新有效实体ID
 			for (short i = 0; i <= 64; ++i)//最大人数64
 			{
 				const auto PlayerPawn = Advanced::Traverse_Player(i);

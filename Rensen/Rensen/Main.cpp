@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-15 19:50]";//程序发布日期
-const float Rensen_Version = 3.98;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-25 18:30]";//程序发布日期
+const float Rensen_Version = 4.02;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1181,7 +1181,7 @@ void Thread_Funtion_AdaptiveAimbot() noexcept//功能线程: 生物瞄准机器�
 	{
 		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_AdaptiveAimbot && System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon(true) == 2)//当CS窗口在最前端 && 本地人物活着 && 按键按下 && 步枪
 		{
-			System::Sleep_ns(5000);//比Sleep更快的函数为了更加自然平滑
+			System::Sleep_ns(3000);//比Sleep更快的函数为了更加自然平滑
 			float Aim_Range = 3; int Aim_Bone = 6; const auto PunchAngle = Global_LocalPlayer.AimPunchAngle();
 			if (abs(PunchAngle.x) * 2 >= Aim_Range)Aim_Range = abs(PunchAngle.x) * 1.5;//计算开枪之后附加后坐力的范围
 			for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
@@ -1209,7 +1209,7 @@ void Thread_Funtion_Triggerbot() noexcept//功能线程: 自动扳机
 	{
 		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Triggerbot && System::Get_Key(UI_Legit_Triggerbot_Key))//当CS窗口在最前端 && 本地人物活着 && 按键按下
 		{
-			System::Sleep_ns(1000);//纳秒级延时
+			System::Sleep_ns(500);//纳秒级延时
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器序号
 			if (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500 || Local_ActiveWeaponID == 31)continue;//过滤特殊武器 (刀子, 电击枪)
 			else if (((UI_Legit_Triggerbot_AnyTarget && Global_LocalPlayer.IDEntIndex() != -1) || Advanced::Check_Enemy(Global_LocalPlayer.IDEntIndex_Pawn())) && (!UI_Legit_Triggerbot_ShootWhenAccurate || Global_LocalPlayer.ActiveWeapon(true) == 1 || Global_LocalPlayer.ActiveWeapon(true) == 4 || Advanced::Stop_Move(50, false)))
@@ -1230,7 +1230,7 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 	{
 		if (Global_IsShowWindow && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
-			System::Sleep_ns(3000);//纳秒级延时 (加快循环速度)
+			System::Sleep_ns(5000);//纳秒级延时 (加快循环速度)
 			if (UI_Legit_PreciseAim)//精确瞄准
 			{
 				const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
@@ -1260,7 +1260,7 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 	System::Log("Load Thread: Thread_Funtion_RemoveRecoil()");
 	while (true)
 	{
-		if (Global_IsShowWindow && Global_LocalPlayer.Health() && System::Get_Key(VK_LBUTTON) && UI_Legit_RemoveRecoil)//移除后坐力
+		if (Global_IsShowWindow && UI_Legit_RemoveRecoil && Global_LocalPlayer.Health() && System::Get_Key(VK_LBUTTON))//移除后坐力
 		{
 			static auto OldPunch = Variable::Vector3{};
 			if (Global_LocalPlayer.ShotsFired() >= UI_Legit_RemoveRecoil_StartBullet)//判断开出的子弹数
