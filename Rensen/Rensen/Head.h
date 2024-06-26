@@ -1,4 +1,4 @@
-﻿//2024-06-25 18:30
+﻿//2024-06-26 23:20
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -364,8 +364,8 @@ namespace Window//窗口
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
     template<class A>//防止同窗口冲突  不同的窗口改不同的类
-    Variable::Vector3 Get_PixelColor(int X, int Y, HWND Window_HWND = 0) noexcept//采取屏幕颜色
-    {//Window::Get_PixelColor<class Get_PixelColor>(100, 100).x;
+    Variable::Vector4 Get_PixelColor(int X, int Y, HWND Window_HWND = 0) noexcept//采取屏幕颜色
+    {//Window::Get_PixelColor<class Get_PixelColor>(100, 100).r;
         static auto Window_HDC = GetWindowDC(Window_HWND);
         const auto Pixel = GetPixel(Window_HDC, X, Y);
         return { GetRValue(Pixel), GetGValue(Pixel), GetBValue(Pixel) };
@@ -480,6 +480,18 @@ namespace Window//窗口
     void Set_WindowName(HWND WindowHWND, string Title) noexcept//修改特定窗口标题 修改之后再次修改要修改修改后的标题
     {//Window::Set_WindowName(FindWindow(NULL, L"TestWindow"),"Test Window 1");
         SetWindowText(WindowHWND, wstring(Title.begin(), Title.end()).c_str());//修改窗口标题
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    Variable::Vector2 Get_WindowPos(HWND WindowHWND) noexcept//获取窗口坐标
+    {
+        RECT Windowrect; GetWindowRect(WindowHWND, &Windowrect);
+        return { Windowrect.left ,Windowrect.top };
+    }
+    Variable::Vector2 Get_WindowSize(HWND WindowHWND) noexcept//获取窗口大小
+    {
+        RECT Windowrect; GetWindowRect(WindowHWND, &Windowrect);
+        return { Windowrect.right - Windowrect.left ,Windowrect.bottom - Windowrect.top };
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -847,7 +859,7 @@ namespace Window//窗口
         HDC CreatePaint(HWND WindowHWND, int X, int Y, int XX, int YY) noexcept//创建画布（在返回值内进行绘制 请勿放在循环*）
         {
             //-----------------------------------------------------------初始化GDI+
-            Gdiplus::GdiplusStartupInput gdiplusstartupinput;ULONG_PTR gdiplusToken;
+            Gdiplus::GdiplusStartupInput gdiplusstartupinput; ULONG_PTR gdiplusToken;
             Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusstartupinput, nullptr);
             //---------------------------------------------------------------------
             StartPos = { X,Y };
@@ -1153,7 +1165,7 @@ namespace Window//窗口
             DeleteObject(FontPen);
         }
         //--------------------------------------------------------------------------------------------------------
-        void RenderA_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 },int Font_Size = 12) noexcept//文字绘制(简单样式)(包含Alpha)
+        void RenderA_SmpStr(int X, int Y, string String, Variable::Vector4 Color_1, Variable::Vector4 Color_2 = { 0,0,0 }, int Font_Size = 12) noexcept//文字绘制(简单样式)(包含Alpha)
         {
             Gdiplus::Graphics HDCwind(hMenDC);//HDC
             HDCwind.SetTextRenderingHint(Gdiplus::TextRenderingHintSingleBitPerPixelGridFit);//不应用抗锯齿
@@ -1666,7 +1678,7 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     int Get_Hold_VKKey() noexcept//获取当前按下的键（VK码 16进制）
     {//printf("0x%X\n", System::Get_Hold_VKKey());
-        for (int i = 0x01; i < 0xFE; ++i)if (GetAsyncKeyState(i) & 0x8000)return i;//vk键码遍历 返回按下的键的vk码
+        for (int i = 0x01; i < 0xFE; ++i)if (GetAsyncKeyState(i) & 0x8000)return i; return 0;//vk键码遍历 返回按下的键的vk码
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -2284,7 +2296,7 @@ namespace EasyGUI
         HDC EasyGUI_WindowHDC = 0;//GUI Window HDC
         Vector2 PaintSize = { 0,0 };//DoubleBufferPaint Size 画布大小
         HDC EasyGUI_DrawHDC = 0;//EasyGUI DrawHDC GUI要绘制的HDC
-        POINT EasyGUI_MousePos;RECT EasyGUI_WindowPos;//EasyGUI窗口鼠标坐标
+        POINT EasyGUI_MousePos; RECT EasyGUI_WindowPos;//EasyGUI窗口鼠标坐标
         int EasyGUI_FPS = 0;//EasyGUI绘制帧数 (需要后期计算得出)
         //------------------
         BOOL Mouse_Block_, Mouse_Slider_ = false;//防止控件函数之间冲突的判断变量
@@ -2297,8 +2309,8 @@ namespace EasyGUI
             gRect.UpperLeft = 0; gRect.LowerRight = 1;
             //------------------------
             const COLORREF Color_ = RGB(Color.r, Color.g, Color.b);
-            vert[0].x = X;vert[0].y = Y;
-            vert[1].x = X + Width;vert[1].y = Y + Length;
+            vert[0].x = X; vert[0].y = Y;
+            vert[1].x = X + Width; vert[1].y = Y + Length;
             vert[0].Red = GetRValue(Color_) << 8;
             vert[0].Green = GetGValue(Color_) << 8;
             vert[0].Blue = GetBValue(Color_) << 8;
@@ -2413,7 +2425,7 @@ namespace EasyGUI
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         void Global_Set_EasyGUI_Font(string FontName) noexcept { Global_EasyGUIFont = FontName; }//设置全局GUI字体
         void Global_Set_EasyGUI_FontSize(int FontSize) noexcept { Global_EasyGUIFontSize = FontSize; }//设置全局GUI字体大小
-        void Global_Set_EasyGUI_Color(Vector4 MainColor) noexcept { Global_EasyGUIColor = MainColor;}//设置全局主题颜色
+        void Global_Set_EasyGUI_Color(Vector4 MainColor) noexcept { Global_EasyGUIColor = MainColor; }//设置全局主题颜色
         string Global_Get_EasyGUI_Font() noexcept { return Global_EasyGUIFont; }//获取全局GUI字体
         int Global_Get_EasyGUI_FontSize() noexcept { return Global_EasyGUIFontSize; }//获取全局GUI字体大小
         Vector4 Global_Get_EasyGUI_Color() noexcept { return Global_EasyGUIColor; }//获取全局主题颜色
@@ -2517,7 +2529,7 @@ namespace EasyGUI
         }
         string Window_GetTitle() noexcept//获取GUI窗口标题
         {
-            CHAR pszMem[MAX_PATH] = { 0 }; GetWindowTextA(EasyGUI_WindowHWND, pszMem, GetWindowTextLength(EasyGUI_WindowHWND) + 1);return pszMem;
+            CHAR pszMem[MAX_PATH] = { 0 }; GetWindowTextA(EasyGUI_WindowHWND, pszMem, GetWindowTextLength(EasyGUI_WindowHWND) + 1); return pszMem;
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         int Window_FPS() noexcept { return EasyGUI_FPS; }//获取GUI绘制帧数
@@ -2954,7 +2966,7 @@ namespace EasyGUI
                 else In_DrawString_Simple(BlockPos.x + 355, BlockPos.y + 27 + 30 * (LineRow - 1), DrawString_VK, { 100,100,100 });
                 return m_KeySelectValue;
             }
-            else In_DrawString_Simple(BlockPos.x + 355, BlockPos.y + 27 + 30 * (LineRow - 1), "[-]", Global_EasyGUIColor/2);//激活读取
+            else In_DrawString_Simple(BlockPos.x + 355, BlockPos.y + 27 + 30 * (LineRow - 1), "[-]", Global_EasyGUIColor / 2);//激活读取
             return false;//激活读取时返回false
         }
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
