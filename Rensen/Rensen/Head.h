@@ -1,4 +1,4 @@
-﻿//2024-06-26 23:20
+﻿//2024-06-27 20:40
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1419,17 +1419,20 @@ namespace System//Windows系统
     //-----------------------------------------------------------------------------------------------------------------------------
     void Key_Click(int VK_CODE, BOOL Sleep_ = false, int SCAN_CODE = 0) noexcept//按下弹起键盘上的某个键位 VK_CODE: https://docs.microsoft.com/zh-cn/windows/win32/inputdev/virtual-key-codes
     {//System::Key_Click(VK_RETURN);
-        if (Sleep_)//添加睡眠函数程序更容易接收
-        {//https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
-            keybd_event(VK_CODE, SCAN_CODE, 0, 0);
-            Sleep(1);
-            keybd_event(VK_CODE, SCAN_CODE, KEYEVENTF_KEYUP, 0);
-            Sleep(1);
-        }
-        else {
-            keybd_event(VK_CODE, SCAN_CODE, 0, 0);
-            keybd_event(VK_CODE, SCAN_CODE, KEYEVENTF_KEYUP, 0);
-        }
+        //https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
+        keybd_event(VK_CODE, SCAN_CODE, 0, 0);
+        if (Sleep_)Sleep(1);
+        keybd_event(VK_CODE, SCAN_CODE, KEYEVENTF_KEYUP, 0);
+        if (Sleep_)Sleep(1);
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    void Key_Click_HWND(HWND Window_HWND, int VK_CODE, BOOL Sleep_ = false) noexcept//向指定窗口按下弹起键盘上的某个键位
+    {//System::Key_Click_HWND(0, VK_RETURN);
+        SendMessage(Window_HWND, WM_KEYDOWN, VK_CODE, 0);
+        if (Sleep_)Sleep(1);
+        SendMessage(Window_HWND, WM_KEYUP, VK_CODE, 0);
+        if (Sleep_)Sleep(1);
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1456,6 +1459,11 @@ namespace System//Windows系统
     {//System::Key_Con(VK_SPACE);//release space key
         if (WAY)keybd_event(VK_CODE, SCAN_CODE, 0, 0);
         else keybd_event(VK_CODE, SCAN_CODE, KEYEVENTF_KEYUP, 0);
+    }
+    void Key_Con_HWND(HWND Window_HWND, int VK_CODE, BOOL WAY = false) noexcept//向指定窗口按下或松开按键
+    {//System::Key_Con_HWND(0, VK_SPACE);//release space key
+        if (WAY)SendMessage(Window_HWND, WM_KEYDOWN, VK_CODE, 0);
+        else SendMessage(Window_HWND, WM_KEYUP, VK_CODE, 0);
     }
     void Mouse_Con(int VK_CODE, BOOL WAY = false) noexcept//按下或松开鼠标按键 (不需要扫描码)
     {//System::Mouse_Con(0x1);//release mouseleft key

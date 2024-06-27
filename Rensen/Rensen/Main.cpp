@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-26 23:20]";//程序发布日期
-const float Rensen_Version = 4.03;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-27 20:40]";//程序发布日期
+const float Rensen_Version = 4.06;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -885,13 +885,6 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			const auto Local_Pos = Global_LocalPlayer.Origin();//本地人物坐标
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
 			//----------------------------------------------------------------------------------------------------------------------------------------
-			if (UI_Misc_BunnyHop && System::Get_Key(VK_SPACE) && Global_LocalPlayer.Flags() & (1 << 0))//连跳 当本地人物触及到地面跳跃
-			{
-				ExecuteCommand("+jump");//跳跃!!!
-				Sleep(1);
-				ExecuteCommand("-jump");
-			}
-			//----------------------------------------------------------------------------------------------------------------------------------------
 			if (UI_Misc_HitSound)//击打音效
 			{
 				static auto OldDamage = 0; static auto OldKill = 0;
@@ -954,10 +947,10 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 			//----------------------------------------------------------------------------------------------------------------------------------------
 			if (UI_Misc_QuickStop)//自动快速急停
 			{
-				const auto Trigger_Value = 40;//急停终止速度
+				const auto Trigger_Value = 20;//急停终止速度
 				if (!(System::Get_Key(0x57) || System::Get_Key(0x41) || System::Get_Key(0x44) || System::Get_Key(0x53) || System::Get_Key(VK_SPACE)) && Global_LocalPlayer.MoveSpeed() > Trigger_Value && Global_LocalPlayer.Flags() & (1 << 0))
 				{
-					for (int i = 0; i <= 10; ++i)//遍历 (为了精准急停)
+					for (int i = 0; i <= 3; ++i)//遍历 (为了精准急停)
 					{
 						if (Global_LocalPlayer.MoveSpeed() <= Trigger_Value)continue;//每次遍历都检查速度
 						const auto LocalVel = Global_LocalPlayer.Velocity();
@@ -1054,6 +1047,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					IS_LearnPlayer = false;
 				}
 				//--------------------------------------
+				static auto Old_Angle = Base::ViewAngles();//原始视角坐标 (要返回的坐标)
 				if (UI_Spoof_FakeRageBot && System::Get_Key(UI_Spoof_FakeRageBot_Key))//对某玩家实施暴力瞄准
 				{
 					for (int i = 0; i <= 64; ++i)//遍历人物ID
@@ -1063,7 +1057,6 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 						const auto Target = Advanced::Traverse_Player(i);
 						if (Target.Health() && Target.Pawn() != Global_LocalPlayer.Pawn() && Target.TeamNumber() != 1)//目标活着 && 不是本地人物
 						{
-							const auto Old_Angle = Base::ViewAngles();//原始视角坐标 (要返回的坐标)
 							const auto Aim_Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), Target.BonePos(6), Global_LocalPlayer.AimPunchAngle() * 2);//计算要瞄准的目标视角坐标
 							Advanced::Move_to_Angle(Aim_Angle, 40, 0.1);//将视角移动到目标位置
 							if (Global_LocalPlayer.IDEntIndex_Pawn().Pawn() == Target.Pawn())//检查是否瞄准到
@@ -1077,6 +1070,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 						}
 					}
 				}
+				else Old_Angle = Base::ViewAngles();//刷新原坐标
 				//--------------------------------------
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
@@ -1085,12 +1079,31 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		else Sleep(20);//降低CPU占用
 	}
 }
+void Thread_Funtion_BunnyHop() noexcept//功能线程: 连跳
+{
+	System::Log("Load Thread: Thread_Funtion_BunnyHop()");
+	while (true)
+	{
+		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Misc_BunnyHop && System::Get_Key(VK_SPACE))
+		{
+			if (Global_LocalPlayer.Flags() & (1 << 0))//当本地人物触及到地面跳跃
+			{
+				ExecuteCommand("+jump");//跳跃!!!
+				Sleep(1);
+				ExecuteCommand("-jump");
+				Sleep(1);
+			}
+			Sleep(5);
+		}
+		else Sleep(20);
+	}
+}
 void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 {
 	System::Log("Load Thread: Thread_Funtion_Aimbot()");
 	while (true)
 	{
-		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Aimbot && System::Get_Key(UI_Legit_Aimbot_Key))
+		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Aimbot && System::Get_Key(UI_Legit_Aimbot_Key))
 		{
 			System::Sleep_ns(1000);//比Sleep更快的函数为了更加自然平滑
 			static short Aim_Range, Aim_Parts; static float Aim_Smooth;//瞄准范围,瞄准部位,瞄准平滑度
@@ -1179,7 +1192,7 @@ void Thread_Funtion_AdaptiveAimbot() noexcept//功能线程: 生物瞄准机器�
 	System::Log("Load Thread: Thread_Funtion_AdaptiveAimbot()");
 	while (true)
 	{
-		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_AdaptiveAimbot && System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon(true) == 2)//当CS窗口在最前端 && 本地人物活着 && 按键按下 && 步枪
+		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_AdaptiveAimbot && System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon(true) == 2)//当CS窗口在最前端 && 本地人物活着 && 按键按下 && 步枪
 		{
 			System::Sleep_ns(3000);//比Sleep更快的函数为了更加自然平滑
 			float Aim_Range = 3; int Aim_Bone = 6; const auto PunchAngle = Global_LocalPlayer.AimPunchAngle();
@@ -1207,7 +1220,7 @@ void Thread_Funtion_Triggerbot() noexcept//功能线程: 自动扳机
 	System::Log("Load Thread: Thread_Funtion_Triggerbot()");
 	while (true)
 	{
-		if (Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Triggerbot && System::Get_Key(UI_Legit_Triggerbot_Key))//当CS窗口在最前端 && 本地人物活着 && 按键按下
+		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Triggerbot && System::Get_Key(UI_Legit_Triggerbot_Key))//当CS窗口在最前端 && 本地人物活着 && 按键按下
 		{
 			System::Sleep_ns(500);//纳秒级延时
 			const auto Local_ActiveWeaponID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器序号
@@ -1228,7 +1241,7 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 	System::Log("Load Thread: Thread_Funtion_AssisteAim()");
 	while (true)
 	{
-		if (Global_IsShowWindow && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
+		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
 			System::Sleep_ns(5000);//纳秒级延时 (加快循环速度)
 			if (UI_Legit_PreciseAim)//精确瞄准
@@ -1260,7 +1273,7 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 	System::Log("Load Thread: Thread_Funtion_RemoveRecoil()");
 	while (true)
 	{
-		if (Global_IsShowWindow && UI_Legit_RemoveRecoil && Global_LocalPlayer.Health() && System::Get_Key(VK_LBUTTON))//移除后坐力
+		if (CS2_HWND && Global_IsShowWindow && UI_Legit_RemoveRecoil && Global_LocalPlayer.Health() && System::Get_Key(VK_LBUTTON))//移除后坐力
 		{
 			static auto OldPunch = Variable::Vector3{};
 			if (Global_LocalPlayer.ShotsFired() >= UI_Legit_RemoveRecoil_StartBullet)//判断开出的子弹数
@@ -1595,7 +1608,7 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 		Sleep(5);//降低CPU占用
 		Radar_Window.Set_WindowTitle(System::Rand_String(10));//随机雷达窗口标题
 		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2);
-		if ((Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
+		if (CS2_HWND && (Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
 		{
 			Radar_Size_ = UI_Visual_Radar_Size; UI_Visual_Radar_Pos = Radar_Window.Get_WindowPos();
 			if (!Radar_Window.Window_Move(15))//移动雷达窗口
@@ -1648,7 +1661,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 	while (true)
 	{
 		Sleep(5);
-		if (Global_IsShowWindow && UI_Misc_Sonar && (UI_Misc_Sonar_Key == 0 || System::Get_Key(UI_Misc_Sonar_Key)) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
+		if (CS2_HWND && Global_IsShowWindow && UI_Misc_Sonar && (UI_Misc_Sonar_Key == 0 || System::Get_Key(UI_Misc_Sonar_Key)) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
 			const auto Local_Pos = Global_LocalPlayer.Origin();//本地人物坐标
 			for (short i = 0; i <= 64; ++i)
@@ -1690,6 +1703,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	thread Thread_Menu_ = thread(Thread_Menu);
 	thread Thread_Misc_ = thread(Thread_Misc);
 	Sleep(50);//防止重启卡线程 (以下为功能函数线程)
+	thread Thread_Funtion_BunnyHop_ = thread(Thread_Funtion_BunnyHop);
 	thread Thread_Funtion_Aimbot_ = thread(Thread_Funtion_Aimbot);
 	thread Thread_Funtion_AdaptiveAimbot_ = thread(Thread_Funtion_AdaptiveAimbot);
 	thread Thread_Funtion_Triggerbot_ = thread(Thread_Funtion_Triggerbot);

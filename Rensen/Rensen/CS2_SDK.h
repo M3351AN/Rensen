@@ -12,26 +12,32 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	BOOL Global_TeamCheck = false;//团队过滤
 	void ExecuteCommand(string Command_Str) noexcept//发送指令到CS控制台
 	{
+		/*
 		COPYDATASTRUCT m_cData; m_cData.cbData = strlen(Command_Str.c_str()) + 1; m_cData.dwData = 0; m_cData.lpData = (void*)Command_Str.c_str();
 		SendMessage(CS2_MEM.Get_ProcessHWND(), WM_COPYDATA, 0, (LPARAM)&m_cData);//发送命令
+		*/
 		//-----------------------------------------------------------------------------------
-		if (Command_Str == "+jump")System::Key_Click(VK_F13, true, 57);//bind F13 "+jump;-jump";bind F14 "m_yaw 0.015";bind F15 "m_yaw 0.004";
-		if (Command_Str == "+lookatweapon")System::Key_Click(0x46, true, 33);
-		if (Command_Str == "drop")System::Key_Click(0x47, true, 34);
+		if (Command_Str == "+jump")System::Key_Con_HWND(CS2_HWND, VK_SPACE, true);
+		else if (Command_Str == "-jump")System::Key_Con_HWND(CS2_HWND, VK_SPACE, false);
+		if (Command_Str == "+duck")System::Key_Con_HWND(CS2_HWND, VK_CONTROL, true);
+		else if (Command_Str == "-duck")System::Key_Con_HWND(CS2_HWND, VK_CONTROL, false);
+		if (Command_Str == "+lookatweapon")System::Key_Con_HWND(CS2_HWND, 0x46, true);
+		else if (Command_Str == "-lookatweapon")System::Key_Con_HWND(CS2_HWND, 0x46, false);
+		if (Command_Str == "drop")System::Key_Click_HWND(CS2_HWND, 0x47, true);
 		//Shoot 开火和使用
 		if (Command_Str == "+attack")mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 		else if (Command_Str == "-attack")mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 		if (Command_Str == "+attack2")mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
 		else if (Command_Str == "-attack2")mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
 		//Movement 移动
-		if (Command_Str == "+forward")System::Key_Con(0x57, true, 17);//W
-		else if (Command_Str == "-forward")System::Key_Con(0x57, false, 17);
-		if (Command_Str == "+back")System::Key_Con(0x53, true, 31);//S
-		else if (Command_Str == "-back")System::Key_Con(0x53, false, 31);
-		if (Command_Str == "+left")System::Key_Con(0x41, true, 30);//A
-		else if (Command_Str == "-left")System::Key_Con(0x41, false, 30);
-		if (Command_Str == "+right")System::Key_Con(0x44, true, 32);//D
-		else if (Command_Str == "-right")System::Key_Con(0x44, false, 32);
+		if (Command_Str == "+forward")System::Key_Con_HWND(CS2_HWND, 0x57, true);//W
+		else if (Command_Str == "-forward")System::Key_Con_HWND(CS2_HWND, 0x57, false);
+		if (Command_Str == "+back")System::Key_Con_HWND(CS2_HWND, 0x53, true);//S
+		else if (Command_Str == "-back")System::Key_Con_HWND(CS2_HWND, 0x53, false);
+		if (Command_Str == "+left")System::Key_Con_HWND(CS2_HWND, 0x41, true);//A
+		else if (Command_Str == "-left")System::Key_Con_HWND(CS2_HWND, 0x41, false);
+		if (Command_Str == "+right")System::Key_Con_HWND(CS2_HWND, 0x44, true);//D
+		else if (Command_Str == "-right")System::Key_Con_HWND(CS2_HWND, 0x44, false);
 	}
 	namespace CS2_Offsets//CS2固定偏移量 (游戏更新时需要同时更新 https://github.com/a2x/cs2-dumper.git)
 	{
@@ -225,7 +231,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			else return CS2_MEM.Read_str(PlayerController + CS2_Offsets::m_iszPlayerName);
 		}
 		BOOL Check_Enemy(Base::PlayerPawn PlayerPawn) noexcept { return (PlayerPawn.Pawn() != Global_LocalPlayer.Pawn() && PlayerPawn.Health() > 0 && (!Global_TeamCheck || Global_LocalPlayer.TeamNumber() != PlayerPawn.TeamNumber()) && PlayerPawn.TeamNumber() != 1); }//判断人物是否是敌人
-		BOOL Stop_Move(short TriggerValue = 70, BOOL Movement = true) noexcept//急停
+		BOOL Stop_Move(short TriggerValue = 85, BOOL Movement = true) noexcept//急停
 		{
 			const auto LocalVel = Global_LocalPlayer.Velocity();
 			if (hypot(LocalVel.x, LocalVel.y) <= TriggerValue)return true;//当精准则返回真
