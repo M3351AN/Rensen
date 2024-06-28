@@ -1,4 +1,4 @@
-﻿//2024-06-27 20:40
+﻿//2024-06-28 22:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -245,14 +245,14 @@ namespace Variable//变量转换
         float radian = ((角度) * 3.1415926535) / 180;
         return { 距离 * sin(radian),距离 * cos(radian) };
     }
-    //-----------------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------
     vector<float> Ang_Pos_(int X, int Y, int Dis, float Ang, float Ang_ = 0) noexcept//角度距离转坐标
     {//Variable::Ang_Pos_(0, 0, 10, 10, 10);
         const float radian = ((Ang + Ang_) * 3.1415926535) / 180;
         vector<float> ReturnValue = { X + Dis * sin(radian),Y + Dis * cos(radian) };
         return ReturnValue;
     }
-    //-----------------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------
     Vector3 Ang_Pos_Vec(Vector3 OG_Pos, int Dis, float Ang, float Ang_ = 0) noexcept//角度距离转坐标
     {//Variable::Ang_Pos_Vec({ 100,100,100 }, 10, 10, 10);
         const float radian = ((Ang + Ang_) * 3.1415926535) / 180;
@@ -324,6 +324,7 @@ namespace Variable//变量转换
         string STR = Str; transform(STR.begin(), STR.end(), STR.begin(), toupper);
         return STR;
     }
+    //-------------------------------------------------------
     string String_Lower(string Str) noexcept//英文字符串转小写
     {//Variable::String_Lower("Abc"); return "abc"
         string STR = Str; transform(STR.begin(), STR.end(), STR.begin(), tolower);
@@ -372,12 +373,6 @@ namespace Window//窗口
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    Variable::Vector2 Get_Resolution() noexcept//获取屏幕分辨率（像素）
-    {//Window::Get_Resolution().x;
-        return { GetSystemMetrics(SM_CXSCREEN) ,GetSystemMetrics(SM_CYSCREEN) };//[0]==X [1]==Y
-    }
-    //-----------------------------------------------------------------------------------------------------------------------------
-    //-----------------------------------------------------------------------------------------------------------------------------
     template<class A>//防止同窗口冲突  不同的窗口改不同的类
     HDC GetDC(HWND Window_HWND, BOOL Change = false) noexcept//无内存泄漏的窗口HDC获取
     {//Window::GetDC(NULL);
@@ -387,6 +382,11 @@ namespace Window//窗口
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
+    Variable::Vector2 Get_Resolution() noexcept//获取屏幕分辨率（像素）
+    {//Window::Get_Resolution().x;
+        return { GetSystemMetrics(SM_CXSCREEN) ,GetSystemMetrics(SM_CYSCREEN) };//[0]==X [1]==Y
+    }
+    //-------------------------------------------------------
     void Set_Resolution(int X, int Y) noexcept//模拟英伟达控制台更改像素 (只适用于系统已经创建的像素搭配!)
     {//Window::Set_Resolution(1440,1080);
         if (X != GetSystemMetrics(SM_CXSCREEN) || Y != GetSystemMetrics(SM_CYSCREEN))//设立条件防止放入循环崩溃

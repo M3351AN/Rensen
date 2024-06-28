@@ -24,12 +24,10 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		if (Command_Str == "+lookatweapon")System::Key_Con_HWND(CS2_HWND, 0x46, true);
 		else if (Command_Str == "-lookatweapon")System::Key_Con_HWND(CS2_HWND, 0x46, false);
 		if (Command_Str == "drop")System::Key_Click_HWND(CS2_HWND, 0x47, true);
-		//Shoot 开火和使用
 		if (Command_Str == "+attack")mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
 		else if (Command_Str == "-attack")mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 		if (Command_Str == "+attack2")mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
 		else if (Command_Str == "-attack2")mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
-		//Movement 移动
 		if (Command_Str == "+forward")System::Key_Con_HWND(CS2_HWND, 0x57, true);//W
 		else if (Command_Str == "-forward")System::Key_Con_HWND(CS2_HWND, 0x57, false);
 		if (Command_Str == "+back")System::Key_Con_HWND(CS2_HWND, 0x53, true);//S

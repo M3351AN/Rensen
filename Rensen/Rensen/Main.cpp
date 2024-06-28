@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-27 20:40]";//程序发布日期
-const float Rensen_Version = 4.06;//程序版本
+const string Rensen_ReleaseDate = "[2024-06-28 22:30]";//程序发布日期
+const float Rensen_Version = 4.07;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -445,7 +445,7 @@ using namespace Control_Var;
 void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义选项)
 {
 	System::Log("Load Thread: Thread_Menu()");
-	GUI_VAR.Window_Create(1200, 1000, "Rensen", true);//创建置顶GUI绘制窗口
+	GUI_VAR.Window_Create(1100, 1000, "Rensen", true);//创建置顶GUI绘制窗口
 	while (true)
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
@@ -753,9 +753,11 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			{
 				const auto Block_Size = GUI_VAR.Window_GetSize().y - 60;
 				const auto Block_A = GUI_VAR.GUI_Block(150, 30, Block_Size, "Block_A");
-				//Additional Controls Code A
+				//A区块控件代码区域
+
 				const auto Block_B = GUI_VAR.GUI_Block(580, 30, Block_Size, "Block_B");
-				//Additional Controls Code B
+				//B区块控件代码区域
+
 				GUI_WindowSize = { 1010,900 };
 			}
 			GUI_VAR.Draw_GUI(Debug_Control_Var::Checkbox_2);//最终绘制GUI画板
@@ -773,37 +775,43 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					else if (UI_Misc_SelectedConfig == 1)LoadCloudConfig("Rage");
 					else if (UI_Misc_SelectedConfig == 2)LoadCloudConfig("Legit No Visual");
 					System::Log("Misc: LoadCloudConfig [" + to_string(Config_ID) + "]");
+					Beep(50, 50);
 				}
 				if (UI_Setting_OPENLINKAuthor)//打开作者Github主题页面
 				{
 					System::Open_Website("https://github.com/Coslly");
 					System::Log("Setting: OpenGithubURL");
+					Beep(50, 50);
 				}
 				if (UI_Setting_SaveLocalConfig || (System::Get_Key(VK_LCONTROL) && System::Get_Key_Onest(0x53)))//保存当前所设置的参数
 				{
 					SaveLocalConfig();
-					Beep(50, 50);
 					System::Log("Setting: SaveConfig");
+					Beep(50, 50);
 				}
 				if (UI_Setting_StartCS)//启动CS
 				{
 					if (CS2_MEM.Get_ProcessHWND() == 0)System::Open_Website("steam://rungameid/730");
 					System::Log("Setting: StartCS");
+					Beep(50, 50);
 				}
 				else if (UI_Setting_QuitCS)//关闭CS
 				{
 					if (CS2_MEM.Get_ProcessHWND() != 0)Window::Kill_Window(CS2_MEM.Get_ProcessHWND());
 					System::Log("Setting: QuitCS");
+					Beep(50, 50);
 				}
 				if (UI_Setting_RestartMenu)//重启菜单
 				{
-					System::Self_Restart();
 					System::Log("Setting: RestartMenu");
+					Beep(50, 50);
+					System::Self_Restart();
 				}
 				if (UI_Setting_Unload)//关闭菜单
 				{
 					Window::NVIDIA_Overlay();
 					System::Log("Setting: Unload");
+					Beep(50, 50);
 					exit(0);
 				}
 			}
