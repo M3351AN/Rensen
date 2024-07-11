@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-06-28 22:30]";//程序发布日期
-const float Rensen_Version = 4.07;//程序版本
+const string Rensen_ReleaseDate = "[2024-07-11 21:40]";//程序发布日期
+const float Rensen_Version = 4.08;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1695,7 +1695,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	{
 		const auto Local_UserName = System::Get_UserName();
 		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Sleep(50); Attest = true; }//白名单过滤 (开发者白名单)
-		if (!Attest)for (short i = 0; i <= 10000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS")Attest = true; }//遍历检测并修改认证
+		if (!Attest)for (short i = 0; i <= 10000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS") { Attest = true; break; } }//遍历检测并修改认证
 		UserID_READ.Release();//释放缓存
 	}
 	if (!Attest) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
