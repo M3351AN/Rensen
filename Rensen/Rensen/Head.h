@@ -1,4 +1,4 @@
-﻿//2024-06-28 22:30
+﻿//2024-07-17 21:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -54,7 +54,7 @@ namespace Variable//变量转换
 {
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    constexpr float PI() noexcept//圆周率
+    constexpr float PI() noexcept//圆周率 π
     {//Variable::PI();
         return 3.14159265358;
     }
@@ -3007,7 +3007,6 @@ namespace EasyGUI
                 SetClipboardData(1, hHandle);//设置剪切板数据
                 GlobalUnlock(hHandle);//解除锁定
                 CloseClipboard();//关闭剪切板
-                Beep(100, 20);//复制成功提醒
             }
             for (short Color_Bl = 0; Color_Bl <= 2; ++Color_Bl)
             {
@@ -3048,7 +3047,6 @@ namespace EasyGUI
                 SetClipboardData(1, hHandle);//设置剪切板数据
                 GlobalUnlock(hHandle);//解除锁定
                 CloseClipboard();//关闭剪切板
-                Beep(100, 20);//复制成功提醒
             }
             for (short Color_Bl = 0; Color_Bl <= 3; ++Color_Bl)
             {
@@ -3164,7 +3162,6 @@ namespace EasyGUI
                             SetClipboardData(1, hHandle);//设置剪切板数据
                             GlobalUnlock(hHandle);//解除锁定
                             CloseClipboard();//关闭剪切板
-                            Beep(100, 20);//复制成功提醒
                         }
                         if (In_KeyEvent(0x56, true))//Ctrl + V 粘贴
                         {
@@ -3176,7 +3173,6 @@ namespace EasyGUI
                                 GlobalUnlock(h);//解除锁定
                             }
                             CloseClipboard();//关闭剪贴板
-                            Beep(100, 20);//粘贴成功提醒
                         }
                     }
                     for (int i = 0x8; i < 0xFE; ++i)//VK键码遍历 (检测按下了什么键)

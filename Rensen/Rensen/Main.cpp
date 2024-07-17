@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-07-11 21:40]";//程序发布日期
-const float Rensen_Version = 4.08;//程序版本
+const string Rensen_ReleaseDate = "[2024-07-17 21:30]";//程序发布日期
+const float Rensen_Version = 4.11;//程序版本
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -439,20 +439,21 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 		int KeySelector_1, KeySelector_2, Slider_1;
 		float Slider_2;
 		BOOL Button_1, Button_2;
+		int Checkbox_Quantity = 1; vector<BOOL> Checkbox_Value(100);
 	}
 }
 using namespace Control_Var;
 void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义选项)
 {
 	System::Log("Load Thread: Thread_Menu()");
-	GUI_VAR.Window_Create(1100, 1000, "Rensen", true);//创建置顶GUI绘制窗口
+	GUI_VAR.Window_Create(1100, 950, "Rensen", true);//创建置顶GUI绘制窗口
 	while (true)
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
 		static int UI_Panel = 0;//大区块选择
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
-		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_Menu_OpenState_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
+		GUI_VAR.Window_SetSize(Variable::Animation_Vec2<class CLASS_MenuState_Animation_>(GUI_WindowSize, UI_Setting_MenuAnimation));//菜单窗口大小动画 (弹出, 关闭)
 		if (!GUI_VAR.Window_Move() && Menu_Open)//不在移动窗口时绘制GUI
 		{
 			if (UI_Setting_CustomColor)//自定义颜色(单色)
@@ -709,7 +710,9 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					if (Variable::String_Find(Debug_Control_Var::SystemCommand, "/"))//检测是否是命令
 					{
 						auto Last_Send_STR = Debug_Control_Var::SystemCommand; Last_Send_STR.erase(0, 1);//擦除/
-						system(Last_Send_STR.c_str());
+						const auto Return_String = Variable::String_Lower(Last_Send_STR);//转换小写 (自定义命令只支持小写判断)
+						if (Return_String == "add checkbox")++Debug_Control_Var::Checkbox_Quantity;
+						else system(Last_Send_STR.c_str());
 					}
 					else System::Log("Misc: Invalid command. Please add / in front of.", true);
 				}
@@ -754,6 +757,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				const auto Block_Size = GUI_VAR.Window_GetSize().y - 60;
 				const auto Block_A = GUI_VAR.GUI_Block(150, 30, Block_Size, "Block_A");
 				//A区块控件代码区域
+				for (int i = 1; i <= Debug_Control_Var::Checkbox_Quantity; ++i)
+				{
+					GUI_VAR.GUI_Checkbox(Block_A, i, "Checkbox " + to_string(i), Debug_Control_Var::Checkbox_Value[i]);
+				}
 
 				const auto Block_B = GUI_VAR.GUI_Block(580, 30, Block_Size, "Block_B");
 				//B区块控件代码区域
@@ -761,7 +768,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_WindowSize = { 1010,900 };
 			}
 			GUI_VAR.Draw_GUI(Debug_Control_Var::Checkbox_2);//最终绘制GUI画板
-			if (UI_Misc_SavePerformance)Sleep(10);//节省电脑占用性能
+			if (UI_Misc_SavePerformance)Sleep(5);//节省电脑占用性能
 			if (true)//按钮事件接收
 			{
 				if (UI_Visual_Res_2560)Window::Set_Resolution(2560, 1440);//设置显示器像素
@@ -775,43 +782,36 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					else if (UI_Misc_SelectedConfig == 1)LoadCloudConfig("Rage");
 					else if (UI_Misc_SelectedConfig == 2)LoadCloudConfig("Legit No Visual");
 					System::Log("Misc: LoadCloudConfig [" + to_string(Config_ID) + "]");
-					Beep(50, 50);
 				}
 				if (UI_Setting_OPENLINKAuthor)//打开作者Github主题页面
 				{
 					System::Open_Website("https://github.com/Coslly");
 					System::Log("Setting: OpenGithubURL");
-					Beep(50, 50);
 				}
 				if (UI_Setting_SaveLocalConfig || (System::Get_Key(VK_LCONTROL) && System::Get_Key_Onest(0x53)))//保存当前所设置的参数
 				{
 					SaveLocalConfig();
 					System::Log("Setting: SaveConfig");
-					Beep(50, 50);
 				}
 				if (UI_Setting_StartCS)//启动CS
 				{
 					if (CS2_MEM.Get_ProcessHWND() == 0)System::Open_Website("steam://rungameid/730");
 					System::Log("Setting: StartCS");
-					Beep(50, 50);
 				}
 				else if (UI_Setting_QuitCS)//关闭CS
 				{
 					if (CS2_MEM.Get_ProcessHWND() != 0)Window::Kill_Window(CS2_MEM.Get_ProcessHWND());
 					System::Log("Setting: QuitCS");
-					Beep(50, 50);
 				}
 				if (UI_Setting_RestartMenu)//重启菜单
 				{
 					System::Log("Setting: RestartMenu");
-					Beep(50, 50);
 					System::Self_Restart();
 				}
 				if (UI_Setting_Unload)//关闭菜单
 				{
 					Window::NVIDIA_Overlay();
 					System::Log("Setting: Unload");
-					Beep(50, 50);
 					exit(0);
 				}
 			}
@@ -1700,7 +1700,6 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	}
 	if (!Attest) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
 	//----------------------------------------------------------------------------------------------------------------------------------
-	Beep(50, 50);//开启音效
 	System::Anti_click();//控制台不被暂停
 	Window::Hide_ConsoleWindow();//隐藏控制台
 	Window::Initialization_ConsoleWindow();//初始化控制台窗口 (初始化窗口大小, 清除字符)
