@@ -1,4 +1,4 @@
-﻿//2024-07-17 21:30
+﻿//2024-07-18 18:50
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -876,12 +876,7 @@ namespace Window//窗口
             //--------------------------------帧数计算
             static int m_fps = 0; m_fps++;
             const int Tick = GetTickCount64(); static int Tick_Old = Tick;
-            if (Tick >= Tick_Old + 1000)//每1秒刷新 (计时器)
-            {
-                Tick_Old = Tick;
-                Draw_FPS = m_fps;
-                m_fps = 0;
-            }
+            if (Tick >= Tick_Old + 1000) { Tick_Old = Tick; Draw_FPS = m_fps; m_fps = 0; }
             //--------------------------------消息循环
             if (MessageLoop)
             {
@@ -1219,6 +1214,7 @@ namespace Window//窗口
     private://初始化D2D
         ID2D1HwndRenderTarget* Render_Target;//绘制目标
         HWND Render_Window_HWND;//绘制窗口HWND
+        int Draw_FPS;//绘制帧数
         D2D1::ColorF D2DCol(Variable::Vector4 Color) noexcept { return D2D1::ColorF((float)Color.r / 255, (float)Color.g / 255, (float)Color.b / 255, (float)Color.a / 255); };
     public:
         //--------------------------------------------------------------------------------------------------------
@@ -1232,7 +1228,18 @@ namespace Window//窗口
             Render_Factory->Release();
         }
         HWND HWND() noexcept { return Render_Window_HWND; }//返回窗口HWND
-        void Draw(BOOL State = false) noexcept { if (State)Render_Target->EndDraw(); else Render_Target->BeginDraw(); }//绘制函数
+        int FPS() noexcept{return Draw_FPS; }//返回绘制帧数
+        void Draw(BOOL State = false) noexcept//绘制画板函数
+        {
+            if (State)//0:开始绘制 1:结束绘制
+            {
+                Render_Target->EndDraw();
+                static int m_fps = 0; m_fps++;
+                const int Tick = GetTickCount64(); static int Tick_Old = Tick;
+                if (Tick >= Tick_Old + 1000) { Tick_Old = Tick; Draw_FPS = m_fps; m_fps = 0; }
+            }
+            else Render_Target->BeginDraw();
+        }
         void Anti_Alias(BOOL Anti = true) noexcept//抗锯齿设置
         {
             if (Anti)//开启抗锯齿
@@ -3141,7 +3148,7 @@ namespace EasyGUI
         template<class CreateClassName>
         string GUI_InputText(Vector2 BlockPos, short LineRow, string& m_String, string NormalText = "") noexcept//字符串输入框 (英文数字 不支持UTF-8 最多30个字符)
         {
-            if (BlockPos.x == 0 && BlockPos.y == 0)return false;//当无block则不进行绘制
+            if (BlockPos.x == 0 && BlockPos.y == 0)return "";//当无block则不进行绘制
             const BOOL DetectMousePos = In_MouseEventJudgment(BlockPos.x + 55, BlockPos.y + 30 * LineRow - 9, 230, 25);//窗口检测机制
             static BOOL IsInput = false;//判断是否在输入变量
             string DrawString = m_String;//绘制字符串
