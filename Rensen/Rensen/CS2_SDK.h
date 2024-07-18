@@ -266,7 +266,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		BOOL Move_to_Pos(Variable::Vector3 Target_Pos = { 0,0,0 }, float Edge = 5) noexcept//本地人物移动到指定世界坐标
 		{
 			const auto LocalPlayer_Pos = Global_LocalPlayer.Origin();//本地人物所处世界坐标
-			const auto Target_Distance = hypot(LocalPlayer_Pos.x - Target_Pos.x, LocalPlayer_Pos.y - Target_Pos.y);;//计算与目标坐标的距离
+			const auto Target_Distance = hypot(LocalPlayer_Pos.x - Target_Pos.x, LocalPlayer_Pos.y - Target_Pos.y);//计算与目标坐标的距离
 			if (Target_Distance <= Edge)return true;//达到边缘则不进行移动
 			auto Offset_Angle = Base::ViewAngles().y - Variable::Pos_Angle(LocalPlayer_Pos, Target_Pos); if (Offset_Angle < 0)Offset_Angle += 360;//角度偏移
 			if (Offset_Angle > 315 - 15 || Offset_Angle < 45 + 15)ExecuteCommand("+forward");
