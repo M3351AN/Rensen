@@ -1,6 +1,6 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.15;//程序版本
+const float Rensen_Version = 4.16;//程序版本
 const string Rensen_ReleaseDate = "KR[2024-08-05 11:50]";//程序发布日期
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
@@ -1696,6 +1696,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 {
 	System::Anti_Debugger("Debugging is disabled after compilation is completed.");//防止逆向破解
+	//----------------------------------------------------------------------------------------------------------------------------------
 	System::URL_READ UserID_READ = { "Cache_UserID" }; BOOL Attest = false;//认证变量
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/UserID.uid"))//Github读取有效用户ID
 	{
@@ -1705,6 +1706,17 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		UserID_READ.Release();//释放缓存
 	}
 	if (!Attest) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
+	//----------------------------------------------------------------------------------------------------------------------------------
+	System::URL_READ AutoUpdate = { "Cache_Update" };//自动更新系统
+	if (AutoUpdate.StoreMem("https://github.com/Coslly/Rensen/blob/main/Rensen/Rensen/Main.cpp?raw=true"))//版本号更新检查
+	{
+		auto Version = AutoUpdate.Read(3); if (Version != "") { Version.erase(0, 29); Version.erase(Version.size() - 15, 100); }//擦除无用字符只获取版本号
+		AutoUpdate.Release();//释放缓存
+		if (Variable::string_float_(Version) > Rensen_Version && Window::Message_Box("Rensen Update", "A new version has been released.\nDo you want to update now?\nIt may take tens of seconds.\n", MB_YESNO | MB_ICONASTERISK) == 6)
+		{
+			System::Open_Website("https://github.com/Coslly/Rensen/releases/download/Release/Rensen.exe"); exit(0);
+		}
+	}
 	//----------------------------------------------------------------------------------------------------------------------------------
 	System::Anti_click();//控制台不被暂停
 	Window::Hide_ConsoleWindow();//隐藏控制台
