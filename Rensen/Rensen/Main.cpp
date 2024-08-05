@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.16;//程序版本
-const string Rensen_ReleaseDate = "KR[2024-08-05 11:50]";//程序发布日期
+const float Rensen_Version = 4.17;//程序版本
+const string Rensen_ReleaseDate = "KR[2024-08-05 16:30]";//程序发布日期
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1698,7 +1698,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	System::Anti_Debugger("Debugging is disabled after compilation is completed.");//防止逆向破解
 	//----------------------------------------------------------------------------------------------------------------------------------
 	System::URL_READ UserID_READ = { "Cache_UserID" }; BOOL Attest = false;//认证变量
-	if (UserID_READ.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/UserID.uid"))//Github读取有效用户ID
+	if (UserID_READ.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
 		const auto Local_UserName = System::Get_UserName();
 		if (Local_UserName == "22684") { System::Log("Certification: Whitelist passed"); Sleep(50); Attest = true; }//白名单过滤 (开发者白名单)
