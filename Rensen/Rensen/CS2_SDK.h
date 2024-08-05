@@ -302,7 +302,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			{
 				if (!CS2_HWND && !Timeout)System::Log("Error: CS2 process not found", true);//未启动CS时报错
 				System::URL_READ URL_OFFSETS = { "Cache_CS2_Offsets" };
-				if (URL_OFFSETS.StoreMem("https://github.com/Coslly/Misc/raw/main/About%20Rensen/Offsets.ofs?raw=true"))//自动更新偏移量 Github更新有十分钟延迟
+				if (URL_OFFSETS.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/Offsets.ofs?raw=true"))//自动更新偏移量 Github更新有十分钟延迟
 				{
 					CS2_Offsets::Offsets_Date = URL_OFFSETS.Read(1); CS2_Offsets::Offsets_Date.erase(0, 2);//偏移更新日期 删除注释符号
 					CS2_Offsets::Offsets_Date = "[" + CS2_Offsets::Offsets_Date + "]";//加上括号
