@@ -4,6 +4,7 @@
 <a href="https://en.wikipedia.org/wiki/C%2B%2B"><img src="https://img.shields.io/badge/build-C++-blue?style=flat&label=Language&logo=visualstudio&logoColor=%231082c3"></a>
 </p>
 Just a multifunction cheat software developed for the game Counter-Strike 2.
+
 专为CS2定制的多功能外部作弊。
 
 ## 🤓Features
@@ -24,3 +25,7 @@ Video: https://youtu.be/a0h4ZhxQP2A
 I am not responsible for anything that happens when you use this software.
 
 This project is the original Rensen address. If you find it at other addresses, please delete it immediately.
+
+使用该软件所产生的任何后果本人概不负责。
+
+Rensen程序只在这一个地址由作者发布。
