@@ -8,11 +8,11 @@ Just a multifunction cheat software developed for the game Counter-Strike 2.
 专为CS2定制的多功能外部作弊。
 
 ## 🤓Features
-- External Menu
-- Saveable System
+- External menu
+- Saveable system
 - Absolutely safe!!!
 - Do not write memory!!!
-- Bypass Valve Anti-Cheat
+- Bypass Valve-Anti-Cheat(VAC)
 - C++ Build in Release | x64
 - GUI project: [EasyGUI-Lightweight](https://github.com/Coslly/EasyGUI-Lightweight.git)
 - Cloud update: https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/Offsets.ofs
