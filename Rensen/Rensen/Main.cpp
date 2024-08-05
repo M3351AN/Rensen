@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const string Rensen_ReleaseDate = "[2024-07-18 18:50]";//程序发布日期
 const float Rensen_Version = 4.15;//程序版本
+const string Rensen_ReleaseDate = "KR[2024-08-05 11:50]";//程序发布日期
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -13,8 +13,8 @@ namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 	BOOL UI_Misc_LoadCloudConfig;
 	BOOL UI_Setting_OPENLINKAuthor;
 	BOOL UI_Setting_SaveLocalConfig;
-	BOOL UI_Setting_StartCS;
-	BOOL UI_Setting_QuitCS;
+	BOOL UI_Setting_StartCS, UI_Setting_QuitCS;
+	BOOL UI_Setting_GithubRepositories;
 	BOOL UI_Setting_RestartMenu;
 	BOOL UI_Setting_Unload;
 	//以上变量不需要纳入参数------------------------------------------------------------------------
@@ -735,7 +735,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
 				GUI_VAR.GUI_Button_Small({ Block_About.x + 10,Block_About.y }, 4, UI_Setting_OPENLINKAuthor);
 				GUI_VAR.GUI_Tips({ Block_About.x + 10,Block_About.y }, 1, "No ban record so far in 2020!!!", 0, GUI_VAR.Global_Get_EasyGUI_Color());
-				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 310, "Menu");
+				const auto Block_Menu = GUI_VAR.GUI_Block(150, 210, 340, "Menu");
 				GUI_VAR.GUI_Text(Block_Menu, 1, "Menu key");
 				GUI_VAR.GUI_KeySelector<class CLASS_Block_Menu_1>(Block_Menu, 1, UI_Setting_MenuKey);
 				GUI_VAR.GUI_Checkbox(Block_Menu, 2, "Menu color", UI_Setting_CustomColor);
@@ -747,10 +747,11 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Button(Block_Menu, 6, "Save local config", UI_Setting_SaveLocalConfig, 65);
 				if (CS2_HWND)GUI_VAR.GUI_Button(Block_Menu, 7, "Quit CS", UI_Setting_QuitCS, 90);
 				else GUI_VAR.GUI_Button(Block_Menu, 7, "Start CS", UI_Setting_StartCS, 85);
-				GUI_VAR.GUI_Button(Block_Menu, 8, "Restart menu", UI_Setting_RestartMenu, 75);
-				GUI_VAR.GUI_Button(Block_Menu, 9, "Unload", UI_Setting_Unload, 95);
+				GUI_VAR.GUI_Button(Block_Menu, 8, "Github repositories", UI_Setting_GithubRepositories, 60);
+				GUI_VAR.GUI_Button(Block_Menu, 9, "Restart menu", UI_Setting_RestartMenu, 75);
+				GUI_VAR.GUI_Button(Block_Menu, 10, "Unload", UI_Setting_Unload, 95);
 				GUI_VAR.GUI_Tips({ Block_Menu.x + 10,Block_Menu.y }, 6, "If you want to reset the default config you can delete Rensen.cfg in the same folder.");
-				GUI_WindowSize = { 580,550 };
+				GUI_WindowSize = { 580,580 };
 			}
 			else if (UI_Panel == 5)//Attach
 			{
@@ -802,6 +803,11 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				{
 					if (CS2_MEM.Get_ProcessHWND() != 0)Window::Kill_Window(CS2_MEM.Get_ProcessHWND());
 					System::Log("Setting: QuitCS");
+				}
+				if (UI_Setting_GithubRepositories)//打开Github项目地址
+				{
+					System::Open_Website("https://github.com/Coslly/Rensen");
+					System::Log("Setting: GithubRepositories");
 				}
 				if (UI_Setting_RestartMenu)//重启菜单
 				{
@@ -863,8 +869,8 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				Window_Watermark_Render.Render_String(Watermark_Pos.x + 4, Watermark_Pos.y + 2, WaterMark_String, "Small Fonts", 12, { 255,255,255 }, false);
 				if (Menu_Open)//菜单开启时
 				{
-					Window_Watermark_Render.RenderA_SmpStr(2, 2, "Release" + Rensen_ReleaseDate, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//编译日期绘制
-					Window_Watermark_Render.RenderA_SmpStr(2, 2 + 14, "Offsets" + CS2_Offsets::Offsets_Date, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//云偏移更新日期绘制
+					Window_Watermark_Render.RenderA_SmpStr(2, 2, "Release " + Rensen_ReleaseDate, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//编译日期绘制
+					Window_Watermark_Render.RenderA_SmpStr(2, 2 + 14, "Offsets " + CS2_Offsets::Offsets_Date, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//云偏移更新日期绘制
 				}
 				Window_Watermark_Render.DrawPaint(true);
 			}
