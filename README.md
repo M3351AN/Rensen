@@ -4,6 +4,7 @@
 <a href="https://en.wikipedia.org/wiki/C%2B%2B"><img src="https://img.shields.io/badge/build-C++-blue?style=flat&label=Language&logo=visualstudio&logoColor=%231082c3"></a>
 </p>
 Just a multifunction cheat software developed for the game Counter-Strike 2.
+专为CS2定制的多功能外部作弊。
 
 ## 🤓Features
 - External Menu
