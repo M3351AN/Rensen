@@ -13,8 +13,8 @@ Just a multifunction cheat software developed for the game Counter-Strike 2.
 - Bypass Valve Anti-Cheat
 - C++ Build in Release | x64
 - GUI project: [EasyGUI-Lightweight](https://github.com/Coslly/EasyGUI-Lightweight.git)
-- Cloud update: https://github.com/Coslly/Misc/blob/main/About%20Rensen/Offsets.ofs
-- Authentication: https://github.com/Coslly/Misc/blob/main/About%20Rensen/UserID.uid
+- Cloud update: https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/Offsets.ofs
+- Authentication: https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/UserID.uid
 ## 🤩Showcase
 ![image](https://github.com/Coslly/Rensen/blob/main/ShowImage.png?raw=true)
 # 💀Disclaimer
