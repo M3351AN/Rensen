@@ -12,10 +12,8 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	BOOL Global_TeamCheck = false;//团队过滤
 	void ExecuteCommand(string Command_Str) noexcept//发送指令到CS控制台
 	{
-		/*
 		COPYDATASTRUCT m_cData; m_cData.cbData = strlen(Command_Str.c_str()) + 1; m_cData.dwData = 0; m_cData.lpData = (void*)Command_Str.c_str();
 		SendMessage(CS2_MEM.Get_ProcessHWND(), WM_COPYDATA, 0, (LPARAM)&m_cData);//发送命令
-		*/
 		//-----------------------------------------------------------------------------------
 		if (Command_Str == "+jump")System::Key_Con_HWND(CS2_HWND, VK_SPACE, true);
 		else if (Command_Str == "-jump")System::Key_Con_HWND(CS2_HWND, VK_SPACE, false);

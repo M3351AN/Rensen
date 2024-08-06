@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.17;//程序版本
-const string Rensen_ReleaseDate = "KR[2024-08-05 16:30]";//程序发布日期
+const float Rensen_Version = 4.19;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-06 15:30]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -446,7 +446,7 @@ using namespace Control_Var;
 void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义选项)
 {
 	System::Log("Load Thread: Thread_Menu()");
-	GUI_VAR.Window_Create(1100, 950, "Rensen", true);//创建置顶GUI绘制窗口
+	GUI_VAR.Window_Create(1010, 910, "Rensen", true);//创建置顶GUI绘制窗口
 	while (true)
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
@@ -462,7 +462,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_BackGround(4);//自定义颜色背景主题
 			}
 			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
-			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Infolist","Setting","Attach" }, UI_Panel);
+			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Infolist","Setting" }, UI_Panel);
 			if (UI_Panel == 0)//Legit
 			{
 				const auto Block_Aimbot = GUI_VAR.GUI_Block(150, 30, 340, "Aim bot");
@@ -729,7 +729,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			{
 				const auto Block_About = GUI_VAR.GUI_Block(150, 30, 160, "About");
 				GUI_VAR.GUI_Text(Block_About, 1, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color());
-				GUI_VAR.GUI_Text({ Block_About.x + 47,Block_About.y }, 1, "for Counter-Strike 2 (External)", { 100,100,100 });
+				GUI_VAR.GUI_Text({ Block_About.x + 47,Block_About.y }, 1, "for Counter-Strike 2 (External Free)", { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 2, "Version: " + Variable::Float_Precision(Rensen_Version), { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 3, "Release date: " + Rensen_ReleaseDate, { 100,100,100 });
 				GUI_VAR.GUI_Text(Block_About, 4, "Author: https://github.com/Coslly", { 100,100,100 });
@@ -1705,16 +1705,16 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (!Attest)for (short i = 0; i <= 10000; i++) { if (Local_UserName == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS") { Attest = true; break; } }//遍历检测并修改认证
 		UserID_READ.Release();//释放缓存
 	}
-	if (!Attest) { Window::Message_Box("Rensen - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
+	if (!Attest) { Window::Message_Box("Rensen Attest - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
 	//----------------------------------------------------------------------------------------------------------------------------------
 	System::URL_READ AutoUpdate = { "Cache_Update" };//自动更新系统
 	if (AutoUpdate.StoreMem("https://github.com/Coslly/Rensen/blob/main/Rensen/Rensen/Main.cpp?raw=true"))//版本号更新检查
 	{
 		auto Version = AutoUpdate.Read(3); if (Version != "") { Version.erase(0, 29); Version.erase(Version.size() - 15, 100); }//擦除无用字符只获取版本号
 		AutoUpdate.Release();//释放缓存
-		if (Variable::string_float_(Version) > Rensen_Version && Window::Message_Box("Rensen Update", "A new version has been released.\nDo you want to update now?\nIt may take tens of seconds.\n", MB_YESNO | MB_ICONASTERISK) == 6)
+		if (Variable::string_float_(Version) > Rensen_Version && Window::Message_Box("Rensen Update", "A new version has been released.\nDo you want to update now?\nIt may take tens of seconds.\n\nYou will be updated to Ver[" + Version + "]", MB_YESNO | MB_ICONASTERISK) == 6)
 		{
-			System::Open_Website("https://github.com/Coslly/Rensen/releases/download/Release/Rensen.exe"); exit(0);
+			System::Open_Website("https://github.com/Coslly/Rensen/releases/download/Release/Rensen.exe"); exit(0);//打开下载链接并且关闭程序
 		}
 	}
 	//----------------------------------------------------------------------------------------------------------------------------------
