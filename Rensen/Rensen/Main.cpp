@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.21;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-07 11:50]";//程序发布日期时间
+const float Rensen_Version = 4.22;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-07 12:20]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -446,7 +446,7 @@ using namespace Control_Var;
 void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义选项)
 {
 	System::Log("Load Thread: Thread_Menu()");
-	GUI_VAR.Window_Create(1010, 910, "Rensen", true);//创建置顶GUI绘制窗口
+	GUI_VAR.Window_Create(1200, 1000, "Rensen", true);//创建置顶GUI绘制窗口
 	while (true)
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
@@ -462,7 +462,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_BackGround(4);//自定义颜色背景主题
 			}
 			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
-			GUI_VAR.GUI_Block(20, 20, 40, "", 110); GUI_VAR.In_DrawString(30, 35, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color().Min_Bri(180), "Verdana", 30);
+			GUI_VAR.GUI_Block(20, 20, 40, "", 110); GUI_VAR.In_DrawString(36, 35, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color().Min_Bri(200), "Verdana", 25);
 			GUI_VAR.GUI_Block_Panel(20, 70, 110, GUI_VAR.Window_GetSize().y - 90, "", { "Legit","Visual","Misc","Infolist","Setting","Attach" }, UI_Panel);
 			if (UI_Panel == 0)//Legit
 			{
@@ -652,7 +652,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 			}
 			else if (UI_Panel == 3)//List
 			{
-				const auto Block_PlayerList = GUI_VAR.GUI_Block(150, 30, 790, "Player list", 330);
+				const auto Block_PlayerList = GUI_VAR.GUI_Block(150, 30, GUI_VAR.Window_GetSize().y - 60, "Player list", 330);
 				static BOOL UI_Debug_PlayerList_ReloadList = false; static vector<string> PlayerNameList = {}; static string PlayerName = "";
 				GUI_VAR.GUI_Slider<int, class CLASS_Block_PlayerList_1>(Block_PlayerList, 1, "Player ID", 0, 64, Debug_Control_Var::SelectPlayer);
 				GUI_VAR.GUI_Button_Small({ Block_PlayerList.x + 10,Block_PlayerList.y }, 1, UI_Debug_PlayerList_ReloadList);
@@ -687,6 +687,32 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 15, "Angle: ");
 				auto PlayerViewAngle = Player_Pawn.ViewAngles(); GUI_VAR.GUI_PosSelector({ Block_Info.x - 100,Block_Info.y }, 15, PlayerViewAngle);
 				GUI_VAR.GUI_Tips({ Block_Info.x + 3,Block_Info.y }, 1, "Cloud offsets date: " + CS2_Offsets::Offsets_Date);
+				const auto Block_Offsets = GUI_VAR.GUI_Block(870, 30, GUI_VAR.Window_GetSize().y - 60, "Offsets", 330);
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 1, "Update date: " + CS2_Offsets::Offsets_Date);
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 2, "dwLocalPlayerController = " + Variable::Hex_String(CS2_Offsets::dwLocalPlayerController));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 3, "dwLocalPlayerPawn = " + Variable::Hex_String(CS2_Offsets::dwLocalPlayerPawn));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 4, "dwEntityList = " + Variable::Hex_String(CS2_Offsets::dwEntityList));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 5, "dwViewAngles = " + Variable::Hex_String(CS2_Offsets::dwViewAngles));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 6, "dwViewMatrix = " + Variable::Hex_String(CS2_Offsets::dwViewMatrix));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 7, "m_hPlayerPawn = " + Variable::Hex_String(CS2_Offsets::m_hPlayerPawn));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 8, "m_iTeamNum = " + Variable::Hex_String(CS2_Offsets::m_iTeamNum));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 9, "m_ArmorValue = " + Variable::Hex_String(CS2_Offsets::m_ArmorValue));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 10, "m_iHealth = " + Variable::Hex_String(CS2_Offsets::m_iHealth));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 11, "m_iIDEntIndex = " + Variable::Hex_String(CS2_Offsets::m_iIDEntIndex));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 12, "m_fFlags = " + Variable::Hex_String(CS2_Offsets::m_fFlags));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 13, "m_iShotsFired = " + Variable::Hex_String(CS2_Offsets::m_iShotsFired));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 14, "m_vecVelocity = " + Variable::Hex_String(CS2_Offsets::m_vecVelocity));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 15, "m_bSpotted = " + Variable::Hex_String(CS2_Offsets::m_bSpotted));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 16, "m_bIsScoped = " + Variable::Hex_String(CS2_Offsets::m_bIsScoped));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 17, "m_pClippingWeapon = " + Variable::Hex_String(CS2_Offsets::m_pClippingWeapon));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 18, "m_pGameSceneNode = " + Variable::Hex_String(CS2_Offsets::m_pGameSceneNode));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 19, "m_vecOrigin = " + Variable::Hex_String(CS2_Offsets::m_vecOrigin));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 20, "m_aimPunchCache = " + Variable::Hex_String(CS2_Offsets::m_aimPunchCache));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 21, "m_vecViewOffset = " + Variable::Hex_String(CS2_Offsets::m_vecViewOffset));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 22, "m_dwBoneMatrix = " + Variable::Hex_String(CS2_Offsets::m_dwBoneMatrix));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 23, "m_iszPlayerName = " + Variable::Hex_String(CS2_Offsets::m_iszPlayerName));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 24, "m_pActionTrackingServices = " + Variable::Hex_String(CS2_Offsets::m_pActionTrackingServices));
+				GUI_VAR.GUI_Text({ Block_Offsets.x - 20,Block_Offsets.y }, 25, "m_iNumRoundKills = " + Variable::Hex_String(CS2_Offsets::m_iNumRoundKills));
 				//-----------------------------------------------------------------------------------------------------------------------------测试控件-------
 				const auto Block_DebugControl = GUI_VAR.GUI_Block(510, 540, 280, "Debug control", 330);
 				GUI_VAR.GUI_Checkbox(Block_DebugControl, 1, "Show console window", UI_Debug_ShowDebugWindow);
@@ -724,7 +750,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					System::Log("Computername: " + System::Get_ComputerName());//打印用户电脑名
 					System::Log("IP V4: " + System::Get_IPv4Address());//打印用户IPV4
 				}
-				GUI_WindowSize = { 870,850 };
+				GUI_WindowSize = { 1230,850 };
 			}
 			else if (UI_Panel == 4)//Setting
 			{
@@ -1106,9 +1132,8 @@ void Thread_Funtion_BunnyHop() noexcept//功能线程: 连跳
 				ExecuteCommand("+jump");//跳跃!!!
 				Sleep(1);
 				ExecuteCommand("-jump");
-				Sleep(1);
 			}
-			Sleep(5);
+			Sleep(1);
 		}
 		else Sleep(20);
 	}
@@ -1209,7 +1234,7 @@ void Thread_Funtion_AdaptiveAimbot() noexcept//功能线程: 生物瞄准机器�
 	{
 		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_AdaptiveAimbot && System::Get_Key(VK_LBUTTON) && Global_LocalPlayer.ActiveWeapon(true) == 2)//当CS窗口在最前端 && 本地人物活着 && 按键按下 && 步枪
 		{
-			System::Sleep_ns(3000);//比Sleep更快的函数为了更加自然平滑
+			System::Sleep_ns(2000);//比Sleep更快的函数为了更加自然平滑
 			float Aim_Range = 3; int Aim_Bone = 6; const auto PunchAngle = Global_LocalPlayer.AimPunchAngle();
 			if (abs(PunchAngle.x) * 2 >= Aim_Range)Aim_Range = abs(PunchAngle.x) * 1.5;//计算开枪之后附加后坐力的范围
 			for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
