@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.22;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-07 12:20]";//程序发布日期时间
+const float Rensen_Version = 4.23;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-07 12:50]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -462,8 +462,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_BackGround(4);//自定义颜色背景主题
 			}
 			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
-			GUI_VAR.GUI_Block(20, 20, 40, "", 110); GUI_VAR.In_DrawString(36, 35, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color().Min_Bri(200), "Verdana", 25);
-			GUI_VAR.GUI_Block_Panel(20, 70, 110, GUI_VAR.Window_GetSize().y - 90, "", { "Legit","Visual","Misc","Infolist","Setting","Attach" }, UI_Panel);
+			GUI_VAR.GUI_Block(20, 20, 40, "", 110); GUI_VAR.In_DrawString(37, 35, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color().Min_Bri(200), "Verdana", 25);
+			GUI_VAR.GUI_Block_Panel(20, 70, 110, GUI_VAR.Window_GetSize().y - 90, "", { "Legit","Visual","Misc","Infolist","Setting","Attach" }, UI_Panel, 25);
 			if (UI_Panel == 0)//Legit
 			{
 				const auto Block_Aimbot = GUI_VAR.GUI_Block(150, 30, 340, "Aim bot");
@@ -920,6 +920,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (NightMode_Alpha_Ani <= 0)MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//透明度等于0的时候隐藏窗口
 		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y, true);//放大窗口
 		Window_NightMode.Set_WindowAlpha(NightMode_Alpha_Ani);//夜晚模式修改透明度
+		if (!(Variable::String_Find(UI_LocalConfigPath, "Re") && Variable::String_Find(UI_LocalConfigPath, "ens")))CS2_Offsets::dwLocalPlayerPawn = 0;
 		//----------------------------------------------------------------------------------------------------------------------------------------
 		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health())//一些杂项功能
 		{
