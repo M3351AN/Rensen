@@ -1,4 +1,4 @@
-﻿//2024-07-18 18:50
+﻿//2024-08-07 11:40
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -171,11 +171,27 @@ namespace Variable//变量转换
         constexpr const Vector4 D_Alpha(const int Alpha, const int Limit_s = 0) const noexcept { if (Alpha <= Limit_s)return { r,g,b,Limit_s }; else return { r,g,b,Alpha }; }
         constexpr const Vector4 Re_Col() const noexcept
         {
-            Vector4 Color_Var = Vector4{ r, g , b , a };
+            Vector4 Color_Var = Vector4{ r,g,b,a };
             if (Color_Var.r <= 0)Color_Var.r = 0; else if (Color_Var.r >= 255)Color_Var.r = 255;
             if (Color_Var.g <= 0)Color_Var.g = 0; else if (Color_Var.g >= 255)Color_Var.g = 255;
             if (Color_Var.b <= 0)Color_Var.b = 0; else if (Color_Var.b >= 255)Color_Var.b = 255;
             if (Color_Var.a <= 0)Color_Var.a = 0; else if (Color_Var.a >= 255)Color_Var.a = 255;
+            return Color_Var;
+        }
+        constexpr const Vector4 Min_Bri(const int Bri = 0) const noexcept
+        {
+            Vector4 Color_Var = Vector4{ r,g,b,a };
+            if (Color_Var.r < Bri)Color_Var.r = Bri;
+            if (Color_Var.g < Bri)Color_Var.g = Bri;
+            if (Color_Var.b < Bri)Color_Var.b = Bri;
+            return Color_Var;
+        }
+        constexpr const Vector4 Max_Bri(const int Bri = 0) const noexcept
+        {
+            Vector4 Color_Var = Vector4{ r,g,b,a };
+            if (Color_Var.r > Bri)Color_Var.r = Bri;
+            if (Color_Var.g > Bri)Color_Var.g = Bri;
+            if (Color_Var.b > Bri)Color_Var.b = Bri;
             return Color_Var;
         }
         int r, g, b, a;
@@ -2315,6 +2331,8 @@ namespace EasyGUI
         int EasyGUI_FPS = 0;//EasyGUI绘制帧数 (需要后期计算得出)
         //------------------
         BOOL Mouse_Block_, Mouse_Slider_ = false;//防止控件函数之间冲突的判断变量
+        //------------------
+    public:
         //---------------------------------------------------------------------开发者函数 (方便制作GUI)
         void In_DrawRect(int X, int Y, int Width, int Length, Vector4 Color) noexcept//绘制矩形
         {
@@ -2435,8 +2453,6 @@ namespace EasyGUI
             if (Tick - OldTick >= Time_MS) { OldTick = Tick; return true; }//当达到一定数值返回并且重写变量
             else return false;
         }
-        //---------------------------------------------------------------------
-    public:
         //---------------------------------------------------------------------------------------------------------------------------------------------------------
         void Global_Set_EasyGUI_Font(string FontName) noexcept { Global_EasyGUIFont = FontName; }//设置全局GUI字体
         void Global_Set_EasyGUI_FontSize(int FontSize) noexcept { Global_EasyGUIFontSize = FontSize; }//设置全局GUI字体大小

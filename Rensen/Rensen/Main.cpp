@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.19;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-06 15:30]";//程序发布日期时间
+const float Rensen_Version = 4.21;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-07 11:50]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -462,7 +462,8 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_BackGround(4);//自定义颜色背景主题
 			}
 			else GUI_VAR.GUI_BackGround(3);//默认(彩虹)
-			GUI_VAR.GUI_Block_Panel(20, 20, 100, GUI_VAR.Window_GetSize().y - 40, "", { "Legit","Visual","Misc","Infolist","Setting" }, UI_Panel);
+			GUI_VAR.GUI_Block(20, 20, 40, "", 110); GUI_VAR.In_DrawString(30, 35, "Rensen", GUI_VAR.Global_Get_EasyGUI_Color().Min_Bri(180), "Verdana", 30);
+			GUI_VAR.GUI_Block_Panel(20, 70, 110, GUI_VAR.Window_GetSize().y - 90, "", { "Legit","Visual","Misc","Infolist","Setting","Attach" }, UI_Panel);
 			if (UI_Panel == 0)//Legit
 			{
 				const auto Block_Aimbot = GUI_VAR.GUI_Block(150, 30, 340, "Aim bot");

@@ -44,9 +44,9 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 		uintptr_t dwViewAngles = 0x0;
 		uintptr_t dwViewMatrix = 0x0;
 		uintptr_t m_hPlayerPawn = 0x0;
-		uintptr_t m_iHealth = 0x0;
-		uintptr_t m_ArmorValue = 0x0;
 		uintptr_t m_iTeamNum = 0x0;
+		uintptr_t m_ArmorValue = 0x0;
+		uintptr_t m_iHealth = 0x0;
 		uintptr_t m_iIDEntIndex = 0x0;
 		uintptr_t m_fFlags = 0x0;
 		uintptr_t m_iShotsFired = 0x0;
@@ -310,9 +310,9 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 					CS2_Offsets::dwViewAngles = Variable::string_uint_(URL_OFFSETS.Read(10));
 					CS2_Offsets::dwViewMatrix = Variable::string_uint_(URL_OFFSETS.Read(12));
 					CS2_Offsets::m_hPlayerPawn = Variable::string_uint_(URL_OFFSETS.Read(14));
-					CS2_Offsets::m_iHealth = Variable::string_uint_(URL_OFFSETS.Read(16));
+					CS2_Offsets::m_iTeamNum = Variable::string_uint_(URL_OFFSETS.Read(16));
 					CS2_Offsets::m_ArmorValue = Variable::string_uint_(URL_OFFSETS.Read(18));
-					CS2_Offsets::m_iTeamNum = Variable::string_uint_(URL_OFFSETS.Read(20));
+					CS2_Offsets::m_iHealth = Variable::string_uint_(URL_OFFSETS.Read(20));
 					CS2_Offsets::m_iIDEntIndex = Variable::string_uint_(URL_OFFSETS.Read(22));
 					CS2_Offsets::m_fFlags = Variable::string_uint_(URL_OFFSETS.Read(24));
 					CS2_Offsets::m_iShotsFired = Variable::string_uint_(URL_OFFSETS.Read(26));
