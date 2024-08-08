@@ -1,4 +1,4 @@
-﻿//2024-08-07 12:50
+﻿//2024-08-08 15:10
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -408,12 +408,10 @@ namespace Window//窗口
         if (X != GetSystemMetrics(SM_CXSCREEN) || Y != GetSystemMetrics(SM_CYSCREEN))//设立条件防止放入循环崩溃
         {
             DEVMODE DevMode = {};
-            EnumDisplaySettings(NULL, 0, &DevMode);
+            EnumDisplaySettings(0, ENUM_CURRENT_SETTINGS, &DevMode);
             DevMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
             DevMode.dmPelsWidth = X;
             DevMode.dmPelsHeight = Y;
-            DevMode.dmDisplayFrequency = 30;
-            DevMode.dmBitsPerPel = 32;
             ChangeDisplaySettings(&DevMode, 0);
         }
     }

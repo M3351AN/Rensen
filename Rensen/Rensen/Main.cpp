@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.26;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-08 14:20]";//程序发布日期时间
+const float Rensen_Version = 4.28;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-08 15:30]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -638,7 +638,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 				GUI_VAR.GUI_Tips(Block_Misc, 17, "Reduce screen brightness.");
 				GUI_VAR.GUI_Tips(Block_Misc, 19, "Return to coordinates when shooting.");
 				GUI_VAR.GUI_Tips(Block_Misc, 22, "Implement ESP by modifying cursor coordinates.");
-				GUI_VAR.GUI_Tips({ Block_Resolution.x + 10,Block_Resolution.y }, 1, "Flexible switching of window resolution.");
+				GUI_VAR.GUI_Tips({ Block_Resolution.x + 10,Block_Resolution.y }, 1, "Flexible switching of window resolution. (Do not use screen zoom!!!)");
 				GUI_VAR.GUI_Tips({ Block_CloudConfig.x + 10,Block_CloudConfig.y }, 1, "Load parameter files stored in Github.");
 				GUI_VAR.GUI_Tips(Block_Spoof, 1, "Prank local player. (global switch)");
 				GUI_VAR.GUI_Tips({ Block_Spoof.x + 10,Block_Spoof.y }, 2, "Aimbot for teammate.");
