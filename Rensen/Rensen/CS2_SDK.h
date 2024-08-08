@@ -38,33 +38,33 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	namespace CS2_Offsets//CS2固定偏移量 (游戏更新时需要同时更新 https://github.com/a2x/cs2-dumper.git)
 	{
 		string Offsets_Date = "[0000-00-00 00:00]";
-		uintptr_t dwLocalPlayerController = 0x0;
-		uintptr_t dwLocalPlayerPawn = 0x0;
-		uintptr_t dwEntityList = 0x0;
-		uintptr_t dwViewAngles = 0x0;
-		uintptr_t dwViewMatrix = 0x0;
-		uintptr_t m_hPlayerPawn = 0x0;
-		uintptr_t m_iTeamNum = 0x0;
-		uintptr_t m_ArmorValue = 0x0;
-		uintptr_t m_iHealth = 0x0;
-		uintptr_t m_iIDEntIndex = 0x0;
-		uintptr_t m_fFlags = 0x0;
-		uintptr_t m_iShotsFired = 0x0;
-		uintptr_t m_vecVelocity = 0x0;
-		uintptr_t m_bSpotted = 0x0;//m_entitySpottedState + m_bSpotted
-		uintptr_t m_bIsScoped = 0x0;
-		uintptr_t m_pClippingWeapon = 0x0;
-		uintptr_t m_pGameSceneNode = 0x0;
-		uintptr_t m_vecOrigin = 0x0;
-		uintptr_t m_aimPunchCache = 0x0;
-		uintptr_t m_vecViewOffset = 0x0;
-		uintptr_t m_dwBoneMatrix = 0x0;//m_modelState + 0x80
-		uintptr_t m_iszPlayerName = 0x0;
-		uintptr_t m_pActionTrackingServices = 0x0;
-		uintptr_t m_iNumRoundKills = 0x0;
-		uintptr_t m_unTotalRoundDamageDealt = 0x0;
-		uintptr_t m_iItemDefinitionIndex = 0x0;//m_AttributeManager + m_Item + m_iItemDefinitionIndex
-		uintptr_t m_angEyeAngles = 0x0;
+		uintptr_t dwLocalPlayerController = 0x1A0E9C8;
+		uintptr_t dwLocalPlayerPawn = 0x1824A18;
+		uintptr_t dwEntityList = 0x19BEED0;
+		uintptr_t dwViewAngles = 0x1A2E268;
+		uintptr_t dwViewMatrix = 0x1A20CF0;
+		uintptr_t m_hPlayerPawn = 0x7DC;
+		uintptr_t m_iTeamNum = 0x3C3;
+		uintptr_t m_ArmorValue = 0x22D0;
+		uintptr_t m_iHealth = 0x324;
+		uintptr_t m_iIDEntIndex = 0x13A8;
+		uintptr_t m_fFlags = 0x3CC;
+		uintptr_t m_iShotsFired = 0x22B4;
+		uintptr_t m_vecVelocity = 0x3E0;
+		uintptr_t m_bSpotted = 0x2290;//m_entitySpottedState + m_bSpotted
+		uintptr_t m_bIsScoped = 0x22A0;
+		uintptr_t m_pClippingWeapon = 0x12F0;
+		uintptr_t m_pGameSceneNode = 0x308;
+		uintptr_t m_vecOrigin = 0x88;
+		uintptr_t m_aimPunchCache = 0x14F0;
+		uintptr_t m_vecViewOffset = 0xC50;
+		uintptr_t m_dwBoneMatrix = 0x1F0;//m_modelState + 0x80
+		uintptr_t m_iszPlayerName = 0x630;
+		uintptr_t m_pActionTrackingServices = 0x700;
+		uintptr_t m_iNumRoundKills = 0x110;
+		uintptr_t m_unTotalRoundDamageDealt = 0x118;
+		uintptr_t m_iItemDefinitionIndex = 0x129A;//m_AttributeManager + m_Item + m_iItemDefinitionIndex
+		uintptr_t m_angEyeAngles = 0x1388;
 	}
 	namespace Base//基础内存函数
 	{
@@ -298,11 +298,10 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			Global_LocalPlayer = Base::LocalPlayer();
 			if (System::Sleep_Tick<class CLASS_CS2_SDK_Offsets_Timeout_Reload>(5000) || Timeout)//自动更新偏移量延迟 (减少流量使用)
 			{
-				if (!CS2_HWND && !Timeout)System::Log("Error: CS2 process not found", true);//未启动CS时报错
 				System::URL_READ URL_OFFSETS = { "Cache_CS2_Offsets" };
-				if (URL_OFFSETS.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/Offsets.ofs?raw=true"))//自动更新偏移量 Github更新有十分钟延迟
+				if (URL_OFFSETS.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/Offsets.ofs?raw=true"))//自动更新偏移量 Github更新有十分钟延迟 中国用户需要挂梯子
 				{
-					CS2_Offsets::Offsets_Date = URL_OFFSETS.Read(1); CS2_Offsets::Offsets_Date.erase(0, 2);//偏移更新日期 删除注释符号
+					CS2_Offsets::Offsets_Date = URL_OFFSETS.Read(1);CS2_Offsets::Offsets_Date.erase(0, 2);//偏移更新日期 删除注释符号
 					CS2_Offsets::Offsets_Date = "[" + CS2_Offsets::Offsets_Date + "]";//加上括号
 					CS2_Offsets::dwLocalPlayerController = Variable::string_uint_(URL_OFFSETS.Read(4));
 					CS2_Offsets::dwLocalPlayerPawn = Variable::string_uint_(URL_OFFSETS.Read(6));
@@ -333,6 +332,11 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 					CS2_Offsets::m_angEyeAngles = Variable::string_uint_(URL_OFFSETS.Read(56));
 					URL_OFFSETS.Release();//释放文件
 				}
+				if (!Timeout)//报错项
+				{
+					if (!CS2_HWND)System::Log("Error: CS2 process not found", true);//未启动CS时报错
+					if (CS2_Offsets::Offsets_Date == "[0000-00-00 00:00]")System::Log("Error: Unable to obtain cloud offset", true);//无法获取偏移量时报错
+				}
 			}
 			Global_ValidClassID = {};//遍历前刷新有效实体ID
 			for (short i = 0; i <= 64; ++i)//最大人数64
@@ -342,7 +346,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 				Global_ValidClassID.push_back(i);
 			}
 		}
-		else Global_IsShowWindow = CS2_MEM.Get_ProcessHWND() == GetForegroundWindow();//刷新是否是最前端窗口
+		Global_IsShowWindow = CS2_MEM.Get_ProcessHWND() == GetForegroundWindow();//刷新是否是最前端窗口
 	}
 }
 using namespace CS2_SDK;
