@@ -1,4 +1,4 @@
-﻿//2024-08-08 15:10
+﻿//2024-08-08 16:40
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1387,16 +1387,19 @@ namespace Window//窗口
     };
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
-    HWND NVIDIA_Overlay(Variable::Vector2 InitialSize = { 0,0 }) noexcept//英伟达覆盖绘制初始化(在上绘制不会导致背后窗口掉帧) 详细可查看: https://github.com/iraizo/nvidia-overlay-hijack/blob/master/src/overlay.cpp
+    HWND NVIDIA_Overlay(Variable::Vector2 InitialSize = { 0,0 }, BOOL Revise = true) noexcept//英伟达覆盖绘制初始化(在上绘制不会导致背后窗口掉帧) 详细可查看: https://github.com/iraizo/nvidia-overlay-hijack/blob/master/src/overlay.cpp
     {//const auto Window_Render = Window::NVIDIA_Overlay();
         const HWND Window_HWND = FindWindow(L"CEF-OSC-WIDGET", L"NVIDIA GeForce Overlay");
-        SetWindowLongPtrA(Window_HWND, -20, (LONG_PTR)(GetWindowLongA(Window_HWND, -20) | 0x20));
-        MARGINS margin; margin.cyBottomHeight = margin.cyTopHeight = margin.cxLeftWidth = margin.cxRightWidth = -1;
-        DwmExtendFrameIntoClientArea(Window_HWND, &margin);
-        SetLayeredWindowAttributes(Window_HWND, RGB(0, 0, 0), 255, LWA_ALPHA);
-        SetWindowPos(Window_HWND, HWND_TOPMOST, 0, 0, InitialSize.x, InitialSize.y, 0x0002 | 0x0001);
-        for (int i = 0; i <= 5; ++i)MoveWindow(Window_HWND, 0, 0, InitialSize.x, InitialSize.y, true);
-        ShowWindow(Window_HWND, SW_SHOW);
+        if (Revise)//修改窗口属性
+        {
+            SetWindowLongPtrA(Window_HWND, -20, (LONG_PTR)(GetWindowLongA(Window_HWND, -20) | 0x20));
+            MARGINS margin; margin.cyBottomHeight = margin.cyTopHeight = margin.cxLeftWidth = margin.cxRightWidth = -1;
+            DwmExtendFrameIntoClientArea(Window_HWND, &margin);
+            SetLayeredWindowAttributes(Window_HWND, RGB(0, 0, 0), 255, LWA_ALPHA);
+            SetWindowPos(Window_HWND, HWND_TOPMOST, 0, 0, InitialSize.x, InitialSize.y, 0x0002 | 0x0001);
+            MoveWindow(Window_HWND, 0, 0, InitialSize.x, InitialSize.y, true);
+            ShowWindow(Window_HWND, SW_SHOW);
+        }
         return Window_HWND;
     }
     //-----------------------------------------------------------------------------------------------------------------------------
@@ -1405,6 +1408,13 @@ namespace Window//窗口
     {//Window::Set_Topmost_Status(WIndowHWND);
         SetWindowPos(Window_HWND, IS_TOP ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         CheckDlgButton(Window_HWND, 102, (DWORD)GetWindowLongPtr(Window_HWND, GWL_EXSTYLE) & WS_EX_TOPMOST);
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    void Set_LimitWindowShow(HWND Window_HWND, BOOL Limit = false) noexcept//限制窗口显示 (绕过OBS捕捉)
+    {//Window::Set_LimitWindowShow(WIndowHWND);
+        if(Limit)SetWindowDisplayAffinity(Window_HWND, WDA_EXCLUDEFROMCAPTURE);
+        else SetWindowDisplayAffinity(Window_HWND, WDA_NONE);
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------

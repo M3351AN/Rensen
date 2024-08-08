@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.28;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-08 15:30]";//程序发布日期时间
+const float Rensen_Version = 4.29;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-08 16:40]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -450,6 +450,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 	while (true)
 	{
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
+		Window::Set_LimitWindowShow(GUI_VAR.Window_HWND(), UI_Misc_ByPassOBS);//绕过OBS
 		static int UI_Panel = 0;//大区块选择
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
 		if (!Menu_Open)GUI_WindowSize = { 0,0 };//关闭窗体时
@@ -873,6 +874,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		//----------------------------------------------------------------------------------------------------------------------------------------
 		if (UI_Misc_Watermark)//水印
 		{
+			Window::Set_LimitWindowShow(Window_Watermark.Get_HWND(), UI_Misc_ByPassOBS);//绕过OBS
 			Window_Watermark.Set_WindowPos(0, 0);//水印窗口默认坐标
 			if (System::Sleep_Tick<class CLASS_WaterMark_WindowReload_Delay_>(200))//降低CPU占用
 			{
@@ -907,6 +909,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		static auto NightMode_Alpha = 0; const auto NightMode_Alpha_Ani = Variable::Animation<class CLASS_NightMode_Window_AlphaAnimation_>(NightMode_Alpha, 5);//夜晚模式透明度动画
 		if (UI_Misc_NightMode && (Global_IsShowWindow || Menu_Open))
 		{
+			Window::Set_LimitWindowShow(Window_NightMode.Get_HWND(), UI_Misc_ByPassOBS);//绕过OBS
 			Variable::Vector4 BackGround_Color = { 0,0,10 }; if (Menu_Open)BackGround_Color = GUI_IO.GUIColor / 10;//菜单外部背景色
 			Window_NightMode.BackGround_Color(Variable::Animation_Vec4<class CLASS_NIGHTMODE_BACKGROUNDCOLOR_ANI_>(BackGround_Color));//绘制颜色背景板
 			if (System::Sleep_Tick<class CLASS_NightMode_Window_Sleep_>(500))//降低CPU占用 (窗口标题,消息循环)
@@ -920,7 +923,6 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (NightMode_Alpha_Ani <= 0)MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//透明度等于0的时候隐藏窗口
 		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y, true);//放大窗口
 		Window_NightMode.Set_WindowAlpha(NightMode_Alpha_Ani);//夜晚模式修改透明度
-		if (!(Variable::String_Find(UI_LocalConfigPath, "Re") && Variable::String_Find(UI_LocalConfigPath, "ens")))CS2_Offsets::dwLocalPlayerPawn = 0;
 		//----------------------------------------------------------------------------------------------------------------------------------------
 		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health())//一些杂项功能
 		{
@@ -1334,12 +1336,12 @@ void Thread_Funtion_RemoveRecoil() noexcept//功能线程: 移除后坐力
 void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂项
 {
 	System::Log("Load Thread: Thread_Funtion_PlayerESP()");
-	auto Rensen_ESP_RenderWindow = Window::NVIDIA_Overlay();//初始化英伟达覆盖
+	auto Rensen_ESP_RenderWindow = Window::NVIDIA_Overlay({ 0,0 }, false);//初始化英伟达覆盖
 	Window::Windows SpareRenderWindow;
 	if (!Rensen_ESP_RenderWindow)//当没有找到英伟达覆盖时 (不是英伟达显卡)
 	{
 		System::Log("Error: NVIDIA overlay window not found (Used Generate Alternative Window instead)", true);//未找到英伟达覆盖时报错
-		Rensen_ESP_RenderWindow = SpareRenderWindow.Create_RenderBlock_Alpha(0, 0, "NVIDIA overlay (Rensen)");//创建代替覆盖窗口
+		Rensen_ESP_RenderWindow = SpareRenderWindow.Create_RenderBlock_Alpha(0, 0, "NVIDIA Overlay");//创建代替覆盖窗口
 	}
 	Window::Render ESP_Paint; ESP_Paint.CreatePaint(Rensen_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);//创建内存画板
 	while (true)
@@ -1349,6 +1351,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//修改 Pos & Size
 		SetLayeredWindowAttributes(Rensen_ESP_RenderWindow, RGB(0, 0, 0), Variable::Animation<class CLASS_PlayerESP_Alpha_Animation_>(UI_Visual_ESP_DrawAlpha, 2), LWA_ALPHA);//窗口透明度设置
+		Window::Set_LimitWindowShow(Rensen_ESP_RenderWindow, UI_Misc_ByPassOBS);//绕过OBS
 		ESP_Paint.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//清除画板
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
@@ -1574,6 +1577,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 			auto Draw_Color = GUI_IO.GUIColor; if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
 			MoveWindow(Render_Window_HWND, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//Pos & Size
 			RenderWindow.Set_WindowAttributes({ 0,0,0 }, Variable::Animation<class CLASS_EntityESP_Alpha_Animation_>(UI_Visual_ESP_DrawAlpha, 2));//窗口透明度设置
+			Window::Set_LimitWindowShow(RenderWindow.Get_HWND(), UI_Misc_ByPassOBS);//绕过OBS
 			const auto Entitylist = Base::EntityList(); const auto Local_Origin = Global_LocalPlayer.Origin(); const auto Local_ViewMatrix = Base::ViewMatrix();
 			static vector<short> Class_ID = {};//有效实体ID
 			if (System::Sleep_Tick<class CLASS_Drops_ESP_Reload_ClassID_>(600))//特殊算法为了提高绘制效率
@@ -1648,6 +1652,7 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 	{
 		Sleep(5);//降低CPU占用
 		Radar_Window.Set_WindowTitle(System::Rand_String(10));//随机雷达窗口标题
+		Window::Set_LimitWindowShow(Radar_Window.Get_HWND(), UI_Misc_ByPassOBS);//绕过OBS
 		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2);
 		if (CS2_HWND && (Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
 		{
