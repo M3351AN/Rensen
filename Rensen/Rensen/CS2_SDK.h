@@ -219,7 +219,12 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 			if (ReturnPlayerController)return PlayerController;
 			return Base::Convert(Entitylist, CS2_MEM.Read<uint32_t>(PlayerController + CS2_Offsets::m_hPlayerPawn));
 		}
-		string LocalPlayer_Name() noexcept { return CS2_MEM.Read_str(Base::LocalPlayerController() + CS2_Offsets::m_iszPlayerName); }//本地人物名称
+		string LocalPlayer_Name() noexcept//本地人物名称
+		{
+			const auto ReturnValue = CS2_MEM.Read_str(Base::LocalPlayerController() + CS2_Offsets::m_iszPlayerName);
+			if (ReturnValue == "")return "None";
+			else return ReturnValue;
+		}
 		string Player_Name(short i) noexcept//通过ClassID获取名称
 		{
 			const auto PlayerController = Base::Convert(Base::EntityList(), i);
@@ -301,7 +306,7 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 				System::URL_READ URL_OFFSETS = { "Cache_CS2_Offsets" };
 				if (URL_OFFSETS.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/Offsets.ofs?raw=true"))//自动更新偏移量 Github更新有十分钟延迟 中国用户需要挂梯子
 				{
-					CS2_Offsets::Offsets_Date = URL_OFFSETS.Read(1);CS2_Offsets::Offsets_Date.erase(0, 2);//偏移更新日期 删除注释符号
+					CS2_Offsets::Offsets_Date = URL_OFFSETS.Read(1); CS2_Offsets::Offsets_Date.erase(0, 2);//偏移更新日期 删除注释符号
 					CS2_Offsets::Offsets_Date = "[" + CS2_Offsets::Offsets_Date + "]";//加上括号
 					CS2_Offsets::dwLocalPlayerController = Variable::string_uint_(URL_OFFSETS.Read(4));
 					CS2_Offsets::dwLocalPlayerPawn = Variable::string_uint_(URL_OFFSETS.Read(6));

@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.32;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-08 19:55]";//程序发布日期时间
+const float Rensen_Version = 4.34;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-08 22:45]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1074,7 +1074,7 @@ void Thread_Menu_CN() noexcept//菜单线程 (提供给使用者丰富的自定�
 				if (Player_Pawn.Pawn() == Global_LocalPlayer.Pawn())Debug_PawnColor = { 100,100,255 };//自身
 				else if (Player_Pawn.TeamNumber() == Global_LocalPlayer.TeamNumber())Debug_PawnColor = { 0,255,0 };//同队
 				else if (Player_Pawn.TeamNumber() != Global_LocalPlayer.TeamNumber())Debug_PawnColor = { 255,0,0 };//不同队
-				if (Player_Pawn.Health() == 0)Debug_PawnColor = { 150,150,150 };//无效或是死亡
+				if (!Player_Pawn.Health())Debug_PawnColor = { 150,150,150 };//无效或是死亡
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 1, "client.dll -> " + Variable::Hex_String(Module_client));
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 2, "Pawn -> " + Variable::Hex_String(Player_Pawn.Pawn()), Debug_PawnColor);
 				GUI_VAR.GUI_Text({ Block_Info.x - 20,Block_Info.y }, 3, "Name: " + Advanced::Player_Name(Debug_Control_Var::SelectPlayer));
@@ -1229,12 +1229,12 @@ void Thread_Menu_CN() noexcept//菜单线程 (提供给使用者丰富的自定�
 				}
 				if (UI_Setting_StartCS)//启动CS
 				{
-					if (CS2_MEM.Get_ProcessHWND() == 0)System::Open_Website("steam://rungameid/730");
+					if (!CS2_MEM.Get_ProcessHWND())System::Open_Website("steam://rungameid/730");
 					System::Log("Setting: StartCS");
 				}
 				else if (UI_Setting_QuitCS)//关闭CS
 				{
-					if (CS2_MEM.Get_ProcessHWND() != 0)Window::Kill_Window(CS2_MEM.Get_ProcessHWND());
+					if (CS2_MEM.Get_ProcessHWND())Window::Kill_Window(CS2_MEM.Get_ProcessHWND());
 					System::Log("Setting: QuitCS");
 				}
 				if (UI_Setting_GithubRepositories)//打开Github项目地址
@@ -1287,7 +1287,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				static string WaterMark_String = "";
 				short WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 4.85;
 				if (!CS2_HWND)WaterMark_String = "Rensen | CS not found | " + System::Get_UserName() + " | " + System::Time_String();
-				else { WaterMark_String = "Rensen | " + System::Get_UserName() + " | " + System::Time_String(); WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 5.2; }
+				else { WaterMark_String = "Rensen | " + Advanced::LocalPlayer_Name() + " | " + System::Time_String(); WaterMark_String_Size = strlen(WaterMark_String.c_str()) * 5.2; }
 				const Variable::Vector2 Watermark_Pos = { Window::Get_Resolution().x - WaterMark_String_Size - 10,10 };
 				Window_Watermark_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });
 				Window_Watermark_Render.RenderA_SolidRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size, 15, { 1,1,1,130 });
@@ -1300,7 +1300,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x, Watermark_Pos.y, WaterMark_String_Size / 2, 1, { GUI_IO.GUIColor_Rainbow[0], GUI_IO.GUIColor_Rainbow[1], GUI_IO.GUIColor_Rainbow[2],255 }, { GUI_IO.GUIColor_Rainbow[3], GUI_IO.GUIColor_Rainbow[4], GUI_IO.GUIColor_Rainbow[5],255 });
 					Window_Watermark_Render.RenderA_GradientRect(Watermark_Pos.x + WaterMark_String_Size / 2, Watermark_Pos.y, WaterMark_String_Size / 2, 1, { GUI_IO.GUIColor_Rainbow[3], GUI_IO.GUIColor_Rainbow[4], GUI_IO.GUIColor_Rainbow[5],255 }, { GUI_IO.GUIColor_Rainbow[6], GUI_IO.GUIColor_Rainbow[7], GUI_IO.GUIColor_Rainbow[8],255 });
 				}
-				Window_Watermark_Render.Render_String(Watermark_Pos.x + 4, Watermark_Pos.y + 2, WaterMark_String, "Small Fonts", 12, { 255,255,255 }, false);
+				Window_Watermark_Render.Render_String_UTT(Watermark_Pos.x + 4, Watermark_Pos.y + 2, WaterMark_String, "Small Fonts", 12, { 255,255,255 }, false);
 				if (Menu_Open)//菜单开启时
 				{
 					Window_Watermark_Render.RenderA_SmpStr(2, 2, "Release " + Rensen_ReleaseDate, GUI_IO.GUIColor.D_Alpha(200), { 1,0,0,130 });//编译日期绘制
@@ -1348,7 +1348,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				}
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
-			if (UI_Misc_AutoKnife && (UI_Misc_AutoKnife_Key == 0 || System::Get_Key(UI_Misc_AutoKnife_Key)) && (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500))//自动刀
+			if (UI_Misc_AutoKnife && (!UI_Misc_AutoKnife_Key || System::Get_Key(UI_Misc_AutoKnife_Key)) && (Local_ActiveWeaponID == 42 || Local_ActiveWeaponID == 59 || Local_ActiveWeaponID >= 500))//自动刀
 			{
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)
 				{
@@ -1377,7 +1377,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 				}
 			}
 			//----------------------------------------------------------------------------------------------------------------------------------------
-			if (UI_Misc_AutoTaser && (UI_Misc_AutoTaser_Key == 0 || System::Get_Key(UI_Misc_AutoTaser_Key)) && Local_ActiveWeaponID == 31)//自动电击枪
+			if (UI_Misc_AutoTaser && (!UI_Misc_AutoTaser_Key || System::Get_Key(UI_Misc_AutoTaser_Key)) && Local_ActiveWeaponID == 31)//自动电击枪
 			{
 				for (short i = 0; i < Global_ValidClassID.size(); ++i)
 				{
@@ -1552,7 +1552,7 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 	System::Log("Load Thread: Thread_Funtion_Aimbot()");
 	while (true)
 	{
-		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Aimbot && System::Get_Key(UI_Legit_Aimbot_Key))
+		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health() && UI_Legit_Aimbot && (!UI_Legit_Aimbot_Key || System::Get_Key(UI_Legit_Aimbot_Key)))
 		{
 			System::Sleep_ns(1000);//比Sleep更快的函数为了更加自然平滑
 			static short Aim_Range, Aim_Parts; static float Aim_Smooth;//瞄准范围,瞄准部位,瞄准平滑度
@@ -1561,30 +1561,30 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 			if (LocalPlayer_ActiveWeapon_Type == 1)//手枪
 			{
 				if (UI_Legit_Armory_BodyAim_PISTOL)Aim_Parts = 3; else Aim_Parts = 6;
-				Aim_Range = UI_Legit_Armory_Range_PISTOL / 5;
+				Aim_Range = UI_Legit_Armory_Range_PISTOL / 3;
 				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_PISTOL;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 2)//步枪
 			{
 				if (UI_Legit_Armory_BodyAim_RIFLE)Aim_Parts = 3; else Aim_Parts = 6;
-				Aim_Range = UI_Legit_Armory_Range_RIFLE / 5;
+				Aim_Range = UI_Legit_Armory_Range_RIFLE / 3;
 				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_RIFLE;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 3)//狙击枪
 			{
 				if (UI_Legit_Armory_BodyAim_SNIPER)Aim_Parts = 3; else Aim_Parts = 6;
-				Aim_Range = UI_Legit_Armory_Range_SNIPER / 5;
+				Aim_Range = UI_Legit_Armory_Range_SNIPER / 3;
 				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SNIPER;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 4)//霰弹枪
 			{
 				if (UI_Legit_Armory_BodyAim_SHOTGUN)Aim_Parts = 3; else Aim_Parts = 6;
-				Aim_Range = UI_Legit_Armory_Range_SHOTGUN / 5;
+				Aim_Range = UI_Legit_Armory_Range_SHOTGUN / 3;
 				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SHOTGUN;
 			}
 			else continue;//如果是无效的武器则重新来过 (刀,道具,电击枪等)
-			if (Aim_Range == 0)continue;//范围为0时则重新来过
-			if (Aim_Smooth == 0)Aim_Smooth = 1;//最小平滑度
+			if (!Aim_Range)continue;//范围为0时则重新来过
+			if (!Aim_Smooth)Aim_Smooth = 1;//最小平滑度
 			const auto Local_AimPunchAngle = Global_LocalPlayer.AimPunchAngle();
 			Aim_Range = Aim_Range + -Local_AimPunchAngle.x;
 			static Variable::Vector3 Recoil_Angle;//后坐力角度
@@ -1760,7 +1760,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 		if (CS2_HWND && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 菜单在最前端
 		{
 			Window::Set_Topmost_Status(Rensen_ESP_RenderWindow, Global_IsShowWindow);//修改窗口为最前端窗口 (覆盖一切的!!!)
-			if (UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)))//ESP 透视
+			if (UI_Visual_ESP && (!UI_Visual_ESP_Key || System::Get_Key(UI_Visual_ESP_Key)))//ESP 透视
 			{
 				auto Draw_Color = GUI_IO.GUIColor;
 				if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;//自定义透视ESP颜色
@@ -1946,10 +1946,10 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 				{
 					auto Circle_Range = 0;
 					const auto Local_ActiveWeaponType = Global_LocalPlayer.ActiveWeapon(true);//本地人物手持武器类型
-					if (Local_ActiveWeaponType == 1)Circle_Range = UI_Legit_Armory_Range_PISTOL * 5;
-					else if (Local_ActiveWeaponType == 2)Circle_Range = UI_Legit_Armory_Range_RIFLE * 5;
-					else if (Local_ActiveWeaponType == 3) { if (Global_LocalPlayer.Scoped())Circle_Range = UI_Legit_Armory_Range_SNIPER * 14; else Circle_Range = UI_Legit_Armory_Range_SNIPER * 5; }
-					else if (Local_ActiveWeaponType == 4)Circle_Range = UI_Legit_Armory_Range_SHOTGUN * 5;
+					if (Local_ActiveWeaponType == 1)Circle_Range = UI_Legit_Armory_Range_PISTOL * 8;
+					else if (Local_ActiveWeaponType == 2)Circle_Range = UI_Legit_Armory_Range_RIFLE * 8;
+					else if (Local_ActiveWeaponType == 3) { if (Global_LocalPlayer.Scoped())Circle_Range = UI_Legit_Armory_Range_SNIPER * 20; else Circle_Range = UI_Legit_Armory_Range_SNIPER * 8; }
+					else if (Local_ActiveWeaponType == 4)Circle_Range = UI_Legit_Armory_Range_SHOTGUN * 8;
 					Circle_Range += abs(Global_LocalPlayer.AimPunchAngle().x * 25);//后坐力反馈
 					if (Circle_Range > 300)ESP_Paint.Render_HollowCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), GUI_IO.GUIColor / 3);
 					else ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), { 0,0,0,0 }, GUI_IO.GUIColor.D_Alpha(80), 0.95);
@@ -1975,7 +1975,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 		RenderWindow.Set_WindowTitle(System::Rand_String(10));//随机实体透视窗口标题
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		WEP_Render.Render_SolidRect(0, 0, 9999, 9999, { 0,0,0 });//刷新绘制画板
-		if (CS2_HWND && UI_Visual_ESP && (UI_Visual_ESP_Key == 0 || System::Get_Key(UI_Visual_ESP_Key)) && UI_Visual_ESP_Drops && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 本地人物活着
+		if (CS2_HWND && UI_Visual_ESP && (!UI_Visual_ESP_Key || System::Get_Key(UI_Visual_ESP_Key)) && UI_Visual_ESP_Drops && (Menu_Open || Global_IsShowWindow))//当CS窗口在最前端 && 本地人物活着
 		{
 			if (Menu_Open)Sleep(50);//节省CPU性能 (可有可无)
 			auto Draw_Color = GUI_IO.GUIColor; if (UI_Visual_ESP_CustomColor)Draw_Color = UI_Visual_ESP_CustomColor_Color;
@@ -1994,7 +1994,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, i);
 					if (!Entity.Pawn())continue;
 					const auto Entity_Pos = Entity.Origin();
-					if (Entity_Pos.x == 0 || Entity_Pos.y == 0 || Variable::Coor_Dis_3D(Local_Origin, Entity_Pos) >= 2500)continue;//实体之间距离检测
+					if (!Entity_Pos.x || !Entity_Pos.y || Variable::Coor_Dis_3D(Local_Origin, Entity_Pos) >= 2500)continue;//实体之间距离检测
 					const auto Entity_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Entity.Origin(), Local_ViewMatrix);
 					if (Entity_ScrPos.x < -800 || Entity_ScrPos.x > CS_Scr_Res.r + 800)continue;//检测实体是否在屏幕内
 					if (Entity.ActiveWeaponName(true, Entity.Pawn()) == "NONE" && !Variable::String_Find(Entity.EntityName(), "_projectile"))continue;//检测实体名称是否有效
@@ -2009,7 +2009,7 @@ void Thread_Funtion_EntityESP() noexcept//功能线程: 实体透视
 				{
 					const Base::PlayerPawn Entity = Base::Convert(Entitylist, Class_ID[i]);
 					const auto Entity_Pos = Entity.Origin();
-					if (Entity_Pos.x == 0 || Entity_Pos.y == 0)continue;//过滤掉无效坐标
+					if (!Entity_Pos.x || !Entity_Pos.y)continue;//过滤掉无效坐标
 					auto Entity_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, Entity_Pos, Local_ViewMatrix);
 					auto Entity_Name = Entity.EntityName();
 					if (Variable::String_Find(Entity_Name, "_projectile"))//飞行的道具绘制
@@ -2111,7 +2111,7 @@ void Thread_Funtion_Sonar() noexcept//功能线程: 声呐(距离检测)
 	while (true)
 	{
 		Sleep(5);
-		if (CS2_HWND && Global_IsShowWindow && UI_Misc_Sonar && (UI_Misc_Sonar_Key == 0 || System::Get_Key(UI_Misc_Sonar_Key)) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
+		if (CS2_HWND && Global_IsShowWindow && UI_Misc_Sonar && (!UI_Misc_Sonar_Key || System::Get_Key(UI_Misc_Sonar_Key)) && Global_LocalPlayer.Health())//当CS窗口在最前端 && 本地人物活着
 		{
 			const auto Local_Pos = Global_LocalPlayer.Origin();//本地人物坐标
 			for (short i = 0; i <= 64; ++i)

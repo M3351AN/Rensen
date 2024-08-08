@@ -1,4 +1,4 @@
-﻿//2024-08-08 16:40
+﻿//2024-08-08 22:45
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1045,6 +1045,23 @@ namespace Window//窗口
             SetBkMode(HMS, TRANSPARENT);//背景透明
             TextOutA(HMS, X, Y, String.c_str(), strlen(String.c_str()));
             DeleteObject(FontPen);//About CreateFont(): https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createfonta
+            return strlen(String.c_str());
+        }
+        //------------------------------------------------------------------------------------------------
+        int Render_String_UTT(int X, int Y, string String, string FontName, int FontSize, Variable::Vector4 Color, BOOL AntiAlias = true) noexcept//文字绘制(不包含Alpha 可绘制中文)
+        {
+            const HDC HMS = hMenDC;
+            auto Font_Style = DEFAULT_QUALITY;
+            if (AntiAlias)Font_Style = NONANTIALIASED_QUALITY;
+            const HGDIOBJ FontPen = SelectObject(HMS, CreateFont(FontSize, 0, 0, 0, FW_NORMAL, 0, 0, 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, Font_Style, FF_DONTCARE, wstring(FontName.begin(), FontName.end()).c_str()));
+            SetTextColor(HMS, RGB(Color.r, Color.g, Color.b));//文字颜色
+            SetBkMode(HMS, TRANSPARENT);//背景透明
+            const auto len = MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, 0, 0);//转码 UTF-8 (为了显示中文)
+            wchar_t* wide_text = new wchar_t[len];
+            MultiByteToWideChar(CP_UTF8, 0, String.c_str(), -1, wide_text, len);//转码 UTF-8 (为了显示中文)
+            TextOutW(HMS, X, Y, wide_text, len-1);
+            DeleteObject(FontPen);//About CreateFont(): https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createfonta
+            delete[] wide_text;
             return strlen(String.c_str());
         }
         //------------------------------------------------------------------------------------------------
@@ -2379,7 +2396,7 @@ namespace EasyGUI
             vert[1].Green = GetGValue(Color2) << 8;
             vert[1].Blue = GetBValue(Color2) << 8;
             if (Gradient_Direction)GradientFill(EasyGUI_DrawHDC, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_V);//渐变方向 (false:横向 true:竖向)
-            else  GradientFill(EasyGUI_DrawHDC, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
+            else GradientFill(EasyGUI_DrawHDC, vert, 2, &gRect, 1, GRADIENT_FILL_RECT_H);
         }
         //---------------------------------------------------------------------
         void In_DrawLine(int X, int Y, int Way_X, int Way_Y, Vector4 Color, int Line_Thickness = 1) noexcept//绘制直线
