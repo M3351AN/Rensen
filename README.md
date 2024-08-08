@@ -22,7 +22,8 @@ Just a multifunction cheat software developed for the game Counter-Strike 2.
 Video: https://youtu.be/a0h4ZhxQP2A
 
 ![image](https://github.com/Coslly/Rensen/blob/main/Cloud Files/ShowImage.png?raw=true)
-![image](https://github.com/Coslly/Rensen/blob/main/Cloud Files/ShowImage_CN.png?raw=true)
+
+
 # 💀Disclaimer
 I am not responsible for anything that happens when you use this software.
 
