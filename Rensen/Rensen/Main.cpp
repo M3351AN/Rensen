@@ -449,6 +449,10 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 	GUI_VAR.Window_Create(1200, 1000, "Rensen", true);//创建置顶GUI绘制窗口
 	while (true)
 	{
+		if (UI_Misc_ByPassOBS)
+			SetWindowDisplayAffinity(GUI_VAR.Window_HWND(), WDA_EXCLUDEFROMCAPTURE);
+		else
+			SetWindowDisplayAffinity(GUI_VAR.Window_HWND(), WDA_NONE);
 		GUI_VAR.Window_SetTitle(System::Rand_String(10));//随机菜单窗口标题
 		static int UI_Panel = 0;//大区块选择
 		static Variable::Vector2 GUI_WindowSize = { 0,0 };//窗体大小(用于开关动画)
@@ -861,6 +865,10 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 	ReLoad(true);//刷新CS2_SDK内存数据 (快速初始化)
 	while (true)
 	{
+		if (UI_Misc_ByPassOBS)
+			SetWindowDisplayAffinity(Window_Watermark_HWND, WDA_EXCLUDEFROMCAPTURE);
+		else
+			SetWindowDisplayAffinity(Window_Watermark_HWND, WDA_NONE);
 		ReLoad();//刷新CS2_SDK内存数据
 		Global_TeamCheck = UI_Misc_TeamCheck;//队伍判断(文件跨越修改变量)
 		if (UI_Misc_LockGameWindow && !Menu_Open)SetForegroundWindow(CS2_HWND);//锁定CS窗口到最前端
@@ -1336,15 +1344,25 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 	System::Log("Load Thread: Thread_Funtion_PlayerESP()");
 	auto Rensen_ESP_RenderWindow = Window::NVIDIA_Overlay();//初始化英伟达覆盖
 	Window::Windows SpareRenderWindow;
-	if (!Rensen_ESP_RenderWindow)//当没有找到英伟达覆盖时 (不是英伟达显卡)
+	HWND ESP_Window_HWND;
+	if (Rensen_ESP_RenderWindow)//找到英伟达覆盖时
 	{
-		System::Log("Error: NVIDIA overlay window not found (Used Generate Alternative Window instead)", true);//未找到英伟达覆盖时报错
-		Rensen_ESP_RenderWindow = SpareRenderWindow.Create_RenderBlock_Alpha(0, 0, "NVIDIA overlay (Rensen)");//创建代替覆盖窗口
+		ESP_Window_HWND = FindWindow(L"CEF-OSC-WIDGET", L"NVIDIA GeForce Overlay");
+	}
+	else
+	{
+		System::Log("[Umbrellasense] 已启动覆盖窗口", true);//未找到英伟达覆盖时报错
+		Rensen_ESP_RenderWindow = SpareRenderWindow.Create_RenderBlock_Alpha(0, 0, "NVIDIA overlay (Umbrellasense)");//创建代替覆盖窗口
+		ESP_Window_HWND = SpareRenderWindow.Get_HWND();
 	}
 	Window::Render ESP_Paint; ESP_Paint.CreatePaint(Rensen_ESP_RenderWindow, 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y);//创建内存画板
 	while (true)
 	{
 		Sleep(UI_Visual_ESP_DrawDelay);//降低CPU占用
+		if (UI_Misc_ByPassOBS)
+			SetWindowDisplayAffinity(ESP_Window_HWND, WDA_EXCLUDEFROMCAPTURE);
+		else
+			SetWindowDisplayAffinity(ESP_Window_HWND, WDA_NONE);
 		if (SpareRenderWindow.Get_HWND())SpareRenderWindow.Fix_inWhile();//当已创建窗口时进入消息循环
 		const auto CS_Scr_Res = Window::Get_WindowResolution(CS2_HWND);
 		MoveWindow(Rensen_ESP_RenderWindow, CS_Scr_Res.b, CS_Scr_Res.a, CS_Scr_Res.r, CS_Scr_Res.g, true);//修改 Pos & Size
@@ -1647,6 +1665,10 @@ void Thread_Funtion_Radar() noexcept//功能线程: 雷达
 	while (true)
 	{
 		Sleep(5);//降低CPU占用
+		if (UI_Misc_ByPassOBS)
+			SetWindowDisplayAffinity(Radar_Window.Get_HWND(), WDA_EXCLUDEFROMCAPTURE);
+		else
+			SetWindowDisplayAffinity(Radar_Window.Get_HWND(), WDA_NONE);
 		Radar_Window.Set_WindowTitle(System::Rand_String(10));//随机雷达窗口标题
 		static short Radar_Size_; const short RadarSizeAnimation = Variable::Animation<class Class_Radar_Window_Size>(Radar_Size_, 2);
 		if (CS2_HWND && (Global_IsShowWindow || Menu_Open || Window::Get_WindowEnable(Radar_Window.Get_HWND())) && UI_Visual_Radar)//当CS窗口在最前端
