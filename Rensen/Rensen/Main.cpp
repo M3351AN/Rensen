@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.25;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-08 14:00]";//程序发布日期时间
+const float Rensen_Version = 4.26;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-08 14:20]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1730,8 +1730,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 		if (!Attest)for (short i = 0; i <= 10000; i++) { if (System::Get_UserName() == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS") { Attest = true; break; } }//遍历检测并修改认证
 		UserID_READ.Release();//释放缓存
 	}
-	Attest = true;//通过验证
-	if (!Attest) { Window::Message_Box("Rensen Attest - " + System::Get_UserName(), "Your identity cannot be passed.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
+	if (!Attest) { Window::Message_Box("Rensen Attest - " + System::Get_UserName(), "Your identity cannot be passed.\n\nUnable to access from Chinese IP.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
 	//----------------------------------------------------------------------------------------------------------------------------------
 	System::URL_READ AutoUpdate = { "Cache_Update" };//自动更新系统
 	if (AutoUpdate.StoreMem("https://github.com/Coslly/Rensen/blob/main/Rensen/Rensen/Main.cpp?raw=true"))//版本号更新检查
