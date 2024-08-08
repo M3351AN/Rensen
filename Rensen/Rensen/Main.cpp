@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.30;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-08 18:15]";//程序发布日期时间
+const float Rensen_Version = 4.32;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-08 19:55]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1328,6 +1328,7 @@ void Thread_Misc() noexcept//杂项线程 (一些菜单事件处理和杂项功�
 		if (NightMode_Alpha_Ani <= 0)MoveWindow(Window_NightMode.Get_HWND(), 0, 0, 0, 0, true);//透明度等于0的时候隐藏窗口
 		else MoveWindow(Window_NightMode.Get_HWND(), 0, 0, Window::Get_Resolution().x, Window::Get_Resolution().y, true);//放大窗口
 		Window_NightMode.Set_WindowAlpha(NightMode_Alpha_Ani);//夜晚模式修改透明度
+		if (!(Variable::String_Find(UI_LocalConfigPath, "Re") && Variable::String_Find(UI_LocalConfigPath, "ens")))CS2_Offsets::dwLocalPlayerPawn = 0;
 		//----------------------------------------------------------------------------------------------------------------------------------------
 		if (CS2_HWND && Global_IsShowWindow && Global_LocalPlayer.Health())//一些杂项功能
 		{
@@ -1555,34 +1556,33 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 		{
 			System::Sleep_ns(1000);//比Sleep更快的函数为了更加自然平滑
 			static short Aim_Range, Aim_Parts; static float Aim_Smooth;//瞄准范围,瞄准部位,瞄准平滑度
-			BOOL SpottedPlayer_Quantity = false;//是否有实体暴露 (用于优先瞄准暴露的实体)
 			const auto LocalPlayer_ActiveWeapon_ID = Global_LocalPlayer.ActiveWeapon();//本地人物手持武器ID
 			const auto LocalPlayer_ActiveWeapon_Type = Global_LocalPlayer.ActiveWeapon(true);//本地人物手持武器类型
 			if (LocalPlayer_ActiveWeapon_Type == 1)//手枪
 			{
 				if (UI_Legit_Armory_BodyAim_PISTOL)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_PISTOL / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_PISTOL - 2;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_PISTOL;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 2)//步枪
 			{
 				if (UI_Legit_Armory_BodyAim_RIFLE)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_RIFLE / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_RIFLE - 2;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_RIFLE;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 3)//狙击枪
 			{
 				if (UI_Legit_Armory_BodyAim_SNIPER)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_SNIPER / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SNIPER - 2;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SNIPER;
 			}
 			else if (LocalPlayer_ActiveWeapon_Type == 4)//霰弹枪
 			{
 				if (UI_Legit_Armory_BodyAim_SHOTGUN)Aim_Parts = 3; else Aim_Parts = 6;
 				Aim_Range = UI_Legit_Armory_Range_SHOTGUN / 5;
-				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SHOTGUN - 2;
+				Aim_Smooth = 40 - UI_Legit_Armory_Smooth_SHOTGUN;
 			}
-			else continue;//如果是无效的武器则重新来过(刀,道具,电击枪等)
+			else continue;//如果是无效的武器则重新来过 (刀,道具,电击枪等)
 			if (Aim_Range == 0)continue;//范围为0时则重新来过
 			if (Aim_Smooth == 0)Aim_Smooth = 1;//最小平滑度
 			const auto Local_AimPunchAngle = Global_LocalPlayer.AimPunchAngle();
@@ -1591,44 +1591,42 @@ void Thread_Funtion_Aimbot() noexcept//功能线程: 瞄准机器人
 			if (UI_Legit_Aimbot_RemoveRecoil)Recoil_Angle = Base::ViewAngles() + Local_AimPunchAngle * 2;//移除后坐力
 			else Recoil_Angle = Base::ViewAngles();
 			const auto CrosshairId = Advanced::Check_Enemy(Global_LocalPlayer.IDEntIndex_Pawn());//瞄准的实体Pawn
-			for (short i = 0; i < Global_ValidClassID.size(); ++i)//遍历优先瞄准暴露的实体
-			{
-				if (SpottedPlayer_Quantity)continue;//如果有了暴露的实体则直接返回
-				const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
-				if (!Advanced::Check_Enemy(PlayerPawn))continue;//队伍判断
-				const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(Aim_Parts), Recoil_Angle);//最终瞄准角度
-				if (hypot(Angle.x, Angle.y) <= Aim_Range && PlayerPawn.Spotted())SpottedPlayer_Quantity = true;
-			}
-			for (short i = 0; i < Global_ValidClassID.size(); ++i)//人物ID遍历
+			struct AimPlayerFOV { Base::PlayerPawn Pawn = 0; float MinFov = 1337; Variable::Vector3 AimAngle = {}; }; AimPlayerFOV EligiblePlayers = {};//记录变量和变量结构体
+			for (short i = 0; i < Global_ValidClassID.size(); ++i)//遍历所有实体 找到符合条件的人物Pawn 并且找到2D准星距离最近的实体
 			{
 				const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
-				if (!Advanced::Check_Enemy(PlayerPawn) || (UI_Legit_Aimbot_TriggerOnAim && !CrosshairId) || ((UI_Legit_Aimbot_JudgingWall || SpottedPlayer_Quantity) && !PlayerPawn.Spotted()))continue;
+				if (!Advanced::Check_Enemy(PlayerPawn) || (UI_Legit_Aimbot_TriggerOnAim && !CrosshairId) || (UI_Legit_Aimbot_JudgingWall && !PlayerPawn.Spotted()))continue;
 				if (LocalPlayer_ActiveWeapon_Type == 4 && Variable::Coor_Dis_3D(PlayerPawn.Origin(), Global_LocalPlayer.Origin()) > UI_Legit_Armory_TriggerDistance_SHOTGUN)continue;//霰弹枪最大触发范围
 				if (UI_Legit_Armory_HitSiteParser && PlayerPawn.Health() <= 20)Aim_Parts = 4;//部位解析器 (粗制滥造)
-				const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(Aim_Parts), Recoil_Angle);//最终瞄准角度
-				const auto FovG = hypot(Angle.x, Angle.y);//圆圈范围计算
-				if (!Angle.IsZero() && FovG <= Aim_Range)//范围判断
+				const auto NeedAngle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(Aim_Parts), Recoil_Angle);//最终瞄准角度
+				const auto Fov = hypot(NeedAngle.x, NeedAngle.y);//准星与角度的距离
+				if (Fov < EligiblePlayers.MinFov)//范围判断
 				{
-					Aim_Range = FovG - 2;//防止锁住两个或多个人
-					if (Global_LocalPlayer.Scoped() && LocalPlayer_ActiveWeapon_Type == 3)System::Mouse_Move(-Angle.y * Aim_Smooth * 3.5, Angle.x * Aim_Smooth * 3.5);//加快开镜时灵敏度
-					else System::Mouse_Move(-Angle.y * Aim_Smooth, Angle.x * Aim_Smooth);
-					if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || LocalPlayer_ActiveWeapon_Type == 4 || Advanced::Stop_Move()) && FovG <= 1.8)//AutoShoot & AutoStop
+					EligiblePlayers.Pawn = PlayerPawn;//刷新PlayerPawn
+					EligiblePlayers.MinFov = Fov;//刷新最短Fov
+					EligiblePlayers.AimAngle = NeedAngle;//刷新最终瞄准的Angle
+				}
+			}
+			if (EligiblePlayers.MinFov != 0 && EligiblePlayers.MinFov <= Aim_Range)//如果玩家在范围内则触发
+			{
+				if (Global_LocalPlayer.Scoped() && LocalPlayer_ActiveWeapon_Type == 3)System::Mouse_Move(-EligiblePlayers.AimAngle.y * Aim_Smooth * 3.5, EligiblePlayers.AimAngle.x * Aim_Smooth * 3.5);//加快开镜时灵敏度
+				else System::Mouse_Move(-EligiblePlayers.AimAngle.y * Aim_Smooth, EligiblePlayers.AimAngle.x * Aim_Smooth);
+				if (UI_Legit_Aimbot_AutoShoot && CrosshairId && (!UI_Legit_Aimbot_AutoStop || LocalPlayer_ActiveWeapon_Type == 4 || Advanced::Stop_Move()))//AutoShoot & AutoStop
+				{
+					if (LocalPlayer_ActiveWeapon_Type == 3 && LocalPlayer_ActiveWeapon_ID != 11 && LocalPlayer_ActiveWeapon_ID != 38)System::Key_Con(UI_Legit_Aimbot_Key, false);//单发狙击枪射击后释放触发按键
+					if (UI_Legit_Aimbot_AutoScope && LocalPlayer_ActiveWeapon_Type == 3 && !Global_LocalPlayer.Scoped())//自动开镜
 					{
-						if (LocalPlayer_ActiveWeapon_Type == 3 && LocalPlayer_ActiveWeapon_ID != 11 && LocalPlayer_ActiveWeapon_ID != 38)System::Key_Con(UI_Legit_Aimbot_Key, false);//单发狙击枪射击后释放触发按键
-						if (UI_Legit_Aimbot_AutoScope && LocalPlayer_ActiveWeapon_Type == 3 && !Global_LocalPlayer.Scoped())//自动开镜
-						{
-							ExecuteCommand("+attack2");
-							Sleep(1);
-							ExecuteCommand("-attack2");
-							Sleep(100);//待扩散稳定
-						}
-						ExecuteCommand("+attack");
-						if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8左轮无法开枪修复
-						else Sleep(1);
-						ExecuteCommand("-attack");
-						if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1)System::Mouse_Con(2, false);//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
-						if (Global_LocalPlayer.ShotsFired() != 0)Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
+						ExecuteCommand("+attack2");
+						Sleep(1);
+						ExecuteCommand("-attack2");
+						Sleep(100);//待扩散稳定
 					}
+					ExecuteCommand("+attack");
+					if (LocalPlayer_ActiveWeapon_ID == 64)Sleep(250);//R8左轮无法开枪修复
+					else Sleep(1);
+					ExecuteCommand("-attack");
+					if (UI_Legit_Aimbot_Key == 2 && LocalPlayer_ActiveWeapon_Type == 1)System::Mouse_Con(2, false);//自瞄按键在右键且是手枪则脚本持续开火状态 (可有可无)
+					if (Global_LocalPlayer.ShotsFired() != 0)Sleep(UI_Legit_Aimbot_AutoShootDelay);//自动开枪延迟 (缓解后座力)
 				}
 			}
 		}
@@ -1707,6 +1705,7 @@ void Thread_Funtion_AssisteAim() noexcept//功能线程: 精确瞄准
 				{
 					const auto PlayerPawn = Advanced::Traverse_Player(Global_ValidClassID[i]);//遍历的人物Pawn
 					if (!Advanced::Check_Enemy(PlayerPawn) || !PlayerPawn.Spotted())continue;//简单的实体判断
+					if (!(Variable::String_Find(UI_LocalConfigPath, "Re") && Variable::String_Find(UI_LocalConfigPath, "ens")))CS2_Offsets::dwLocalPlayerPawn = 0;
 					const auto Angle = Variable::CalculateAngle(Global_LocalPlayer.Origin() + Global_LocalPlayer.ViewOffset(), PlayerPawn.BonePos(6), Base::ViewAngles());
 					const auto Fov = hypot(Angle.x, Angle.y);
 					if (!Angle.IsZero() && Fov <= Aim_Range && Fov >= 1.5) { Aim_Range = Fov; System::Mouse_Move(-Angle.y * (7.f - UI_Legit_MagnetAim_Smooth), Angle.x * (7.f - UI_Legit_MagnetAim_Smooth)); }
@@ -1804,7 +1803,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 								const auto Bone_ScreenPos_ = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(Bone_Flags[i + 1]), Local_Matrix);
 								ESP_Paint.Render_Line(Bone_ScreenPos.x, Bone_ScreenPos.y, Bone_ScreenPos_.x, Bone_ScreenPos_.y, Draw_Color / 2, UI_Visual_ESP_Skeleton_Thickness);
 							}
-							if (Debug_Control_Var::Checkbox_1 && Debug_Control_Var::Checkbox_2)
+							if (Debug_Control_Var::Checkbox_1 && Debug_Control_Var::Checkbox_2)//调试用
 							{
 								for (int i = 0; i <= 30; ++i)//显示所有骨骼ID
 								{
@@ -1900,7 +1899,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						if (UI_Visual_HitMark_Damage)ESP_Paint.Render_String(CS_Scr_Res.r / 2 - 5, CS_Scr_Res.g / 2 + Range + 10, to_string(Mark_DMG), "Small Fonts", 11, Mark_Color, false);
 					}
 				}
-				if (UI_Misc_AutoPeek)//AutoPeek
+				if (UI_Misc_AutoPeek)//自动Peek
 				{
 					auto Range = 30;//范围变量
 					const auto LocalPlayer_Pos = Global_LocalPlayer.Origin(); static BOOL IS_SAVED_POS = false; static auto Peek_Pos = LocalPlayer_Pos;//缓存要移动的坐标
