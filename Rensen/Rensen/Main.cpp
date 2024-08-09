@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.34;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-08 22:45]";//程序发布日期时间
+const float Rensen_Version = 4.35;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-09 11:00]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1542,7 +1542,7 @@ void Thread_Funtion_BunnyHop() noexcept//功能线程: 连跳
 				Sleep(1);
 				ExecuteCommand("-jump");
 			}
-			Sleep(1);
+			Sleep(System::Rand_Number(1, 5));
 		}
 		else Sleep(20);
 	}
@@ -2136,7 +2136,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	System::URL_READ UserID_READ = { "Cache_UserID" }; BOOL Attest = false;//认证变量
 	if (UserID_READ.StoreMem("https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/UserID.uid?raw=true"))//Github读取有效用户ID
 	{
-		if (!Attest)for (short i = 0; i <= 10000; i++) { if (System::Get_UserName() == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS") { Attest = true; break; } }//遍历检测并修改认证
+		if (!Attest)for (short i = 0; i <= 50000; i++) { if (System::Get_UserName() == UserID_READ.Read(i) || Variable::String_Upper(UserID_READ.Read(i)) == "BYPASS") { Attest = true; break; } }//遍历检测并修改认证
 		UserID_READ.Release();//释放缓存
 	}
 	if (!Attest) { Window::Message_Box("Rensen Attest - " + System::Get_UserName(), "Your identity cannot be passed.\n\nUnable to access from Chinese IP.\n\nAuthor: https://github.com/Coslly\n", MB_ICONSTOP); exit(0); }//未被认证则直接退出
