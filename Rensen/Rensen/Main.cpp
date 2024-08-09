@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.37;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-09 13:30]";//程序发布日期时间
+const float Rensen_Version = 4.39;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-09 13:50]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -447,7 +447,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 {
 	System::Log("Load Thread: Thread_Menu()");
 	GUI_VAR.Window_Create(1200, 1000, "Rensen", true);//创建置顶GUI绘制窗口
-	if (System::Get_DefaultLanguage() != 0x804)//中文菜单判断
+	if (!System::Judge_File("CN"))//中文菜单判断
 	{
 		while (true)
 		{
@@ -891,19 +891,19 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 					const auto Block_Armory = GUI_VAR.GUI_Block(150, 390, 490, "武器库UTT");
 					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 1, "显示范围圆圈UTT", UI_Legit_Armory_ShowAimbotRange);
 					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 2, "打击点解析器UTT", UI_Legit_Armory_HitSiteParser);
-					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 3, "手枪 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_PISTOL);
-					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_1>({ Block_Armory.x - 10,Block_Armory.y }, 4, "手枪 范围UTT", 0, 100, UI_Legit_Armory_Range_PISTOL, "%");
-					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_2>({ Block_Armory.x - 10,Block_Armory.y }, 5, "手枪 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_PISTOL);
-					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 6, "步枪 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_RIFLE);
-					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_3>({ Block_Armory.x - 10,Block_Armory.y }, 7, "步枪 范围UTT", 0, 100, UI_Legit_Armory_Range_RIFLE, "%");
-					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_4>({ Block_Armory.x - 10,Block_Armory.y }, 8, "步枪 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_RIFLE);
-					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 9, "狙击枪 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_SNIPER);
-					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_5>({ Block_Armory.x - 10,Block_Armory.y }, 10, "狙击枪 范围UTT", 0, 100, UI_Legit_Armory_Range_SNIPER, "%");
-					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_6>({ Block_Armory.x - 10,Block_Armory.y }, 11, "狙击枪 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_SNIPER);
-					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 12, "霰弹枪 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_SHOTGUN);
-					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_7>({ Block_Armory.x - 10,Block_Armory.y }, 13, "霰弹枪 范围UTT", 0, 100, UI_Legit_Armory_Range_SHOTGUN, "%");
-					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_8>({ Block_Armory.x - 10,Block_Armory.y }, 14, "霰弹枪 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_SHOTGUN);
-					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_9>({ Block_Armory.x - 10,Block_Armory.y }, 15, "霰弹枪 触发距离UTT", 100, 2000, UI_Legit_Armory_TriggerDistance_SHOTGUN);
+					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 3, "[手枪] 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_PISTOL);
+					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_1>({ Block_Armory.x - 10,Block_Armory.y }, 4, "[手枪] 范围UTT", 0, 100, UI_Legit_Armory_Range_PISTOL, "%");
+					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_2>({ Block_Armory.x - 10,Block_Armory.y }, 5, "[手枪] 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_PISTOL);
+					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 6, "[步枪] 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_RIFLE);
+					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_3>({ Block_Armory.x - 10,Block_Armory.y }, 7, "[步枪] 范围UTT", 0, 100, UI_Legit_Armory_Range_RIFLE, "%");
+					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_4>({ Block_Armory.x - 10,Block_Armory.y }, 8, "[步枪] 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_RIFLE);
+					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 9, "[狙击枪] 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_SNIPER);
+					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_5>({ Block_Armory.x - 10,Block_Armory.y }, 10, "[狙击枪] 范围UTT", 0, 100, UI_Legit_Armory_Range_SNIPER, "%");
+					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_6>({ Block_Armory.x - 10,Block_Armory.y }, 11, "[狙击枪] 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_SNIPER);
+					GUI_VAR.GUI_Checkbox({ Block_Armory.x - 10,Block_Armory.y }, 12, "[霰弹枪] 只打胸部 (反之头部)UTT", UI_Legit_Armory_BodyAim_SHOTGUN);
+					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_7>({ Block_Armory.x - 10,Block_Armory.y }, 13, "[霰弹枪] 范围UTT", 0, 100, UI_Legit_Armory_Range_SHOTGUN, "%");
+					GUI_VAR.GUI_Slider<float, class CLASS_Block_Armory_8>({ Block_Armory.x - 10,Block_Armory.y }, 14, "[霰弹枪] 平滑度UTT", 0, 40, UI_Legit_Armory_Smooth_SHOTGUN);
+					GUI_VAR.GUI_Slider<int, class CLASS_Block_Armory_9>({ Block_Armory.x - 10,Block_Armory.y }, 15, "[霰弹枪] 触发距离UTT", 100, 2000, UI_Legit_Armory_TriggerDistance_SHOTGUN);
 					const auto Block_Triggerbot = GUI_VAR.GUI_Block(580, 30, 190, "自动扳机UTT");
 					GUI_VAR.GUI_Checkbox(Block_Triggerbot, 1, "启用UTT", UI_Legit_Triggerbot);
 					GUI_VAR.GUI_KeySelector<class CLASS_Block_Triggerbot_1>(Block_Triggerbot, 1, UI_Legit_Triggerbot_Key);
@@ -2041,7 +2041,7 @@ int main() noexcept//主线程 (加载多线程, 一些杂项功能)
 	System::Anti_click();//控制台不被暂停
 	Window::Hide_ConsoleWindow();//隐藏控制台
 	Window::Initialization_ConsoleWindow();//初始化控制台窗口 (初始化窗口大小, 清除字符)
-	printf("Welcome to Rensen for Counter-Strike 2 cheat.\nThe Rensen project is a version converted from FreeCS.\nNo team author By: https://github.com/Coslly\nThe following information returned is debugging information.\n");//作者留言
+	printf("Welcome to Rensen for Counter-Strike 2 cheat.\nThe Rensen project is a version converted from FreeCS.\nNo team author By: https://github.com/Coslly\nThe following information returned is debugging information.\n打开汉化版本需要在同目录添加命名为CN的文件\n");//作者留言
 	System::Log("Load Thread: main()");
 	Sleep(100);//修复重启进程冲突
 	if (!System::Judge_File(UI_LocalConfigPath)) { System::Create_File(UI_LocalConfigPath, UI_DefaultConfig); System::Self_Restart(); }//创建默认参数文件 (当未找到参数文件时, 第一次启动时)
