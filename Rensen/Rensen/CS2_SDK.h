@@ -38,33 +38,33 @@ namespace CS2_SDK//开发者工具库(防止和基础函数冲突)
 	namespace CS2_Offsets//CS2固定偏移量 (游戏更新时需要同时更新 https://github.com/a2x/cs2-dumper.git)
 	{
 		string Offsets_Date = "[0000-00-00 00:00]";
-		uintptr_t dwLocalPlayerController = 0x1A0E9C8;
-		uintptr_t dwLocalPlayerPawn = 0x1824A18;
-		uintptr_t dwEntityList = 0x19BEED0;
-		uintptr_t dwViewAngles = 0x1A2E268;
-		uintptr_t dwViewMatrix = 0x1A20CF0;
-		uintptr_t m_hPlayerPawn = 0x7DC;
-		uintptr_t m_iTeamNum = 0x3C3;
-		uintptr_t m_ArmorValue = 0x22D0;
-		uintptr_t m_iHealth = 0x324;
-		uintptr_t m_iIDEntIndex = 0x13A8;
-		uintptr_t m_fFlags = 0x3CC;
-		uintptr_t m_iShotsFired = 0x22B4;
-		uintptr_t m_vecVelocity = 0x3E0;
-		uintptr_t m_bSpotted = 0x2290;//m_entitySpottedState + m_bSpotted
-		uintptr_t m_bIsScoped = 0x22A0;
-		uintptr_t m_pClippingWeapon = 0x12F0;
-		uintptr_t m_pGameSceneNode = 0x308;
-		uintptr_t m_vecOrigin = 0x88;
-		uintptr_t m_aimPunchCache = 0x14F0;
-		uintptr_t m_vecViewOffset = 0xC50;
-		uintptr_t m_dwBoneMatrix = 0x1F0;//m_modelState + 0x80
-		uintptr_t m_iszPlayerName = 0x630;
-		uintptr_t m_pActionTrackingServices = 0x700;
-		uintptr_t m_iNumRoundKills = 0x110;
-		uintptr_t m_unTotalRoundDamageDealt = 0x118;
-		uintptr_t m_iItemDefinitionIndex = 0x129A;//m_AttributeManager + m_Item + m_iItemDefinitionIndex
-		uintptr_t m_angEyeAngles = 0x1388;
+		uintptr_t dwLocalPlayerController = 0x0;
+		uintptr_t dwLocalPlayerPawn = 0x0;
+		uintptr_t dwEntityList = 0x0;
+		uintptr_t dwViewAngles = 0x0;
+		uintptr_t dwViewMatrix = 0x0;
+		uintptr_t m_hPlayerPawn = 0x0;
+		uintptr_t m_iTeamNum = 0x0;
+		uintptr_t m_ArmorValue = 0x0;
+		uintptr_t m_iHealth = 0x0;
+		uintptr_t m_iIDEntIndex = 0x0;
+		uintptr_t m_fFlags = 0x0;
+		uintptr_t m_iShotsFired = 0x0;
+		uintptr_t m_vecVelocity = 0x0;
+		uintptr_t m_bSpotted = 0x0;//m_entitySpottedState + m_bSpotted
+		uintptr_t m_bIsScoped = 0x0;
+		uintptr_t m_pClippingWeapon = 0x0;
+		uintptr_t m_pGameSceneNode = 0x0;
+		uintptr_t m_vecOrigin = 0x0;
+		uintptr_t m_aimPunchCache = 0x0;
+		uintptr_t m_vecViewOffset = 0x0;
+		uintptr_t m_dwBoneMatrix = 0x0;//m_modelState + 0x80
+		uintptr_t m_iszPlayerName = 0x0;
+		uintptr_t m_pActionTrackingServices = 0x0;
+		uintptr_t m_iNumRoundKills = 0x0;
+		uintptr_t m_unTotalRoundDamageDealt = 0x0;
+		uintptr_t m_iItemDefinitionIndex = 0x0;//m_AttributeManager + m_Item + m_iItemDefinitionIndex
+		uintptr_t m_angEyeAngles = 0x0;
 	}
 	namespace Base//基础内存函数
 	{

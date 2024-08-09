@@ -1,7 +1,7 @@
 ﻿#include "Head.h"
 #include "CS2_SDK.h"
-const float Rensen_Version = 4.39;//程序版本
-const string Rensen_ReleaseDate = "[2024-08-09 13:50]";//程序发布日期时间
+const float Rensen_Version = 4.41;//程序版本
+const string Rensen_ReleaseDate = "[2024-08-09 19:30]";//程序发布日期时间
 namespace Control_Var//套用到菜单的调试变量 (例如功能开关)
 {
 	EasyGUI::EasyGUI GUI_VAR; EasyGUI::EasyGUI_IO GUI_IO; BOOL Menu_Open = true;//菜单初始化变量
@@ -1668,7 +1668,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 							Screen_Pos = { CS_Scr_Res.r / 2 - Screen_Pos[0] * ((float)CS_Scr_Res.r / (float)CS_Scr_Res.g),CS_Scr_Res.g / 2 + Screen_Pos[1] };
 							ESP_Paint.RenderA_GradientCircle(Screen_Pos[0], Screen_Pos[1], UI_Visual_ESP_OutFOV_Size, { 0,0,0,100 }, { 0,0,0,0 });
 							ESP_Paint.RenderA_GradientCircle(Screen_Pos[0], Screen_Pos[1], UI_Visual_ESP_OutFOV_Size, Draw_Color.D_Alpha(System::RainbowColor(3).r), { 0,0,0,0 });
-							if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_String(Screen_Pos[0] - 8, Screen_Pos[1] - 4, PlayerPawn.ActiveWeaponName(), "Small Fonts", 9, { 100,100,100 });//绘制手持武器
+							if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_String(Screen_Pos[0] - 12, Screen_Pos[1] - 4, PlayerPawn.ActiveWeaponName(), "Small Fonts", 10, { 200,200,200 });//绘制手持武器
 						}
 						continue;//不绘制ESP 重来
 					}
@@ -1679,7 +1679,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					const auto Right = Top_Pos.x + Width;
 					if (Player_Distance <= 4000)//距离检测 降低CPU占用
 					{
-						if (UI_Visual_ESP_Line)ESP_Paint.RenderA_GradientLine(CS_Scr_Res.r / 2, CS_Scr_Res.g, Left + (Right - Left) / 2, Bottom_Pos.y, { 0,0,0,0 }, Draw_Color.D_Alpha(200));//射线
+						if (UI_Visual_ESP_Line)ESP_Paint.RenderA_GradientLine(CS_Scr_Res.r / 2, CS_Scr_Res.g, Left + (Right - Left) / 2, Bottom_Pos.y, { 0,0,0,0 }, Draw_Color.D_Alpha(200), UI_Visual_ESP_Skeleton_Thickness);//射线
 						if (UI_Visual_ESP_Skeleton)//骨骼
 						{
 							static const vector<short> Bone_Flags = { 6,5,4,13,14,15,14,13,4,8,9,10,9,8,4,3,2,1,25,26,27,26,25,1,22,23,24,24 };
@@ -1689,7 +1689,7 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 								const auto Bone_ScreenPos_ = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(Bone_Flags[i + 1]), Local_Matrix);
 								ESP_Paint.Render_Line(Bone_ScreenPos.x, Bone_ScreenPos.y, Bone_ScreenPos_.x, Bone_ScreenPos_.y, Draw_Color / 2, UI_Visual_ESP_Skeleton_Thickness);
 							}
-							if (Debug_Control_Var::Checkbox_1 && Debug_Control_Var::Checkbox_2)//调试用
+							if (false)//绘制所有骨骼ID (调试)
 							{
 								for (int i = 0; i <= 30; ++i)//显示所有骨骼ID
 								{
@@ -1701,12 +1701,12 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						if (UI_Visual_ESP_HeadDot)//头点
 						{
 							const auto Head_ScrPos = WorldToScreen(CS_Scr_Res.r, CS_Scr_Res.g, PlayerPawn.BonePos(6), Local_Matrix);
-							ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 15, Draw_Color.D_Alpha(150), { 0,0,0,0 }, 0.2);
+							ESP_Paint.RenderA_GradientCircle(Head_ScrPos.x, Head_ScrPos.y, 20, Draw_Color.D_Alpha(200), { 0,0,0,0 }, 0.1);
 						}
 					}
 					if (UI_Visual_ESP_Box)//方框
 					{
-						ESP_Paint.RenderA_HollowRect(Left, Top_Pos.y, Right - Left, Bottom_Pos.y - Top_Pos.y, { 0,0,0,130 }, 3);
+						ESP_Paint.RenderA_HollowRect(Left, Top_Pos.y, Right - Left, Bottom_Pos.y - Top_Pos.y, { 0,0,0,150 }, 3);
 						ESP_Paint.RenderA_HollowRect(Left, Top_Pos.y, Right - Left, Bottom_Pos.y - Top_Pos.y, Draw_Color.D_Alpha(200));
 					}
 					if (UI_Visual_ESP_Health)//血条
@@ -1719,26 +1719,26 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 						float Armor_Ma = PlayerArmor * 0.01;
 						if (PlayerArmor >= 100)Armor_Ma = 1;
 						else if (PlayerArmor <= 0)Armor_Ma = 0;
-						ESP_Paint.RenderA_SolidRect(Left - 6, Top_Pos.y - 1, 4, Bottom_Pos.y - Top_Pos.y + 3, { 0,0,0,130 });
+						ESP_Paint.RenderA_SolidRect(Left - 6, Top_Pos.y - 1, 4, Bottom_Pos.y - Top_Pos.y + 3, { 0,0,0,150 });
 						ESP_Paint.RenderA_SolidRect(Left - 5, Bottom_Pos.y - Hight * Armor_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Armor_Ma) + 1, { 50,50,50,200 });//护甲条绘制
 						if (UI_Visual_ESP_CustomColor)ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, Draw_Color.D_Alpha(200), (Draw_Color / 5).D_Alpha(200), true);//血量条绘制
 						else ESP_Paint.RenderA_GradientRect(Left - 5, Bottom_Pos.y - Hight * Health_Ma, 2, Bottom_Pos.y - (Bottom_Pos.y - Hight * Health_Ma) + 1, { (int)(1 - Health_Ma * 255),(int)(255 * Health_Ma),0,200 }, { 255,0,0,200 }, true);
-						if (PlayerHealth < 100 && PlayerHealth > 0)ESP_Paint.Render_SmpStr(Left - 8, Bottom_Pos.y - Hight * Health_Ma - 6, to_string(PlayerHealth), { 150,150,150 }, { 0 }, false);//血量值绘制
+						if (PlayerHealth < 100 && PlayerHealth > 0)ESP_Paint.Render_SmpStr(Left - 8, Bottom_Pos.y - Hight * Health_Ma - 6, to_string(PlayerHealth), { 200,200,200 }, { 0 }, false);//血量值绘制
 					}
 					if (UI_Visual_ESP_State)//人物状态
 					{
 						auto i = 0;//Line pos
 						if (PlayerPawn.Armor()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "HK", { 200,200,200 }, { 0 }, false); ++i; }
-						if (C4_CachePlayerPawn == PlayerPawn.Pawn()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "C4", { 255,0,0 }, { 0 }, false); ++i; }
-						if (PlayerPawn.Scoped() && PlayerPawn.ActiveWeapon(true) == 3) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "ZOOM", { 0,120,255 }, { 0 }, false); ++i; }
+						if (C4_CachePlayerPawn == PlayerPawn.Pawn()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "C4", { 255,100,0 }, { 0 }, false); ++i; }
+						if (PlayerPawn.Scoped() && PlayerPawn.ActiveWeapon(true) == 3) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "ZOOM", { 0,150,255 }, { 0 }, false); ++i; }
 						if (PlayerPawn.Spotted()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "HIT", { 200,200,200 }, { 0 }, false); ++i; }
 						if (PlayerPawn.ShotsFired() > 0) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "SHOT", { 200,200,200 }, { 0 }, false); ++i; }
 						if (!(PlayerPawn.Flags() & (1 << 0))) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "AIR", { 200,200,200 }, { 0 }, false); ++i; }
 						if (Global_LocalPlayer.IDEntIndex_Pawn().Pawn() == PlayerPawn.Pawn()) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "X", { 200,200,200 }, { 0 }, false); ++i; }
-						if (Player_Distance >= 2500) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "INV", { 100,0,255 }, { 0 }, false); ++i; }
+						if (Player_Distance >= 2500) { ESP_Paint.Render_SmpStr(Right + 2, Top_Pos.y - 2 + i * 8, "INV", { 150,0,255 }, { 0 }, false); ++i; }
 					}
 					if (UI_Visual_ESP_ActiveWeapon)ESP_Paint.Render_SmpStr(Left, Bottom_Pos.y, PlayerPawn.ActiveWeaponName(), { 200,200,200 }, { 0 }, false);//手持武器名称
-					if (UI_Visual_ESP_Name)ESP_Paint.RenderA_String(Left - 2, Top_Pos.y - 15, Advanced::Player_Name(Global_ValidClassID[i]), "Segoe UI", 11, (Draw_Color * 3).Re_Col().D_Alpha(255));//人物名称
+					if (UI_Visual_ESP_Name)ESP_Paint.RenderA_String(Left - 2, Top_Pos.y - 15, Advanced::Player_Name(Global_ValidClassID[i]), "Segoe UI", 11, Draw_Color.Min_Bri(150).D_Alpha(255));//人物名称
 				}
 			}
 			if (Global_LocalPlayer.Health())//当本地人物活着时执行的功能
@@ -1841,6 +1841,10 @@ void Thread_Funtion_PlayerESP() noexcept//功能线程: 透视和一些视觉杂
 					else ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, Variable::Animation<class Render_Aimbot_Range_Animation>(Circle_Range, 1.5), { 0,0,0,0 }, GUI_IO.GUIColor.D_Alpha(80), 0.95);
 				}
 				if (UI_Misc_SniperCrosshair && Global_LocalPlayer.ActiveWeapon(true) == 3 && !Global_LocalPlayer.Scoped())ESP_Paint.RenderA_GradientCircle(CS_Scr_Res.r / 2, CS_Scr_Res.g / 2, UI_Misc_SniperCrosshair_Size, GUI_IO.GUIColor.D_Alpha(150), { 0,0,0,0 }, 0.3);//狙击枪准星
+			}
+			else {//性能节省
+				ESP_Paint.RenderA_SmpStr(0, 0, "Render Performance Saving... 10ms", GUI_IO.GUIColor.D_Alpha(255));
+				Sleep(10);
 			}
 		}
 		else Sleep(20);
