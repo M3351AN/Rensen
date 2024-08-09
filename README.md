@@ -6,8 +6,6 @@
 Just a multifunction cheat software developed for the game Counter-Strike 2.
 
 专为CS2定制的多功能外部作弊。
-
-想圈钱的只要把Main.cpp文件里的main线程里面的两个验证去掉编译完就可以开圈了
 ## 🤓Features
 - External menu
 - Saveable system
