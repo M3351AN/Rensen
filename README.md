@@ -21,6 +21,7 @@ Just a multifunction cheat software developed for the game Counter-Strike 2.
 Video: https://youtu.be/a0h4ZhxQP2A
 
 ![image](https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/ShowImage.png?raw=true)
+启动汉化版需要在同目录添加命名为CN的文件
 ![image](https://github.com/Coslly/Rensen/blob/main/Cloud%20Files/ShowImage_CN.png?raw=true)
 # 💀Disclaimer
 I am not responsible for anything that happens when you use this software.
