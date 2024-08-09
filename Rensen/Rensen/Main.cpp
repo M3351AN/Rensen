@@ -447,7 +447,7 @@ void Thread_Menu() noexcept//菜单线程 (提供给使用者丰富的自定义�
 {
 	System::Log("Load Thread: Thread_Menu()");
 	GUI_VAR.Window_Create(1200, 1000, "Rensen", true);//创建置顶GUI绘制窗口
-	if (!System::Judge_File("CN"))//中文菜单判断
+	if (!System::Judge_File("CN") && !System::CheckSteamLangChinese())//中文菜单判断
 	{
 		while (true)
 		{

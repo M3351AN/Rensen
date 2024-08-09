@@ -1440,6 +1440,31 @@ namespace System//Windows系统
 {
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
+    bool CheckSteamLangChinese() //读注册表中的steam安装语言，判断用户是否为中文用户
+    {
+        HKEY hKey;
+        const wstring subKey = L"SOFTWARE\\WOW6432Node\\Valve\\Steam";
+        const wstring valueName = L"Language";
+        wchar_t value[256];
+        DWORD valueLength = sizeof(value);
+        LONG result;
+        // 打开注册表项
+        result = RegOpenKeyExW(HKEY_LOCAL_MACHINE, subKey.c_str(), 0, KEY_READ, &hKey);
+        if (result != ERROR_SUCCESS) {
+            return false;
+        }
+        // 读取注册表值
+        result = RegQueryValueExW(hKey, valueName.c_str(), nullptr, nullptr, (LPBYTE)value, &valueLength);
+        RegCloseKey(hKey);
+        if (result != ERROR_SUCCESS) {
+            return false;
+        }
+        // 检查值是否为 "schinese" 或 "tchinese"
+        wstring language(value);
+        return (language == L"schinese" || language == L"tchinese");
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
     ULONGLONG Tick() noexcept//本地系统滴答值
     {//System::Tick();
         return GetTickCount64();
