@@ -1,4 +1,4 @@
-﻿//2024-08-08 22:45
+﻿//2024-08-09 13:30
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -1406,14 +1406,14 @@ namespace Window//窗口
     //-----------------------------------------------------------------------------------------------------------------------------
     HWND NVIDIA_Overlay(Variable::Vector2 InitialSize = { 0,0 }, BOOL Revise = true) noexcept//英伟达覆盖绘制初始化(在上绘制不会导致背后窗口掉帧) 详细可查看: https://github.com/iraizo/nvidia-overlay-hijack/blob/master/src/overlay.cpp
     {//const auto Window_Render = Window::NVIDIA_Overlay();
-        const HWND Window_HWND = FindWindow(L"CEF-OSC-WIDGET", L"NVIDIA GeForce Overlay");
+        const auto Window_HWND = FindWindowW(L"CEF-OSC-WIDGET", L"NVIDIA GeForce Overlay");
         if (Revise)//修改窗口属性
         {
             SetWindowLongPtrA(Window_HWND, -20, (LONG_PTR)(GetWindowLongA(Window_HWND, -20) | 0x20));
             MARGINS margin; margin.cyBottomHeight = margin.cyTopHeight = margin.cxLeftWidth = margin.cxRightWidth = -1;
             DwmExtendFrameIntoClientArea(Window_HWND, &margin);
             SetLayeredWindowAttributes(Window_HWND, RGB(0, 0, 0), 255, LWA_ALPHA);
-            SetWindowPos(Window_HWND, HWND_TOPMOST, 0, 0, InitialSize.x, InitialSize.y, 0x0002 | 0x0001);
+            for (short i = 0; i <= 5; ++i)SetWindowPos(Window_HWND, HWND_TOPMOST, 0, 0, InitialSize.x, InitialSize.y, 0x0002 | 0x0001);
             MoveWindow(Window_HWND, 0, 0, InitialSize.x, InitialSize.y, true);
             ShowWindow(Window_HWND, SW_SHOW);
         }
@@ -2170,6 +2170,12 @@ namespace System//Windows系统
     {//System::BEEP(-100, 100);
         if (dwDuration <= 0)return;
         Beep(abs(dwFreq), dwDuration);
+    }
+    //-----------------------------------------------------------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------------------------------------------------------
+    int Get_DefaultLanguage() noexcept//获取系统默认语言 https://blog.csdn.net/duke56/article/details/103847999
+    {//System::Get_DefaultLanguage();
+        return GetSystemDefaultLangID();
     }
     //-----------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------------------------------------------------------------------------------------------
